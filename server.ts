@@ -47,19 +47,37 @@ function getDbClient() {
   
   const rootPath = process.cwd();
   const configPath = path.join(rootPath, "firebase-applet-config.json");
+  let firebaseConfig: any = {};
   
   if (existsSync(configPath)) {
     try {
-      const firebaseConfig = JSON.parse(readFileSync(configPath, "utf-8"));
+      firebaseConfig = JSON.parse(readFileSync(configPath, "utf-8"));
+    } catch (e: any) {
+      console.warn("[Firebase] Could not parse firebase-applet-config.json:", e.message);
+    }
+  }
+
+  const finalConfig = {
+    projectId: process.env.FIREBASE_PROJECT_ID || process.env.VITE_FIREBASE_PROJECT_ID || process.env.GOOGLE_CLOUD_PROJECT || firebaseConfig.projectId || "gen-lang-client-0728647424",
+    appId: process.env.FIREBASE_APP_ID || process.env.VITE_FIREBASE_APP_ID || firebaseConfig.appId,
+    apiKey: process.env.FIREBASE_API_KEY || process.env.VITE_FIREBASE_API_KEY || firebaseConfig.apiKey,
+    authDomain: process.env.FIREBASE_AUTH_DOMAIN || process.env.VITE_FIREBASE_AUTH_DOMAIN || firebaseConfig.authDomain,
+    firestoreDatabaseId: process.env.FIRESTORE_DATABASE_ID || process.env.VITE_FIRESTORE_DATABASE_ID || firebaseConfig.firestoreDatabaseId || "rsser-final",
+    storageBucket: process.env.FIREBASE_STORAGE_BUCKET || process.env.VITE_FIREBASE_STORAGE_BUCKET || firebaseConfig.storageBucket,
+    messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID || process.env.VITE_FIREBASE_MESSAGING_SENDER_ID || firebaseConfig.messagingSenderId,
+  };
+
+  if (finalConfig.apiKey && finalConfig.projectId) {
+    try {
       const apps = getClientApps();
       const existingClientApp = apps.find(a => a.name === "client-sdk");
       
-      const app = existingClientApp || initializeClientApp(firebaseConfig, "client-sdk");
+      const app = existingClientApp || initializeClientApp(finalConfig, "client-sdk");
       // Use initializeFirestore with long polling
       db_client_instance = initializeClientFirestore(app, {
         experimentalForceLongPolling: true
-      }, firebaseConfig.firestoreDatabaseId);
-      console.log(`[Firebase] Registered Client SDK on database: ${firebaseConfig.firestoreDatabaseId || '(default)'}`);
+      }, finalConfig.firestoreDatabaseId);
+      console.log(`[Firebase] Registered Client SDK on database: ${finalConfig.firestoreDatabaseId || '(default)'}`);
       return db_client_instance;
     } catch (e: any) {
       console.error("[Firebase] Client SDK initialization failed:", e.message);

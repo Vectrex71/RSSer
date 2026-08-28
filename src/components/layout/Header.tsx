@@ -9,7 +9,6 @@ import { doc, onSnapshot } from 'firebase/firestore';
 import { signOut, onAuthStateChanged } from 'firebase/auth';
 import { usePlan } from '../../hooks/usePlan';
 import { useKeyboardShortcuts } from '../../hooks/useKeyboardShortcuts';
-import firebaseConfig from '../../../firebase-applet-config.json';
 import { LimitReachedModal } from '../dashboard/LimitReachedModal';
 import { ContactModal } from '../dashboard/ContactModal';
 import { ThankYouPortalModal } from '../dashboard/ThankYouPortalModal';

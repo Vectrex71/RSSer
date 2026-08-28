@@ -2,7 +2,21 @@ import { initializeApp } from 'firebase/app';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { getFirestore, initializeFirestore, doc, getDocFromServer } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
-import firebaseConfig from '../../firebase-applet-config.json';
+
+// Safely load local config if present without hard build-time failure when absent
+const localConfigs = import.meta.glob<Record<string, any>>('../../firebase-applet-config.json', { eager: true });
+const localConfig = localConfigs['../../firebase-applet-config.json']?.default || localConfigs['../../firebase-applet-config.json'] || {};
+
+export const firebaseConfig = {
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || localConfig.projectId || "gen-lang-client-0728647424",
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || localConfig.appId || "1:775699014495:web:f42f3ebbf45baea87c8cea",
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || localConfig.apiKey || "",
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || localConfig.authDomain || "gen-lang-client-0728647424.firebaseapp.com",
+  firestoreDatabaseId: import.meta.env.VITE_FIRESTORE_DATABASE_ID || localConfig.firestoreDatabaseId || "rsser-final",
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || localConfig.storageBucket || "gen-lang-client-0728647424.firebasestorage.app",
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || localConfig.messagingSenderId || "775699014495",
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || localConfig.measurementId || "",
+};
 
 const app = initializeApp(firebaseConfig);
 
