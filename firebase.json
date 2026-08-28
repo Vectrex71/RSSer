@@ -1,0 +1,19 @@
+{
+  "firestore": [
+    {
+      "database": "(default)",
+      "rules": "firestore.rules"
+    },
+    {
+      "database": "ai-studio-e5e987df-61cc-46dc-8b18-cdc051dc3866",
+      "rules": "firestore.rules"
+    },
+    {
+      "database": "ai-studio-rssernews-e5e987df-61cc-46dc-8b18-cdc051dc3866",
+      "rules": "firestore.rules"
+    }
+  ],
+  "storage": {
+    "rules": "storage.rules"
+  }
+}

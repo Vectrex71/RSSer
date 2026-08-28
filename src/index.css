@@ -1,0 +1,335 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@plugin "@tailwindcss/typography";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+    --font-heading: "Inter", sans-serif;
+    --font-sans: "Inter", sans-serif;
+    --color-sidebar-ring: var(--sidebar-ring);
+    --color-sidebar-border: var(--sidebar-border);
+    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+    --color-sidebar-accent: var(--sidebar-accent);
+    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+    --color-sidebar-primary: var(--sidebar-primary);
+    --color-sidebar-foreground: var(--sidebar-foreground);
+    --color-sidebar: var(--sidebar);
+    --color-chart-5: var(--chart-5);
+    --color-chart-4: var(--chart-4);
+    --color-chart-3: var(--chart-3);
+    --color-chart-2: var(--chart-2);
+    --color-chart-1: var(--chart-1);
+    --color-ring: var(--ring);
+    --color-input: var(--input);
+    --color-border: var(--border);
+    --color-destructive: var(--destructive);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-accent: var(--accent);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-muted: var(--muted);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-secondary: var(--secondary);
+    --color-primary-foreground: oklch(1 0 0);
+    --color-primary: oklch(0.65 0.25 40);
+    --color-popover-foreground: var(--popover-foreground);
+    --color-popover: var(--popover);
+    --color-card-foreground: var(--card-foreground);
+    --color-card: var(--card);
+    --color-foreground: #ededed;
+    --color-background: #0a0a0a;
+    --radius-sm: calc(var(--radius) * 0.6);
+    --radius-md: calc(var(--radius) * 0.8);
+    --radius-lg: var(--radius);
+    --radius-xl: calc(var(--radius) * 1.4);
+    --radius-2xl: calc(var(--radius) * 1.8);
+    --radius-3xl: calc(var(--radius) * 2.2);
+    --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+:root, html {
+    --background: #ffffff;
+    --foreground: #1c1c1c;
+    --primary: oklch(0.65 0.25 40); 
+    --primary-foreground: #ffffff;
+    --border: #e2e8f0; 
+    --ring: oklch(0.65 0.25 40);
+    --radius: 0.625rem;
+    --brand-orange: #f89440;
+}
+
+.dark {
+    --background: #000000;
+    --foreground: #ededed;
+    --primary: oklch(0.65 0.25 40);
+    --primary-foreground: #ffffff;
+    --border: #ffffff1a;
+    --ring: oklch(0.65 0.25 40);
+    --card-surface: #0f0f0f; /* Dark Grey */
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+    }
+  body {
+    @apply bg-background text-foreground font-sans;
+    }
+}
+
+@keyframes scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+.animate-scroll {
+  animation: scroll 20s linear infinite;
+}
+
+.glass-effect {
+  background-color: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(220, 220, 220, 0.4);
+}
+
+.dark .glass-effect {
+  background-color: rgba(15, 15, 15, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.reflection {
+  -webkit-box-reflect: below 2px linear-gradient(transparent, transparent, rgba(0,0,0,0.2));
+}
+
+@keyframes shine {
+  0% { transform: rotate(45deg) translateX(-100%); opacity: 0; }
+  50% { opacity: 1; }
+  100% { transform: rotate(45deg) translateX(100%); opacity: 0; }
+}
+
+.shine-effect {
+  position: relative;
+  overflow: hidden;
+}
+
+.shine-effect::after {
+  content: '';
+  position: absolute;
+  top: -100%;
+  left: -100%;
+  width: 300%;
+  height: 300%;
+  background: linear-gradient(
+    to right,
+    rgba(255, 255, 255, 0) 30%,
+    rgba(255, 255, 255, 0.5) 50%,
+    rgba(255, 255, 255, 0) 70%
+  );
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0s;
+}
+
+.shine-effect:hover::after {
+  animation: shine 1.5s linear;
+}
+
+.glanz-image-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.glanz-image-container::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -150%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.3) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: skewX(-25deg);
+  pointer-events: none;
+  transition: none;
+}
+
+.group:hover .glanz-image-container::after {
+  left: 150%;
+  transition: left 2.4s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.glanz-auto {
+  overflow: hidden;
+}
+
+@keyframes auto-shine {
+  0% {
+    left: -150%;
+  }
+  15% {
+    left: -150%;
+  }
+  100% {
+    left: 150%;
+  }
+}
+
+.glanz-auto::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -150%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.35) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: skewX(-25deg);
+  pointer-events: none;
+  animation: auto-shine 2.4s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+  z-index: 20;
+}
+
+@layer utilities {
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .hide-scrollbar {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+
+  .content-visibility-auto {
+    content-visibility: auto;
+    contain-intrinsic-size: 400px;
+  }
+  @keyframes shimmer {
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  @keyframes zoom-in-slow {
+    0% { transform: scale(1); }
+    100% { transform: scale(1.15); }
+  }
+
+  @keyframes progress-horizontal {
+    0% { transform: scaleX(0); }
+    100% { transform: scaleX(1); }
+  }
+
+  @keyframes eq {
+    0% { transform: scaleY(0.3); }
+    100% { transform: scaleY(1); }
+  }
+
+  .animate-eq {
+    animation: eq 0.5s ease-in-out infinite alternate;
+    transform-origin: bottom;
+  }
+
+  .animate-zoom-in-slow {
+    animation: zoom-in-slow 10s ease-in-out forwards;
+  }
+
+  .animate-progress {
+    animation: progress-horizontal 8s linear infinite;
+    transform-origin: left;
+  }
+
+  /* Tiptap Editor Styles */
+  .ProseMirror {
+    outline: none !important;
+  }
+
+  .ProseMirror h1 {
+    font-size: 2.25rem;
+    line-height: 2.5rem;
+    font-weight: 800;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    letter-spacing: -0.025em;
+  }
+
+  .ProseMirror h2 {
+    font-size: 1.5rem;
+    line-height: 2rem;
+    font-weight: 700;
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.025em;
+  }
+
+  .ProseMirror p {
+    margin-top: 1.25rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .ProseMirror ul {
+    list-style-type: disc;
+    padding-left: 1.5rem;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .ProseMirror ol {
+    list-style-type: decimal;
+    padding-left: 1.5rem;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .ProseMirror blockquote {
+    border-left-width: 4px;
+    border-color: #f89440;
+    padding-left: 1rem;
+    font-style: italic;
+    margin-top: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .ProseMirror a {
+    color: #f89440;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+
+  .ProseMirror img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 0.75rem;
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+  }
+
+  /* Responsive Iframes (YouTube, etc.) */
+  .ProseMirror iframe, .prose iframe, .prose [data-youtube-video] iframe {
+    width: 100% !important;
+    max-width: 100% !important;
+    display: block !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    aspect-ratio: 16 / 9 !important;
+    height: auto !important;
+    border-radius: 1.5rem;
+    margin-top: 3.5rem;
+    margin-bottom: 3.5rem;
+  }
+
+  /* Ensure video wrappers don't limit width */
+  .prose .video-wrapper, .prose [data-youtube-video] {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 3.5rem 0 !important;
+  }
+}

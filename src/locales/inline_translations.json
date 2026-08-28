@@ -1,0 +1,1362 @@
+{
+  "Privacy Policy": {
+    "de": "Datenschutzerklärung",
+    "fr": "politique de confidentialité",
+    "es": "política de privacidad"
+  },
+  "Imprint": {
+    "de": "Impressum",
+    "fr": "Imprimer",
+    "es": "Imprimir"
+  },
+  "Thanks for subscribing!": {
+    "de": "Danke für deine Anmeldung!",
+    "fr": "Merci de vous être abonné !",
+    "es": "¡Gracias por suscribirte!"
+  },
+  "Registration failed. Please try again later.": {
+    "de": "Fehler bei der Anmeldung. Bitte versuche es später erneut.",
+    "fr": "L'enregistrement a échoué. Veuillez réessayer plus tard.",
+    "es": "El registro falló. Inténtelo de nuevo más tarde."
+  },
+  "An error occurred.": {
+    "de": "Ein Fehler ist aufgetreten.",
+    "fr": "Une erreur s'est produite.",
+    "es": "Se produjo un error."
+  },
+  "YOUR": {
+    "de": "DEINE",
+    "fr": "TON",
+    "es": "SU"
+  },
+  "Feed": {
+    "de": "Feed",
+    "fr": "Alimentation",
+    "es": "Alimentar"
+  },
+  "Rules.": {
+    "de": "Regeln.",
+    "fr": "Règles.",
+    "es": "Normas."
+  },
+  "The ultimate home for RSS, Blogs, Podcasts, YouTube, Radio and Live Webcams. (Without the noise of the World Wide Web)": {
+    "de": "Das ultimative Zuhause für RSS, Blogs, Podcasts, YouTube, Radio und Live-Webcams. (Ohne den Lärm des World wide Webs)",
+    "fr": "Le foyer ultime pour les flux RSS, blogs, podcasts, YouTube, radios et webcams en direct. (Sans le bruit du World Wide Web)",
+    "es": "El hogar definitivo para RSS, blogs, podcasts, YouTube, radio y cámaras web en vivo. (Sin el ruido de la World Wide Web)"
+  },
+  "Never miss an article from your favorite blogs.": {
+    "de": "Verpasse nie wieder einen Artikel deiner Lieblingsblogs.",
+    "fr": "Ne manquez jamais un article de vos blogs préférés.",
+    "es": "No te pierdas ni un artículo de tus blogs favoritos."
+  },
+  "Your favorite shows in one place.": {
+    "de": "Deine Lieblingsshows an einem Ort.",
+    "fr": "Vos émissions préférées en un seul endroit.",
+    "es": "Tus programas favoritos en un solo lugar."
+  },
+  "Your stations, seamless and ad-free.": {
+    "de": "Deine Sender, nahtlos und werbefrei.",
+    "fr": "Vos stations, transparentes et sans publicité.",
+    "es": "Tus estaciones, fluidas y sin publicidad."
+  },
+  "Enjoy videos without the noise.": {
+    "de": "Videos genießen ohne den Lärm.",
+    "fr": "Profitez de vidéos sans le bruit.",
+    "es": "Disfruta de vídeos sin ruido."
+  },
+  "Live Webcams": {
+    "de": "Live Webcams",
+    "fr": "Webcams en direct",
+    "es": "Cámaras web en vivo"
+  },
+  "Watch the world in real time.": {
+    "de": "Die Welt in Echtzeit beobachten.",
+    "fr": "Regardez le monde en temps réel.",
+    "es": "Mira el mundo en tiempo real."
+  },
+  "Your Blog": {
+    "de": "Dein Blog",
+    "fr": "Votre blog",
+    "es": "tu blog"
+  },
+  "Create & share your own content.": {
+    "de": "Erstelle & teile deine eigenen Inhalte.",
+    "fr": "Créez et partagez votre propre contenu.",
+    "es": "Crea y comparte tu propio contenido."
+  },
+  "User-centric": {
+    "de": "Nutzerzentriert",
+    "fr": "Centré sur l'utilisateur",
+    "es": "Centrado en el usuario"
+  },
+  "Your experience, your feeds - fully controlled by you.": {
+    "de": "Dein Erlebnis, deine Feeds - völlig kontrolliert von dir.",
+    "fr": "Votre expérience, vos flux - entièrement contrôlés par vous.",
+    "es": "Tu experiencia, tus feeds, totalmente controlados por ti."
+  },
+  "All-in-one": {
+    "de": "Komplettlösung",
+    "fr": "Tout-en-un",
+    "es": "Todo en uno"
+  },
+  "Everything you need for your news and entertainment feed in one place.": {
+    "de": "Alles, was Du für deinen News und Entertainment Feed brauchst, an einem Ort.",
+    "fr": "Tout ce dont vous avez besoin pour votre flux d'actualités et de divertissement en un seul endroit.",
+    "es": "Todo lo que necesitas para tus noticias y entretenimiento en un solo lugar."
+  },
+  "Understand RSS": {
+    "de": "RSS verstehen",
+    "fr": "Comprendre RSS",
+    "es": "Entender RSS"
+  },
+  "RSS is not a relic, but your liberation from the algorithm. Find out how to use courier services for your sources.": {
+    "de": "RSS ist kein Relikt, sondern deine Befreiung vom Algorithmus. Erfahre, wie du Kurier-Dienste für deine Quellen nutzt.",
+    "fr": "RSS n'est pas une relique, mais votre libération de l'algorithme. Découvrez comment utiliser les services de messagerie pour vos sources.",
+    "es": "RSS no es una reliquia, sino tu liberación del algoritmo. Descubra cómo utilizar los servicios de mensajería para sus fuentes."
+  },
+  "RSSer under construction": {
+    "de": "RSSer im Aufbau",
+    "fr": "RSSer en construction",
+    "es": "RSSer en construcción"
+  },
+  "Currently working on the following implementations:": {
+    "de": "Im Moment wird gerade an folgenden Implementierungen gearbeitet:",
+    "fr": "Je travaille actuellement sur les implémentations suivantes :",
+    "es": "Actualmente trabajando en las siguientes implementaciones:"
+  },
+  "Blogging Platform": {
+    "de": "Bloging Platform",
+    "fr": "Plateforme de blogs",
+    "es": "Plataforma de blogs"
+  },
+  "Feed Database": {
+    "de": "Feed Datenbank",
+    "fr": "Base de données de flux",
+    "es": "Base de datos de alimentación"
+  },
+  "Why RSS is key today": {
+    "de": "Warum RSS heutzutage der Schlüssel ist",
+    "fr": "Pourquoi RSS est essentiel aujourd'hui",
+    "es": "Por qué RSS es clave hoy"
+  },
+  "In a world full of noise and unsolicited recommendation algorithms, RSSer gives you the opportunity to control your digital content yourself. Find out how you can regain full control and focus with this technology.": {
+    "de": "In einer Welt voller Lärm und ungefragter Empfehlungs-Algorithmen bietet RSSer dir die Möglichkeit, deine digitalen Inhalte selbst zu bestimmen. Finde heraus, wie du mit dieser Technologie wieder die volle Kontrolle und Fokus zurückgewinnst.",
+    "fr": "Dans un monde plein de bruit et d'algorithmes de recommandations non sollicités, RSSer vous donne la possibilité de contrôler vous-même votre contenu numérique. Découvrez comment vous pouvez retrouver le contrôle total et vous concentrer grâce à cette technologie.",
+    "es": "En un mundo lleno de ruido y algoritmos de recomendación no solicitados, RSSer te brinda la oportunidad de controlar tú mismo tu contenido digital. Descubra cómo puede recuperar el control total y la concentración con esta tecnología."
+  },
+  "Subscribe to your favorite sources": {
+    "de": "Abonniere deine Lieblingsquellen",
+    "fr": "Abonnez-vous à vos sources préférées",
+    "es": "Suscríbete a tus fuentes favoritas"
+  },
+  "How RSSer works": {
+    "de": "So funktioniert RSSer",
+    "fr": "Comment fonctionne RSSer",
+    "es": "Cómo funciona RSSer"
+  },
+  "Subscribe to sources": {
+    "de": "Quellen abonnieren",
+    "fr": "Abonnez-vous aux sources",
+    "es": "Suscríbete a las fuentes"
+  },
+  "Link all your feeds, podcasts, and YouTube channels in one central place.": {
+    "de": "Verknüpfe all deine Feeds, Podcasts und YouTube-Kanäle an einem zentralen Ort.",
+    "fr": "Reliez tous vos flux, podcasts et chaînes YouTube en un seul endroit central.",
+    "es": "Vincula todos tus feeds, podcasts y canales de YouTube en un lugar central."
+  },
+  "Consolidate": {
+    "de": "Konsolidieren",
+    "fr": "Consolider",
+    "es": "Consolidar"
+  },
+  "RSSer brings order to the flood of information and creates a clear overview.": {
+    "de": "RSSer bringt Ordnung in die Informationsflut und schafft einen klaren Überblick.",
+    "fr": "RSSer met de l'ordre dans le flot d'informations et crée une vue d'ensemble claire.",
+    "es": "RSSer pone orden en la avalancha de información y crea una visión general clara."
+  },
+  "Enjoy": {
+    "de": "Genießen",
+    "fr": "Apprécier",
+    "es": "Disfrutar"
+  },
+  "Consume your content without distraction, tracking, or algorithm noise.": {
+    "de": "Konsumiere deine Inhalte ohne Ablenkung, Tracking oder Algorithmus-Lärm.",
+    "fr": "Consommez votre contenu sans distraction, sans suivi ou sans bruit d'algorithme.",
+    "es": "Consuma su contenido sin distracciones, seguimiento o ruido de algoritmos."
+  },
+  "Waiting List": {
+    "de": "Warteliste",
+    "fr": "Liste d'attente",
+    "es": "Lista de espera"
+  },
+  "Sign up to be notified when we go live.": {
+    "de": "Trage dich ein, um benachrichtigt zu werden, wenn wir live gehen.",
+    "fr": "Inscrivez-vous pour être informé de notre mise en ligne.",
+    "es": "Regístrese para recibir una notificación cuando estemos en vivo."
+  },
+  "Your email address": {
+    "de": "Deine Email Adresse",
+    "fr": "Votre adresse e-mail",
+    "es": "Su dirección de correo electrónico"
+  },
+  "Subscribe": {
+    "de": "Anmelden",
+    "fr": "S'abonner",
+    "es": "Suscribir"
+  },
+  "Runs on ": {
+    "de": "Läuft auf ",
+    "fr": "Fonctionne sur",
+    "es": "Sigue funcionando"
+  },
+  "ALL": {
+    "de": "ALLEN",
+    "fr": "TOUS",
+    "es": "TODO"
+  },
+  " your devices, always up to date everywhere thanks to ": {
+    "de": " deinen Endgeräten, überall aktuell dank ",
+    "fr": "vos appareils, toujours à jour partout grâce à",
+    "es": "tus dispositivos, siempre actualizados en todas partes gracias a"
+  },
+  " on redundant ": {
+    "de": " auf redundanten ",
+    "fr": "en redondance",
+    "es": "en redundante"
+  },
+  " servers": {
+    "de": " Servern",
+    "fr": "serveurs",
+    "es": "servidores"
+  },
+  "Pricing": {
+    "de": "Preise",
+    "fr": "Tarifs",
+    "es": "Precios"
+  },
+  "Free": {
+    "de": "Kostenlos",
+    "fr": "Gratuit",
+    "es": "Gratis"
+  },
+  "Monthly": {
+    "de": "Monatlich",
+    "fr": "Mensuel",
+    "es": "Mensual"
+  },
+  "Yearly": {
+    "de": "Jährlich",
+    "fr": "Annuel",
+    "es": "Anual"
+  },
+  "COMING SOON": {
+    "de": "BALD VERFÜGBAR",
+    "fr": "À VENIR",
+    "es": "MUY PRONTO"
+  },
+  "CHOOSE PLAN": {
+    "de": "PLAN WÄHLEN",
+    "fr": "CHOISIR UN PLAN",
+    "es": "ELEGIR PLAN"
+  },
+  "Intelligent RSS Feeds": {
+    "de": "Intelligente RSS-Feeds",
+    "fr": "Flux RSS intelligents",
+    "es": "Fuentes RSS inteligentes"
+  },
+  "Never miss an article from your favorite blogs again. Our reader sorts and prioritizes according to your preferences.": {
+    "de": "Verpasse nie wieder einen Artikel deiner Lieblingsblogs. Unser Reader sortiert und priorisiert nach deinen Vorlieben.",
+    "fr": "Ne manquez plus jamais un article de vos blogs préférés. Notre lecteur trie et priorise selon vos préférences.",
+    "es": "No vuelvas a perderte un artículo de tus blogs favoritos. Nuestro lector ordena y prioriza según sus preferencias."
+  },
+  "Podcasts": {
+    "de": "Podcasts",
+    "fr": "Baladodiffusions",
+    "es": "Pódcasts"
+  },
+  "Seamless player integration for podcasts straight to your browser or app.": {
+    "de": "Nahtlose Player-Integration für Podcasts direkt in deinem Browser oder App.",
+    "fr": "Intégration transparente du lecteur pour les podcasts directement dans votre navigateur ou votre application.",
+    "es": "Integración perfecta del reproductor para podcasts directamente en su navegador o aplicación."
+  },
+  "Radio": {
+    "de": "Radio",
+    "fr": "Radio",
+    "es": "Radio"
+  },
+  "Listen to your favorite local and international radio stations directly.": {
+    "de": "Höre deine lokalen und internationalen Lieblings-Radiosender ohne Umwege.",
+    "fr": "Écoutez directement vos stations de radio locales et internationales préférées.",
+    "es": "Escuche sus estaciones de radio locales e internacionales favoritas directamente."
+  },
+  "YouTube": {
+    "de": "YouTube",
+    "fr": "YouTube",
+    "es": "YouTube"
+  },
+  "Enjoy your favorite videos without the noise of recommendation algorithms.": {
+    "de": "Genieße deine Lieblingsvideos ohne den Lärm der Empfehlungs-Algorithmen.",
+    "fr": "Profitez de vos vidéos préférées sans le bruit des algorithmes de recommandation.",
+    "es": "Disfruta de tus vídeos favoritos sin el ruido de los algoritmos de recomendación."
+  },
+  "WebCams": {
+    "de": "WebCams",
+    "fr": "WebCams",
+    "es": "Cámaras web"
+  },
+  "Keep an eye on places worldwide via live cams right in your feed.": {
+    "de": "Behalte Orte weltweit über Live-Cams direkt in deinem Feed im Blick.",
+    "fr": "Gardez un œil sur des lieux dans le monde entier via des caméras en direct directement dans votre flux.",
+    "es": "Esté atento a lugares de todo el mundo a través de cámaras en vivo directamente en su feed."
+  },
+  "Content Database": {
+    "de": "Inhalts-Datenbank",
+    "fr": "Base de données de contenu",
+    "es": "Base de datos de contenido"
+  },
+  "Discover exciting new sources in our structured collection.": {
+    "de": "Entdecke spannende neue Quellen in unserer strukturierten Sammlung.",
+    "fr": "Découvrez de nouvelles sources passionnantes dans notre collection structurée.",
+    "es": "Descubra nuevas e interesantes fuentes en nuestra colección estructurada."
+  },
+  "Multilingual": {
+    "de": "Multilingual",
+    "fr": "Multilingue",
+    "es": "Plurilingüe"
+  },
+  "Read and use the app in multiple languages - the platform adapts to you.": {
+    "de": "Lies und nutze die App in verschiedene Sprachen – die Plattform passt sich dir an.",
+    "fr": "Lisez et utilisez l'application dans plusieurs langues - la plateforme s'adapte à vous.",
+    "es": "Lea y utilice la aplicación en varios idiomas: la plataforma se adapta a usted."
+  },
+  "Filter": {
+    "de": "Filter",
+    "fr": "Filtre",
+    "es": "Filtrar"
+  },
+  "Stay in control of your content with precise filter and search features.": {
+    "de": "Behalte die Kontrolle über deine Inhalte mit präzisen Filter- und Suchfunktionen.",
+    "fr": "Gardez le contrôle de votre contenu grâce à des fonctionnalités de filtrage et de recherche précises.",
+    "es": "Mantenga el control de su contenido con funciones de búsqueda y filtrado precisas."
+  },
+  "Grid, Magazine, List": {
+    "de": "Grid, Magazin, Liste",
+    "fr": "Grille, Magazine, Liste",
+    "es": "Cuadrícula, Revista, Lista"
+  },
+  "Slideshow": {
+    "de": "Slideshow",
+    "fr": "Diaporama",
+    "es": "Presentación de diapositivas"
+  },
+  "Lean back and enjoy your content in the convenient auto slideshow mode.": {
+    "de": "Lehn dich zurück und geniesse deine Inhalte im praktischen automatischen Slideshow-Modus.",
+    "fr": "Détendez-vous et profitez de votre contenu dans le mode diaporama automatique pratique.",
+    "es": "Recuéstese y disfrute de su contenido en el práctico modo de presentación de diapositivas automática."
+  },
+  "News Hub": {
+    "de": "Newszentrale",
+    "fr": "Centre d'actualités",
+    "es": "Centro de noticias"
+  },
+  "Bring all important streams and news seamlessly together in one central place.": {
+    "de": "Führe alle wichtigen Streams und News nahtlos zusammen an einem zentralen Ort.",
+    "fr": "Rassemblez de manière transparente tous les flux et actualités importants en un seul endroit central.",
+    "es": "Reúna todas las transmisiones y noticias importantes sin problemas en un lugar central."
+  },
+  "Top Lists": {
+    "de": "Top Listen",
+    "fr": "Meilleures listes",
+    "es": "Listas principales"
+  },
+  "Discover recommendations and the most popular channels from the community.": {
+    "de": "Entdecke Empfehlungen und die beliebtesten Kanäle aus der Community.",
+    "fr": "Découvrez les recommandations et les chaînes les plus populaires de la communauté.",
+    "es": "Descubre recomendaciones y los canales más populares de la comunidad."
+  },
+  "Integrated Blog Platform": {
+    "de": "Integrierte Blog-Plattform",
+    "fr": "Plateforme de blog intégrée",
+    "es": "Plataforma de blogs integrada"
+  },
+  "Create your own content and share it within the RSSer-Next community or via RSS.": {
+    "de": "Erstelle eigene Inhalte und teile sie innerhalb der RSSer-Next-Community oder via RSS.",
+    "fr": "Créez votre propre contenu et partagez-le au sein de la communauté RSSer-Next ou via RSS.",
+    "es": "Crea tu propio contenido y compártelo dentro de la comunidad RSSer-Next o vía RSS."
+  },
+  "Runs Everywhere": {
+    "de": "Läuft überall",
+    "fr": "Fonctionne partout",
+    "es": "Corre por todas partes"
+  },
+  "Whether smartphone, tablet, browser, TV, Android, iOS, Mac, Windows or Linux - your app is always there.": {
+    "de": "Egal ob Smartphone, Tablet, Browser, TV, Android, iOS, Mac, Windows oder Linux – deine App ist immer da.",
+    "fr": "Qu'il s'agisse d'un smartphone, d'une tablette, d'un navigateur, d'un téléviseur, d'un Android, d'un iOS, d'un Mac, de Windows ou d'un Linux, votre application est toujours là.",
+    "es": "Ya sea un teléfono inteligente, una tableta, un navegador, un televisor, Android, iOS, Mac, Windows o Linux, su aplicación siempre estará ahí."
+  },
+  "Built For You": {
+    "de": "Für Dich entwickelt",
+    "fr": "Construit pour vous",
+    "es": "Construido para ti"
+  },
+  "Request features and they will be implemented if possible.": {
+    "de": "Wünsche dir Funktionen und sie werden falls möglich umgesetzt.",
+    "fr": "Demandez des fonctionnalités et elles seront mises en œuvre si possible.",
+    "es": "Solicite funciones y se implementarán si es posible."
+  },
+  "Back to the Roots": {
+    "de": "Zurück zu den Wurzeln",
+    "fr": "Retour aux racines",
+    "es": "De vuelta a las raíces"
+  },
+  "Always with You": {
+    "de": "Immer dabei",
+    "fr": "Toujours avec toi",
+    "es": "siempre contigo"
+  },
+  "Synchronized content across all your devices. Your feed is waiting for you.": {
+    "de": "Synchronisierte Inhalte über alle deine Geräte hinweg. Dein Feed wartet auf dich.",
+    "fr": "Contenu synchronisé sur tous vos appareils. Votre flux vous attend.",
+    "es": "Contenido sincronizado en todos tus dispositivos. Tu feed te está esperando."
+  },
+  "Privacy First": {
+    "de": "Privatsphäre zuerst",
+    "fr": "La confidentialité d'abord",
+    "es": "Privacidad primero"
+  },
+  "No tracking, no algorithm, only the content you really subscribed to.": {
+    "de": "Kein Tracking, kein Algorithmus, nur die Inhalte, die du wirklich abonniert hast.",
+    "fr": "Pas de tracking, pas d'algorithme, uniquement le contenu auquel vous êtes réellement abonné.",
+    "es": "Sin seguimiento, sin algoritmo, solo el contenido al que realmente te suscribiste."
+  },
+  "Lightning Fast": {
+    "de": "Blitzschnell",
+    "fr": "Rapide comme l'éclair",
+    "es": "Rayo rápido"
+  },
+  "Optimized loading times even with hundreds of feeds.": {
+    "de": "Optimierte Ladezeiten selbst bei hunderten von Feeds.",
+    "fr": "Temps de chargement optimisés même avec des centaines de flux.",
+    "es": "Tiempos de carga optimizados incluso con cientos de feeds."
+  },
+  "Safe in the Cloud": {
+    "de": "Sicher in der Cloud",
+    "fr": "En sécurité dans le cloud",
+    "es": "Seguro en la nube"
+  },
+  "Your feeds, bookmarks, and settings are safely stored and accessible anytime.": {
+    "de": "Deine Feeds, Lesezeichen und Einstellungen sind sicher gespeichert und jederzeit abrufbar.",
+    "fr": "Vos flux, favoris et paramètres sont stockés en toute sécurité et accessibles à tout moment.",
+    "es": "Sus feeds, marcadores y configuraciones se almacenan de forma segura y se puede acceder a ellos en cualquier momento."
+  },
+  "Control. ": {
+    "de": "Kontrolle. ",
+    "fr": "Contrôle.",
+    "es": "Control."
+  },
+  "Focus": {
+    "de": "Fokus",
+    "fr": "Se concentrer",
+    "es": "Enfocar"
+  },
+  ". Freedom.": {
+    "de": ". Freiheit.",
+    "fr": ". Liberté.",
+    "es": ". Libertad."
+  },
+  "RSSer is more than just an RSS reader. It is your digital filter against the noise of the world.": {
+    "de": "RSSer ist mehr als nur ein RSS-Reader. Es ist dein digitaler Filter gegen den Lärm der Welt.",
+    "fr": "RSSer est plus qu'un simple lecteur RSS. C'est votre filtre numérique contre le bruit du monde.",
+    "es": "RSSer es más que un simple lector de RSS. Es tu filtro digital contra el ruido del mundo."
+  },
+  "Back to Home": {
+    "de": "Zurück zur Startseite",
+    "fr": "Retour à la maison",
+    "es": "Volver a Inicio"
+  },
+  "MVP & Core Feeds": {
+    "de": "MVP & Kern-Feeds",
+    "fr": "MVP et flux principaux",
+    "es": "MVP y fuentes principales"
+  },
+  "Basic framework is set up, RSS parsing implemented.": {
+    "de": "Grundgerüst steht, RSS-Parsing implementiert.",
+    "fr": "Le cadre de base est mis en place, l'analyse RSS implémentée.",
+    "es": "Se configura el marco básico y se implementa el análisis RSS."
+  },
+  "Multimedia Offensive": {
+    "de": "Multimedia-Offensive",
+    "fr": "Offensive multimédia",
+    "es": "Ofensiva multimedia"
+  },
+  "Integration of podcasts, live radio, and YouTube player.": {
+    "de": "Integration von Podcasts, Live-Radio und YouTube-Player.",
+    "fr": "Intégration de podcasts, radio en direct et lecteur YouTube.",
+    "es": "Integración de podcasts, radio en vivo y reproductor de YouTube."
+  },
+  "Community & Cloud": {
+    "de": "Community & Cloud",
+    "fr": "Communauté et Cloud",
+    "es": "Comunidad y nube"
+  },
+  "User accounts, synchronization & blog platform.": {
+    "de": "User-Accounts, Synchronisation & Blog-Plattform.",
+    "fr": "Comptes utilisateurs, synchronisation et plateforme de blog.",
+    "es": "Cuentas de usuario, sincronización y plataforma de blogs."
+  },
+  "API & Ecosystem": {
+    "de": "API & Ecosystem",
+    "fr": "API et écosystème",
+    "es": "API y ecosistema"
+  },
+  "Open API, webhooks & plugin interfaces.": {
+    "de": "Offene API, Webhooks & Plugin-Schnittstellen.",
+    "fr": "API ouverte, webhooks et interfaces de plugins.",
+    "es": "API abierta, webhooks e interfaces de complementos."
+  },
+  "No messages available.": {
+    "de": "Keine Meldungen verfügbar.",
+    "fr": "Aucun message disponible.",
+    "es": "No hay mensajes disponibles."
+  },
+  "Content DB": {
+    "de": "Inhalts-DB",
+    "fr": "Base de contenus",
+    "es": "Base de datos"
+  },
+  "Multilingual": {
+    "fr": "Multilingue",
+    "es": "Multilingüe"
+  },
+  "Filter": {
+    "fr": "Filtre",
+    "es": "Filtro"
+  },
+  "Magazine Grid": {
+    "de": "Magazin-Ansicht",
+    "fr": "Vue magazine",
+    "es": "Vista revista"
+  },
+  "Slideshow": {
+    "fr": "Diaporama",
+    "es": "Presentación"
+  },
+  "News Hub": {
+    "fr": "Centre d'actualités",
+    "es": "Centro de noticias"
+  },
+  "Top Lists": {
+    "fr": "Meilleurs listes",
+    "es": "Mejores listas"
+  },
+  "Blogging Platform": {
+    "fr": "Plateforme de blog",
+    "es": "Plataforma de blogs"
+  },
+  "Everywhere": {
+    "fr": "Partout",
+    "es": "En todas partes"
+  },
+  "Designed for YOU": {
+    "fr": "Conçu pour VOUS",
+    "es": "Diseñado para TI"
+  },
+  "Back to roots": {
+    "fr": "Retour aux sources",
+    "es": "Vuelta a las raíces"
+  },
+  "Always with you": {
+    "fr": "Toujours avec vous",
+    "es": "Siempre contigo"
+  },
+  "Privacy first": {
+    "fr": "Confidentialité d'abord",
+    "es": "Privacidad primero"
+  },
+  "Lightning fast": {
+    "fr": "Ultra-rapide",
+    "es": "Rapidísimo"
+  },
+  "Secure in Cloud": {
+    "fr": "Sécurisé dans le Cloud",
+    "es": "Seguro en la nube"
+  },
+  "Control, ": {
+    "fr": "Contrôle, ",
+    "es": "Control, "
+  },
+  "Focus": {
+    "fr": "Se concentrer",
+    "es": "Enfocar"
+  },
+  ", Freedom": {
+    "fr": ", Liberté",
+    "es": ", Libertad"
+  },
+
+  "Your YouTube Channels": {
+    "de": "Deine YouTube Kanäle",
+    "fr": "Vos chaînes YouTube",
+    "es": "Tus canales de YouTube"
+  },
+  "Your WebCams": {
+    "de": "Deine WebCams",
+    "fr": "Vos WebCams",
+    "es": "Tus cámaras web"
+  },
+  "Subscribed Blogs": {
+    "de": "Abonnierte Blogs",
+    "fr": "Blogs abonnés",
+    "es": "Blogs suscritos"
+  },
+  "Your Podcasts": {
+    "de": "Deine Podcasts",
+    "fr": "Vos podcasts",
+    "es": "Tus podcasts"
+  },
+  "No entries found in this category.": {
+    "de": "Keine Einträge in dieser Kategorie gefunden.",
+    "fr": "Aucune entrée trouvée dans cette catégorie.",
+    "es": "No se encontraron entradas en esta categoría."
+  },
+  "Web Radio": {
+    "de": "Webradio",
+    "fr": "Webradio",
+    "es": "radio web"
+  },
+  "No radio stations": {
+    "de": "Keine Radiosender",
+    "fr": "Aucune station de radio",
+    "es": "Sin estaciones de radio"
+  },
+  "Add a radio station on the Discover page to save it here in your library and listen to it.": {
+    "de": "Füge in der Entdecken-Seite einen Radiosender hinzu, um ihn hier in deiner Bibliothek zu speichern und anzuhören.",
+    "fr": "Ajoutez une station de radio sur la page Découvrir pour l'enregistrer ici dans votre bibliothèque et l'écouter.",
+    "es": "Agregue una estación de radio en la página Descubrir para guardarla aquí en su biblioteca y escucharla."
+  },
+  "Add YouTube Channel": {
+    "de": "YouTube Kanal hinzufügen",
+    "fr": "Ajouter une chaîne YouTube",
+    "es": "Agregar canal de YouTube"
+  },
+  "Add Radio Station": {
+    "de": "Radio Station hinzufügen",
+    "fr": "Ajouter une station de radio",
+    "es": "Agregar estación de radio"
+  },
+  "Add Podcast": {
+    "de": "Podcast hinzufügen",
+    "fr": "Ajouter un podcast",
+    "es": "Agregar podcast"
+  },
+  "Add RSS Feed": {
+    "de": "RSS Feed hinzufügen",
+    "fr": "Ajouter un flux RSS",
+    "es": "Agregar fuente RSS"
+  },
+  "Add WebCam": {
+    "de": "WebCam hinzufügen",
+    "fr": "Ajouter une webcam",
+    "es": "Agregar cámara web"
+  },
+  "Add Blog": {
+    "de": "Blog hinzufügen",
+    "fr": "Ajouter un blog",
+    "es": "Agregar blog"
+  },
+  "Add your favorite YouTube channels": {
+    "de": "Füge deine Lieblings-YouTube-Kanäle hinzu",
+    "fr": "Ajoutez vos chaînes YouTube préférées",
+    "es": "Añade tus canales favoritos de YouTube"
+  },
+  "Add your favorite radio station streams": {
+    "de": "Füge deine Lieblings-Radiosender-Streams hinzu",
+    "fr": "Ajoutez vos flux de stations de radio préférées",
+    "es": "Agregue las transmisiones de sus estaciones de radio favoritas"
+  },
+  "Add your favorite podcasts": {
+    "de": "Füge deine Lieblings-Podcasts hinzu",
+    "fr": "Ajoutez vos podcasts préférés",
+    "es": "Añade tus podcasts favoritos"
+  },
+  "Add your favorite RSS feeds": {
+    "de": "Füge deine Lieblings-RSS-Feeds hinzu",
+    "fr": "Ajoutez vos flux RSS préférés",
+    "es": "Añade tus canales RSS favoritos"
+  },
+  "Add own WebCams": {
+    "de": "Füge eigene WebCams hinzu",
+    "fr": "Ajouter vos propres WebCams",
+    "es": "Agregar cámaras web propias"
+  },
+  "Add your favorite blogs": {
+    "de": "Füge deine Lieblings-Blogs hinzu",
+    "fr": "Ajoutez vos blogs préférés",
+    "es": "Añade tus blogs favoritos"
+  },
+  "banner-title": {
+    "de": "Profil-Banner",
+    "fr": "Bannière de profil",
+    "es": "Banner de perfil"
+  },
+  "no-banner": {
+    "de": "Kein Banner hochgeladen",
+    "fr": "Aucune bannière téléchargée",
+    "es": "No se ha subido ningún banner"
+  },
+  "change-banner": {
+    "de": "Banner ändern",
+    "fr": "Changer de bannière",
+    "es": "Cambiar banner"
+  },
+  "Stream URL (e.g. http://...)": {
+    "de": "Stream-URL (z.B. http://...)",
+    "fr": "URL du flux (par exemple http://...)",
+    "es": "URL de transmisión (por ejemplo, http://...)"
+  },
+  "Title": {
+    "de": "Titel",
+    "fr": "Titre",
+    "es": "Título"
+  },
+  "My Station / Feed": {
+    "de": "Mein Sender / Feed",
+    "fr": "Ma station / Flux",
+    "es": "Mi estación / Feed"
+  },
+  "Category": {
+    "de": "Kategorie",
+    "fr": "Catégorie",
+    "es": "Categoría"
+  },
+  "Please select...": {
+    "de": "Auswählen...",
+    "fr": "Veuillez sélectionner...",
+    "es": "Por favor seleccione..."
+  },
+  "Custom Icon / Favicon": {
+    "de": "Eigenes Icon / Favicon",
+    "fr": "Icône personnalisée / Favicon",
+    "es": "Icono personalizado/Favicon"
+  },
+  "Preferably square format (PNG, JPG, WEBP).": {
+    "de": "Vorzugsweise quadratisches Format (PNG, JPG, WEBP).",
+    "fr": "Format carré de préférence (PNG, JPG, WEBP).",
+    "es": "Preferiblemente formato cuadrado (PNG, JPG, WEBP)."
+  },
+  "Max. 2MB.": {
+    "de": "Max. 2MB.",
+    "fr": "Max. 2 Mo.",
+    "es": "Máx. 2 MB."
+  },
+  "Language": {
+    "de": "Sprache",
+    "fr": "Langue",
+    "es": "Idioma"
+  },
+  "Other / None": {
+    "de": "Andere / Keine",
+    "fr": "Autre / Aucun",
+    "es": "Otro / Ninguno"
+  },
+  "Tip: For Radio you need the direct stream link (.mp3, .aac).": {
+    "de": "Tipp: Für Radio brauchst du den direkten Stream-Link (.mp3, .aac).",
+    "fr": "Astuce : Pour la radio, vous avez besoin du lien de flux direct (.mp3, .aac).",
+    "es": "Consejo: Para Radio necesitas el enlace de transmisión directa (.mp3, .aac)."
+  },
+  "Tip: If you leave the icon empty, we try to find it automatically.": {
+    "de": "Tipp: Wenn du das Icon leer lässt, versuchen wir es automatisch zu finden.",
+    "fr": "Astuce : Si vous laissez l'icône vide, nous essayons de la retrouver automatiquement.",
+    "es": "Consejo: Si deja el ícono vacío, intentamos encontrarlo automáticamente."
+  },
+  "Save YouTube Channel": {
+    "de": "YouTube Kanal speichern",
+    "fr": "Enregistrer la chaîne YouTube",
+    "es": "Guardar canal de YouTube"
+  },
+  "Save Radio Station": {
+    "de": "Radio Station speichern",
+    "fr": "Enregistrer la station de radio",
+    "es": "Guardar estación de radio"
+  },
+  "Save Podcast": {
+    "de": "Podcast speichern",
+    "fr": "Enregistrer le podcast",
+    "es": "Guardar podcast"
+  },
+  "Save RSS Feed": {
+    "de": "RSS Feed speichern",
+    "fr": "Enregistrer le flux RSS",
+    "es": "Guardar fuente RSS"
+  },
+  "Save WebCam": {
+    "de": "WebCam speichern",
+    "fr": "Enregistrer la webcam",
+    "es": "Guardar cámara web"
+  },
+  "Save Blog": {
+    "de": "Blog speichern",
+    "fr": "Enregistrer le blog",
+    "es": "Guardar blog"
+  },
+  "Popular RSS Feeds": {
+    "de": "Beliebte RSS Feeds",
+    "fr": "Flux RSS populaires",
+    "es": "Fuentes RSS populares"
+  },
+  "Delete": {
+    "de": "Löschen",
+    "fr": "Supprimer",
+    "es": "Borrar"
+  },
+  "Add": {
+    "de": "Hinzufügen",
+    "fr": "Ajouter",
+    "es": "Agregar"
+  },
+  "Top Podcasts": {
+    "de": "Top Podcasts",
+    "fr": "Meilleurs podcasts",
+    "es": "Principales podcasts"
+  },
+  "Trending YouTube Channels": {
+    "de": "Angesagte YouTube Channels",
+    "fr": "Chaînes YouTube tendances",
+    "es": "Canales de tendencia de YouTube"
+  },
+  "Popular Radio Stations": {
+    "de": "Beliebte Radio Sender",
+    "fr": "Stations de radio populaires",
+    "es": "Estaciones de radio populares"
+  },
+  "Manage My YouTube Channels": {
+    "de": "Meine YouTube Kanäle verwalten",
+    "fr": "Gérer mes chaînes YouTube",
+    "es": "Administrar mis canales de YouTube"
+  },
+  "Manage My Radio Stations": {
+    "de": "Meine Radiosender verwalten",
+    "fr": "Gérer mes stations de radio",
+    "es": "Administrar mis estaciones de radio"
+  },
+  "Manage My Podcasts": {
+    "de": "Meine Podcasts verwalten",
+    "fr": "Gérer mes podcasts",
+    "es": "Administrar mis podcasts"
+  },
+  "Manage My RSS Feeds": {
+    "de": "Meine RSS Feeds verwalten",
+    "fr": "Gérer mes flux RSS",
+    "es": "Administrar mis fuentes RSS"
+  },
+  "Manage My WebCams": {
+    "de": "Meine WebCams verwalten",
+    "fr": "Gérer mes WebCams",
+    "es": "Administrar mis cámaras web"
+  },
+  "Manage My Blogs": {
+    "de": "Meine Blogs verwalten",
+    "fr": "Gérer mes blogs",
+    "es": "Administrar mis blogs"
+  },
+  "Edit Radio Station": {
+    "de": "Radiosender bearbeiten",
+    "fr": "Modifier la station de radio",
+    "es": "Editar estación de radio"
+  },
+  "Edit Podcast": {
+    "de": "Podcast bearbeiten",
+    "fr": "Modifier le podcast",
+    "es": "Editar podcast"
+  },
+  "Edit YouTube Channel": {
+    "de": "YouTube Kanal bearbeiten",
+    "fr": "Modifier la chaîne YouTube",
+    "es": "Editar canal de YouTube"
+  },
+  "Edit Feed": {
+    "de": "Feed bearbeiten",
+    "fr": "Modifier le flux",
+    "es": "Editar feed"
+  },
+  "<p>The beginning of something great...</p>": {
+    "de": "<p>Der Anfang von etwas Großartigem...</p>",
+    "fr": "<p>Le début de quelque chose de grand...</p>",
+    "es": "<p>El comienzo de algo grande...</p>"
+  },
+  "Title, cover image and content cannot be empty.": {
+    "de": "Titel, Artikelbild und Inhalt dürfen nicht leer sein.",
+    "fr": "Le titre, l’image de couverture et le contenu ne peuvent pas être vides.",
+    "es": "El título, la imagen de portada y el contenido no pueden estar vacíos."
+  },
+  "Title and content cannot be empty.": {
+    "de": "Titel und Inhalt dürfen nicht leer sein.",
+    "fr": "Le titre et le contenu ne peuvent pas être vides.",
+    "es": "El título y el contenido no pueden estar vacíos."
+  },
+  "To publish, you must provide a cover image.": {
+    "de": "Um zu veröffentlichen, musst du ein Artikelbild angeben.",
+    "fr": "Pour publier, vous devez fournir une image de couverture.",
+    "es": "Para publicar, debes proporcionar una imagen de portada."
+  },
+  "Blog post saved successfully!": {
+    "de": "Blog Beitrag erfolgreich gespeichert!",
+    "fr": "Article de blog enregistré avec succès !",
+    "es": "¡La publicación del blog se guardó correctamente!"
+  },
+  "There was an error saving the blog.": {
+    "de": "Es gab einen Fehler beim Speichern des Blogs.",
+    "fr": "Une erreur s'est produite lors de l'enregistrement du blog.",
+    "es": "Hubo un error al guardar el blog."
+  },
+  "Remove cover image": {
+    "de": "Artikelbild entfernen",
+    "fr": "Supprimer l'image de couverture",
+    "es": "Quitar imagen de portada"
+  },
+  "Enter URL for the cover image (Required)": {
+    "de": "URL für das Artikelbild eingeben (Erforderlich)",
+    "fr": "Entrez l'URL de l'image de couverture (obligatoire)",
+    "es": "Ingrese la URL para la imagen de portada (obligatorio)"
+  },
+  "Add cover image": {
+    "de": "Artikelbild hinzufügen",
+    "fr": "Ajouter une image de couverture",
+    "es": "Agregar imagen de portada"
+  },
+  "Title of your post...": {
+    "de": "Titel deines Beitrags...",
+    "fr": "Titre de votre message...",
+    "es": "Título de tu publicación..."
+  },
+  "Publish": {
+    "de": "Veröffentlichen",
+    "fr": "Publier",
+    "es": "Publicar"
+  },
+  "My Posts": {
+    "de": "Meine Beiträge",
+    "fr": "Mes messages",
+    "es": "Mis publicaciones"
+  },
+  "Here you find an overview of all your written posts.": {
+    "de": "Hier findest du alle deine verfassten Beiträge in der Übersicht.",
+    "fr": "Vous trouverez ici un aperçu de tous vos articles écrits.",
+    "es": "Aquí encontrará una descripción general de todas sus publicaciones escritas."
+  },
+  "Recently": {
+    "de": "Vor kurzem",
+    "fr": "Récemment",
+    "es": "Recientemente"
+  },
+  "No posts yet": {
+    "de": "Noch keine Beiträge",
+    "fr": "Pas encore de messages",
+    "es": "Aún no hay publicaciones"
+  },
+  "Frequently Asked Questions (FAQ)": {
+    "de": "Häufig gestellte Fragen (FAQ)",
+    "fr": "Foire aux questions (FAQ)",
+    "es": "Preguntas frecuentes (FAQ)"
+  },
+  "Responsible for content:": {
+    "de": "Verantwortlich für den Inhalt:",
+    "fr": "Responsable du contenu :",
+    "es": "Responsable del contenido:"
+  },
+  "We take the protection of your data very seriously. RSSer is designed to respect your privacy. We do not track users and do not use unnecessary algorithms that analyze your data.": {
+    "de": "Wir nehmen den Schutz deiner Daten sehr ernst. RSSer ist darauf ausgelegt, die Privatsphäre zu respektieren. Wir tracken keine Nutzer und verwenden keine unnötigen Algorithmen, die deine Daten auswerten.",
+    "fr": "Nous prenons la protection de vos données très au sérieux. RSSer est conçu pour respecter votre vie privée. Nous ne suivons pas les utilisateurs et n'utilisons pas d'algorithmes inutiles pour analyser vos données.",
+    "es": "Nos tomamos muy en serio la protección de sus datos. RSSer está diseñado para respetar su privacidad. No rastreamos a los usuarios y no utilizamos algoritmos innecesarios que analizan sus datos."
+  },
+  "1. What data do we store?": {
+    "de": "1. Welche Daten speichern wir?",
+    "fr": "1. Quelles données stockons-nous ?",
+    "es": "1. ¿Qué datos almacenamos?"
+  },
+  "We only store data that is absolutely necessary for the operation of the service (e.g., your subscribed feeds and settings, if logged in).": {
+    "de": "Wir speichern nur jene Daten, die für den Betrieb des Dienstes zwingend notwendig sind (z.B. deine abonnierten Feeds und Einstellungen, sofern angemeldet).",
+    "fr": "Nous stockons uniquement les données absolument nécessaires au fonctionnement du service (par exemple, vos flux et paramètres souscrits, si vous êtes connecté).",
+    "es": "Solo almacenamos datos que son absolutamente necesarios para el funcionamiento del servicio (por ejemplo, sus feeds y configuraciones de suscripción, si ha iniciado sesión)."
+  },
+  "2. Data sharing": {
+    "de": "2. Weitergabe von Daten",
+    "fr": "2. Partage de données",
+    "es": "2. Intercambio de datos"
+  },
+  "Your data will not be passed on to third parties.": {
+    "de": "Deine Daten werden nicht an Dritte weitergegeben.",
+    "fr": "Vos données ne seront pas transmises à des tiers.",
+    "es": "Sus datos no serán cedidos a terceros."
+  },
+  "3. Your rights": {
+    "de": "3. Deine Rechte",
+    "fr": "3. Vos droits",
+    "es": "3. Tus derechos"
+  },
+  "You have the right to request information, correction or deletion of your data stored by us at any time.": {
+    "de": "Du hast jederzeit das Recht auf Auskunft, Korrektur oder Löschung deiner bei uns gespeicherten Daten.",
+    "fr": "Vous avez le droit de demander à tout moment des informations, une rectification ou la suppression de vos données stockées par nous.",
+    "es": "Tiene derecho a solicitar información, corrección o eliminación de sus datos almacenados por nosotros en cualquier momento."
+  },
+  "Sign up to receive exclusive insights and updates from RSSer. Always stay up to date.": {
+    "de": "Melde dich an, um exklusive Einblicke und Updates von RSSer zu erhalten. Bleibe immer auf dem Laufenden.",
+    "fr": "Inscrivez-vous pour recevoir des informations et des mises à jour exclusives de RSSer. Restez toujours à jour.",
+    "es": "Regístrese para recibir información exclusiva y actualizaciones de RSSer. Manténgase siempre al día."
+  },
+  "Newsletter": {
+    "de": "Newsletter",
+    "fr": "Lettre d'information",
+    "es": "Boletín informativo"
+  },
+  "START FOR FREE": {
+    "de": "STARTE KOSTENLOS",
+    "fr": "DÉMARRER GRATUITEMENT",
+    "es": "EMPEZAR GRATIS"
+  },
+  "Plan Limit Exceeded": {
+    "de": "Plan-Limit überschritten",
+    "fr": "Limite du forfait dépassée",
+    "es": "Límite del plan excedido"
+  },
+  "Your subscription has expired or was downgraded. Access is temporarily locked because your sources exceed the Free plan limits.": {
+    "de": "Dein Abonnement ist abgelaufen oder herabgestuft worden. Da deine Quellen die kostenlosen Limits überschreiten, ist der Zugriff vorübergehend gesperrt.",
+    "fr": "Votre abonnement a expiré ou a été rétrogradé. L'accès est temporairement verrouillé car vos sources dépassent les limites du forfait gratuit.",
+    "es": "Su suscripción ha expirado o se ha degradado. El acceso está bloqueado temporalmente porque sus fuentes superan los límites del plan gratuito."
+  },
+  "Your Current Limits": {
+    "de": "Deine aktuellen Limits",
+    "fr": "Vos limites actuelles",
+    "es": "Sus límites actuales"
+  },
+  "RSS Feeds": {
+    "de": "RSS Feeds",
+    "fr": "Flux RSS",
+    "es": "Canales RSS"
+  },
+  "Radio Stations": {
+    "de": "Radiosender",
+    "fr": "Stations de radio",
+    "es": "Estaciones de radio"
+  },
+  "Podcasts": {
+    "de": "Podcasts",
+    "fr": "Podcasts",
+    "es": "Podcasts"
+  },
+  "YouTube Channels": {
+    "de": "YouTube Kanäle",
+    "fr": "Chaînes YouTube",
+    "es": "Canales de YouTube"
+  },
+  "Webcams": {
+    "de": "Webcams",
+    "fr": "Webcams",
+    "es": "Cámaras web"
+  },
+  "Blog Subscriptions": {
+    "de": "Blog-Abos",
+    "fr": "Abonnements de blog",
+    "es": "Suscripciones de blog"
+  },
+  "Reactivate Subscription": {
+    "de": "Abonnement reaktivieren",
+    "fr": "Réactiver l'abonnement",
+    "es": "Reactivar suscripción"
+  },
+  "Export OPML": {
+    "de": "OPML exportieren",
+    "fr": "Exporter OPML",
+    "es": "Exportar OPML"
+  },
+  "Manage Your Sources (Delete to unlock)": {
+    "de": "Deine Quellen verwalten (Löschen zum Freischalten)",
+    "fr": "Gérer vos sources (Supprimer pour déverrouiller)",
+    "es": "Gestionar sus fuentes (Eliminar para desbloquear)"
+  },
+  "No sources found.": {
+    "de": "Keine Quellen gefunden.",
+    "fr": "Aucune source trouvée.",
+    "es": "No se encontraron fuentes."
+  },
+  "CONNECTING...": {
+    "de": "VERBINDEN...",
+    "fr": "CONNEXION...",
+    "es": "CONECTANDO..."
+  },
+  "RSS Feed": {
+    "de": "RSS-Feed",
+    "fr": "Flux RSS",
+    "es": "Canal RSS"
+  },
+  "Radio Station": {
+    "de": "Radiosender",
+    "fr": "Station de radio",
+    "es": "Estación de radio"
+  },
+  "Podcast": {
+    "de": "Podcast",
+    "fr": "Podcast",
+    "es": "Podcast"
+  },
+  "YouTube Channel": {
+    "de": "YouTube-Kanal",
+    "fr": "Chaîne YouTube",
+    "es": "Canal de YouTube"
+  },
+  "Webcam": {
+    "de": "Webcam",
+    "fr": "Webcam",
+    "es": "Cámara web"
+  },
+  "Already seen": {
+    "de": "Bereits gesehen",
+    "fr": "Déjà vu",
+    "es": "Ya visto"
+  },
+  "Play Live Stream": {
+    "de": "Live Stream abspielen",
+    "fr": "Lire le flux en direct",
+    "es": "Reproducir transmisión en vivo"
+  },
+  "Play Video": {
+    "de": "Video abspielen",
+    "fr": "Lire la vidéo",
+    "es": "Reproducir video"
+  },
+  "Blog": {
+    "de": "Blog",
+    "fr": "Blog",
+    "es": "Blog"
+  },
+  "Available Languages:": {
+    "de": "Verfügbare Sprachen:",
+    "fr": "Langues disponibles :",
+    "es": "Idiomas disponibles:"
+  },
+  "Translations:": {
+    "de": "Übersetzungen:",
+    "fr": "Traductions :",
+    "es": "Traducciones:"
+  },
+  "English": {
+    "de": "Englisch",
+    "fr": "Anglais",
+    "es": "Inglés"
+  },
+  "French": {
+    "de": "Französisch",
+    "fr": "Français",
+    "es": "Francés"
+  },
+  "Spanish": {
+    "de": "Spanisch",
+    "fr": "Espagnol",
+    "es": "Español"
+  },
+  "Italiano": {
+    "de": "Italienisch",
+    "fr": "Italien",
+    "es": "Italiano"
+  },
+  "Portuguese": {
+    "de": "Portugiesisch",
+    "fr": "Portugais",
+    "es": "Portugués"
+  },
+  "German": {
+    "de": "Deutsch",
+    "fr": "Allemand",
+    "es": "Alemán"
+  },
+  "Which language version?": {
+    "de": "Welche Sprachversion?",
+    "fr": "Quelle version linguistique ?",
+    "es": "¿Qué versión de idioma?"
+  },
+  "Creating shortlink...": {
+    "de": "Erstelle Kurzlink...",
+    "fr": "Création du lien court...",
+    "es": "Creando enlace corto..."
+  },
+  "Link copied!": {
+    "de": "Link kopiert!",
+    "fr": "Lien copié !",
+    "es": "¡Enlace copiado!"
+  },
+  "Share & Shortlink Options": {
+    "de": "Teilen & Kurzlink Optionen",
+    "fr": "Options de partage et de lien court",
+    "es": "Opciones de compartir y enlace corto"
+  },
+  "Copy RSS Feed URL": {
+    "de": "RSS Feed URL kopieren",
+    "fr": "Copier l'URL du flux RSS",
+    "es": "Copiar la URL del feed RSS"
+  },
+  "Copy Link": {
+    "de": "Link kopieren",
+    "fr": "Copier le lien",
+    "es": "Copiar enlace"
+  },
+  "Subscribed": {
+    "de": "Abonniert",
+    "fr": "Abonné",
+    "es": "Suscrito"
+  },
+  "Why RSSer Outperforms Others": {
+    "de": "Warum RSSer die Nase vorn hat",
+    "fr": "Pourquoi RSSer se démarque",
+    "es": "Por qué RSSer destaca sobre los demás"
+  },
+  "A direct comparison between RSSer and traditional RSS readers like Feedly or Inoreader. See why RSSer is the ultimate modern news experience.": {
+    "de": "Ein direkter Vergleich zwischen RSSer und traditionellen RSS-Readern wie Feedly oder Inoreader. Erfahre, warum RSSer das ultimative, moderne Nachrichtenerlebnis bietet.",
+    "fr": "Une comparaison directe entre RSSer et les lecteurs RSS traditionnels comme Feedly ou Inoreader. Découvrez pourquoi RSSer est l'expérience d'actualités moderne ultime.",
+    "es": "Una comparación directa entre RSSer y los lectores de RSS tradicionales como Feedly o Inoreader. Descubre por qué RSSer ofrece la experiencia de noticias moderna definitiva."
+  },
+  "Feature": {
+    "de": "Funktion",
+    "fr": "Fonctionnalité",
+    "es": "Función"
+  },
+  "Media Diversity (All-in-One)": {
+    "de": "Medienvielfalt (Alles-in-Einem)",
+    "fr": "Diversité des médias (Tout-en-un)",
+    "es": "Diversidad de medios (Todo en uno)"
+  },
+  "Integrate RSS, Podcasts, Live-Radio, YouTube, Webcams and blogs in a single, beautiful dashboard.": {
+    "de": "Integriere RSS, Podcasts, Live-Radio, YouTube, Webcams und Blogs in einem einzigen, schönen Dashboard.",
+    "fr": "Intégrez les flux RSS, les podcasts, la radio en direct, YouTube, les webcams et les blogs dans un seul et superbe tableau de bord.",
+    "es": "Integre RSS, podcasts, radio en vivo, YouTube, cámaras web y blogs en un único y hermoso panel."
+  },
+  "All integrated seamlessly": {
+    "de": "Alles nahtlos integriert",
+    "fr": "Tout intégré de manière transparente",
+    "es": "Todo integrado a la perfección"
+  },
+  "RSS & YouTube only": {
+    "de": "Nur RSS & YouTube",
+    "fr": "Uniquement RSS et YouTube",
+    "es": "Solo RSS y YouTube"
+  },
+  "RSS, YouTube & simple Podcasts": {
+    "de": "RSS, YouTube & einfache Podcasts",
+    "fr": "RSS, YouTube et podcasts simples",
+    "es": "RSS, YouTube y podcasts sencillos"
+  },
+  "Real-time AI Translation": {
+    "de": "Echtzeit-KI-Übersetzung",
+    "fr": "Traduction IA en temps réel",
+    "es": "Traducción por IA en tiempo real"
+  },
+  "Translate foreign news instantly in your feed with high-quality localization.": {
+    "de": "Ausländische Nachrichten sofort in deinem Feed übersetzen mit hochwertiger Lokalisierung.",
+    "fr": "Traduisez instantanément les actualités étrangères dans votre flux avec une localisation de haute qualité.",
+    "es": "Traduzca noticias extranjeras al instante en su feed con localización de alta calidad."
+  },
+  "Included in all subscriptions (up to 10k words/post)": {
+    "de": "In jedem Abo inklusive (bis 10k Wörter/Beitrag)",
+    "fr": "Inclus dans tous les abonnements (jusqu'à 10k mots/article)",
+    "es": "Incluido en todas las suscripciones (hasta 10k palabras/artículo)"
+  },
+  "No (requires external extensions)": {
+    "de": "Nein (erfordert externe Addons)",
+    "fr": "Non (nécessite des extensions externes)",
+    "es": "No (requiere extensiones externas)"
+  },
+  "Pro tier only ($9.99+/mo)": {
+    "de": "Nur im teuersten Pro-Abo ($9.99+/Mo)",
+    "fr": "Niveau Pro uniquement (à partir de 9.99 $/mois)",
+    "es": "Solo en el plan Pro (desde 9.99 $/mes)"
+  },
+  "Integrated Media Player": {
+    "de": "Integrierter Mediaplayer",
+    "fr": "Lecteur multimédia intégré",
+    "es": "Reproductor multimedia integrado"
+  },
+  "Continuous background audio playback for podcasts and live radio with playlist queue.": {
+    "de": "Kontinuierliche Hintergrund-Wiedergabe für Podcasts und Radio mit Playlist-Warteschlange.",
+    "fr": "Lecture audio continue en arrière-plan pour les podcasts et la radio en direct avec file d'attente.",
+    "es": "Reproducción de audio en segundo plano para podcasts y radio en vivo con cola de reproducción."
+  },
+  "Yes, with global player bar": {
+    "de": "Ja, mit globaler Player-Leiste",
+    "fr": "Oui, avec barre de lecture globale",
+    "es": "Sí, con barra de reproducción global"
+  },
+  "No (external links only)": {
+    "de": "Nein (nur externe Links)",
+    "fr": "Non (uniquement des liens externes)",
+    "es": "No (solo enlaces externos)"
+  },
+  "Rudimentary player only": {
+    "de": "Nur rudimentärer Player",
+    "fr": "Lecteur rudimentaire uniquement",
+    "es": "Solo reproductor rudimentario"
+  },
+  "Blogging & Writing Platform": {
+    "de": "Eigene Blog-Erstellung",
+    "fr": "Plateforme d'écriture et de blog",
+    "es": "Plataforma de creación de blogs"
+  },
+  "Write and publish your own articles, build your brand, and view visitor statistics.": {
+    "de": "Eigene Artikel schreiben, veröffentlichen, deine Marke aufbauen und Besucherstatistiken einsehen.",
+    "fr": "Écrivez et publiez vos propres articles, construisez votre marque et consultez les statistiques des visiteurs.",
+    "es": "Escriba y publique sus propios artículos, construya su marca y vea estadísticas de visitas."
+  },
+  "Yes, fully integrated WYSIWYG editor": {
+    "de": "Ja, voll integrierter WYSIWYG-Editor",
+    "fr": "Oui, éditeur WYSIWYG entièrement intégré",
+    "es": "Sí, editor WYSIWYG totalmente integrado"
+  },
+  "No": {
+    "de": "Nein",
+    "fr": "Non",
+    "es": "No"
+  },
+  "Absolute Privacy & Tracker-free": {
+    "de": "100% Tracking-Freiheit & Datenschutz",
+    "fr": "Confidentialité absolue et sans tracker",
+    "es": "Privacidad absoluta y libre de rastreadores"
+  },
+  "No advertising banners, no profiling cookies, and complete protection of your reading habits.": {
+    "de": "Keine Werbebanner, keine Profilierungs-Cookies und absoluter Schutz deiner Lesegewohnheiten.",
+    "fr": "Pas de bannières publicitaires, pas de cookies de profilage et protection complète de vos habitudes de lecture.",
+    "es": "Sin banners publicitarios, sin cookies de perfil y protección completa de sus hábitos de lectura."
+  },
+  "Yes, strictly tracker-free": {
+    "de": "Ja, strikt tracker-frei",
+    "fr": "Oui, strictement sans tracker",
+    "es": "Sí, estrictamente libre de rastreadores"
+  },
+  "Ads & trackers in free mode": {
+    "de": "Werbung & Tracker im Free-Modus",
+    "fr": "Publicités et trackers en mode gratuit",
+    "es": "Anuncios y rastreadores en modo gratuito"
+  },
+  "Price-to-Performance Ratio": {
+    "de": "Preis-Leistungs-Verhältnis",
+    "fr": "Rapport qualité-prix",
+    "es": "Relación calidad-precio"
+  },
+  "Fair pricing, unlimited sources and layout customizability without high artificial barriers.": {
+    "de": "Faire Preise, unbegrenzte Quellen und Layout-Freiheit ohne künstliche Paywalls.",
+    "fr": "Des prix équitables, des sources illimitées et une personnalisation de la mise en page sans barrières artificielles.",
+    "es": "Precios justos, fuentes ilimitadas y personalización de diseño sin barreras artificiales."
+  },
+  "From $5.90/mo or $59.00/yr (incl. 2 months free!)": {
+    "de": "Ab $5.90/Mt. oder $59.00/Jahr (inkl. 2 Gratis-Monaten!)",
+    "fr": "À partir de 5,90 $/mois ou 59,00 $/an (dont 2 mois gratuits !)",
+    "es": "Desde 5,90 $/mes o 59,00 $/año (¡incluye 2 meses gratis!)"
+  },
+  "Expensive plans ($8.25 - $12+/mo)": {
+    "de": "Teure Pro-Pläne ($8.25 - $12+/Mo)",
+    "fr": "Forfaits onéreux (8,25 $ - 12 $+/mois)",
+    "es": "Planes costosos (8,25 $ - 12 $+/mes)"
+  },
+  "Very complex, high pricing tiers": {
+    "de": "Sehr teuer und komplexe Abostufen",
+    "fr": "Niveaux de prix très complexes et élevés",
+    "es": "Planes de precios muy complejos y elevados"
+  }
+}

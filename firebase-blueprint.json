@@ -1,0 +1,222 @@
+{
+  "entities": {
+    "user": {
+      "title": "User",
+      "description": "User profile information",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "displayName": { "type": "string" },
+        "avatarUrl": { "type": "string", "format": "uri" },
+        "bannerUrl": { "type": "string", "format": "uri" },
+        "bio": { "type": "string" },
+        "detailedBio": { "type": "string" },
+        "blogLanguage": { "type": "string" },
+        "socialLink1": { "type": "string", "format": "uri" },
+        "socialLink2": { "type": "string", "format": "uri" },
+        "plan": { "type": "string", "enum": ["free", "monthly", "yearly"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email"]
+    },
+    "blogVote": {
+      "title": "Blog Vote",
+      "description": "Upvote or downvote on a blog post",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "type": { "type": "string", "enum": ["up", "down"] },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "type", "timestamp"]
+    },
+    "blogComment": {
+      "title": "Blog Comment",
+      "description": "Comment on a blog post",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "userName": { "type": "string" },
+        "userAvatar": { "type": "string" },
+        "text": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "text", "timestamp"]
+    },
+    "feed": {
+      "title": "Feed",
+      "description": "User subscribed RSS feed",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "url": { "type": "string", "format": "uri" },
+        "title": { "type": "string" }
+      },
+      "required": ["userId", "url"]
+    },
+    "publicSource": {
+      "title": "Public Source",
+      "description": "Publicly available feed or radio station",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "url": { "type": "string", "format": "uri" },
+        "category": { "type": "string" },
+        "type": { "type": "string" },
+        "imageUrl": { "type": "string", "format": "uri" },
+        "addedBy": { "type": "string" },
+        "authorName": { "type": "string" },
+        "authorBio": { "type": "string" },
+        "authorDetailedBio": { "type": "string" },
+        "authorAvatar": { "type": "string" },
+        "authorBanner": { "type": "string" },
+        "language": { "type": "string" },
+        "addedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "url", "category", "type", "addedBy"]
+    },
+    "publicRssCache": {
+      "title": "Public RSS Cache",
+      "description": "Global cache for RSS feeds",
+      "type": "object",
+      "properties": {
+        "url": { "type": "string" },
+        "data": { "type": "string" },
+        "updatedAt": { "type": "number" }
+      },
+      "required": ["url", "data", "updatedAt"]
+    },
+    "message": {
+      "title": "Message",
+      "description": "Support or feature request message",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "userEmail": { "type": "string", "format": "email" },
+        "type": { "type": "string", "enum": ["support", "wishes"] },
+        "message": { "type": "string" },
+        "status": { "type": "string", "enum": ["new", "processed"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "userEmail", "type", "message", "status", "createdAt"]
+    },
+    "announcement": {
+      "title": "Announcement",
+      "description": "App improvements, changelog, and information Tafel",
+      "type": "object",
+      "properties": {
+        "content": {
+          "type": "object",
+          "description": "Content in different languages",
+          "properties": {
+            "de": { "type": "string" },
+            "en": { "type": "string" },
+            "fr": { "type": "string" },
+            "es": { "type": "string" }
+          }
+        },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["content", "createdAt"]
+    },
+    "itemVote": {
+      "title": "Item Vote",
+      "description": "Upvotes and downvotes on an article, video, webcam or podcast",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "link": { "type": "string" },
+        "pubDate": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "feedTitle": { "type": "string" },
+        "category": { "type": "string" },
+        "type": { "type": "string" },
+        "votes": { "type": "number" },
+        "voters": { "type": "object" },
+        "timestamp": { "type": "number" },
+        "updatedAt": { "type": "number" }
+      },
+      "required": ["id", "title", "link", "votes"]
+    },
+    "ogImageCache": {
+      "title": "OG Image Cache",
+      "description": "Cache for open graph images",
+      "type": "object",
+      "properties": {
+        "url": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "userAgent": { "type": "string" },
+        "timestamp": { "type": "number" }
+      },
+      "required": ["url", "imageUrl"]
+    },
+    "shortenedUrl": {
+      "title": "Shortened URL",
+      "description": "Shortened direct blog URL with click metrics and language suffix support",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "originalUrl": { "type": "string" },
+        "blogId": { "type": "string" },
+        "userId": { "type": "string" },
+        "clicks": { "type": "number" },
+        "internalClicks": { "type": "number" },
+        "externalClicks": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "originalUrl", "blogId", "userId"]
+    }
+  },
+  "firestore": {
+    "/shortenedUrls/{shortId}": {
+      "schema": "shortenedUrl",
+      "description": "Shortened links mapping to original blog posts with analytics counters"
+    },
+    "/og_images_cache/{cacheId}": {
+      "schema": "ogImageCache",
+      "description": "Cache of fetched Open Graph preview images"
+    },
+    "/announcements/{announcementId}": {
+      "schema": "announcement",
+      "description": "Platform announcements, changelogs and info"
+    },
+    "/itemVotes/{voteId}": {
+      "schema": "itemVote",
+      "description": "Global upvote and downvote tracking for news and resources"
+    },
+    "/messages/{messageId}": {
+      "schema": "message",
+      "description": "Support and feature request messages"
+    },
+    "/publicRssCache/{cacheId}": {
+      "schema": "publicRssCache",
+      "description": "Global RSS Cache"
+    },
+    "/publicSources/{sourceId}": {
+      "schema": "publicSource",
+      "description": "Public sources"
+    },
+    "/users/{userId}": {
+      "schema": "user",
+      "description": "User documents"
+    },
+    "/users/{userId}/feeds/{feedId}": {
+      "schema": "feed",
+      "description": "User subscribed feeds"
+    },
+    "/users/{userId}/blogs/{blogId}": {
+      "schema": "blog",
+      "description": "User blog posts"
+    },
+    "/users/{userId}/blogs/{blogId}/votes/{voteId}": {
+      "schema": "blogVote",
+      "description": "Votes on a blog post"
+    },
+    "/users/{userId}/blogs/{blogId}/comments/{commentId}": {
+      "schema": "blogComment",
+      "description": "Comments on a blog post"
+    }
+  }
+}

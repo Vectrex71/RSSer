@@ -1,0 +1,108 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // --- GLOBAL DENY ---
+    match /{document=**} {
+      allow read, write: if false;
+    }
+    
+    // --- HELPERS ---
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+    
+    function isAdmin() {
+      return isSignedIn() && (
+        request.auth.uid == '7uONAsC2eCUNx9ilTLwYcXIJeXT2' ||
+        request.auth.token.email.toLowerCase() == 'hj.wuethrich@gmail.com' || 
+        request.auth.token.email.toLowerCase() == 'wuethrich@gmail.com'
+      );
+    }
+
+    // --- USER DATA ---
+    match /users/{userId} {
+      allow get: if true; // Profile info is public
+      allow write: if isOwner(userId) || isAdmin();
+      
+      match /blogs/{blogId} {
+        allow read: if resource.data.published == true || isOwner(userId) || isAdmin();
+        allow write: if isOwner(userId) || isAdmin();
+        
+        match /votes/{voteId} {
+          allow read: if true;
+          allow write: if isSignedIn();
+        }
+        match /comments/{commentId} {
+          allow read: if true;
+          allow write: if isSignedIn();
+        }
+      }
+
+      // Explicit subcollection matching
+      match /feeds/{feedId} {
+        allow get, list, write: if isOwner(userId) || isAdmin();
+      }
+      match /savedItems/{itemId} {
+        allow get, list, write: if isOwner(userId) || isAdmin();
+      }
+      match /{allSubcollections=**} {
+        allow get, list, write: if isOwner(userId) || isAdmin();
+      }
+    }
+
+    // --- GLOBAL COLLECTIONS ---
+    match /announcements/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    
+    match /publicSources/{sourceId} {
+      allow read, list, get: if true;
+      allow write: if isAdmin();
+    }
+    
+    match /webcamReports/{reportId} {
+      allow create: if true;
+      allow read, write: if isAdmin();
+    }
+    
+    match /publicRssCache/{cacheId} {
+      allow read, write, get, list: if true;
+    }
+    
+    match /og_images_cache/{cacheId} {
+      allow read, write, get, list: if true;
+    }
+    
+    match /itemVotes/{voteId} {
+      allow read, write: if true;
+    }
+    
+    match /messages/{messageId} {
+      allow create: if true;
+      allow read, write: if isAdmin();
+    }
+    
+    match /shortenedUrls/{shortId} {
+      allow read, write: if true;
+    }
+    
+    match /admins/{adminId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+    
+    // --- SYSTEM & MIGRATION ---
+    match /_connection_test_/{docId} {
+      allow read, write: if true;
+    }
+    
+    match /_migration_test/{docId} {
+      allow read, write: if isSignedIn();
+    }
+  }
+}
