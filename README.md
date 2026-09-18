@@ -93,7 +93,7 @@ Open your browser and navigate to `http://localhost:3000`.
 * **Set Admin Email**:  
   Add your email address in `.env` under `ADMIN_EMAIL=your.email@example.com` (and `VITE_ADMIN_EMAIL=...`). Supports comma-separated emails for multiple administrators.
 * **Security**:  
-  All sensitive credentials (Gemini API keys, Stripe secrets, service tokens) are strictly kept on the server-side proxy routes and never leaked to the client browser.
+  All sensitive credentials are strictly kept on the server-side proxy routes and never leaked to the client browser.
 
 ---
 
