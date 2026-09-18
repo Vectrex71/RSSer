@@ -1,4 +1,4 @@
-import { Search, Settings, Sun, Moon, User, Menu, Play, Pause, FastForward, Rewind, LayoutGrid, LayoutTemplate, List, Tv, LogOut, Rss, Podcast, Radio, Youtube, Camera, FileText, Bookmark, PenTool, MessageSquare, Heart, Shield, Loader2, Zap, Megaphone } from 'lucide-react';
+import { Search, Settings, Sun, Moon, User, Menu, Play, Pause, FastForward, Rewind, LayoutGrid, LayoutTemplate, List, Tv, LogOut, Rss, Podcast, Radio, Youtube, Bookmark, PenTool, MessageSquare, Heart, Shield, Loader2, Megaphone } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useSettings } from '../../context/SettingsContext';
 import { useTranslation } from '../../hooks/useTranslation';
@@ -7,19 +7,12 @@ import { useState, useEffect, useRef } from 'react';
 import { auth, db, handleFirestoreError, OperationType } from '../../lib/firebase';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { signOut, onAuthStateChanged } from 'firebase/auth';
-import { usePlan } from '../../hooks/usePlan';
 import { useKeyboardShortcuts } from '../../hooks/useKeyboardShortcuts';
-import { LimitReachedModal } from '../dashboard/LimitReachedModal';
 import { ContactModal } from '../dashboard/ContactModal';
-import { ThankYouPortalModal } from '../dashboard/ThankYouPortalModal';
 
 export function Header() {
-  const { settings, toggleTheme, setViewMode, toggleSidebar, searchQuery, setSearchQuery, setPricingModalOpen, setQuotaExceeded, showHeader1 } = useSettings();
-  const { plan } = usePlan();
-  const [limitModal, setLimitModal] = useState<{isOpen: boolean, type: any}>({ isOpen: false, type: 'rss' });
+  const { settings, toggleTheme, setViewMode, toggleSidebar, searchQuery, setSearchQuery, setQuotaExceeded, showHeader1 } = useSettings();
   const [contactModal, setContactModal] = useState<{isOpen: boolean, type: 'support' | 'wishes'}>({ isOpen: false, type: 'support' });
-  const [portalLoading, setPortalLoading] = useState(false);
-  const [isThankYouModalOpen, setIsThankYouModalOpen] = useState(false);
   const { t } = useTranslation();
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const location = useLocation();
@@ -64,42 +57,6 @@ export function Header() {
       navigate('/');
     } catch (error) {
       console.error('Error signing out:', error);
-    }
-  };
-
-  const handleManageSubscription = async () => {
-    setIsDropdownOpen(false);
-    if (plan === 'FREE') {
-      setPricingModalOpen(true);
-      return;
-    }
-    setIsThankYouModalOpen(true);
-  };
-
-  const handleProceedToPortal = async () => {
-    setPortalLoading(true);
-    try {
-      const response = await fetch('/api/create-portal-session', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userId: auth.currentUser?.uid,
-          email: auth.currentUser?.email
-        }),
-      });
-      const data = await response.json();
-      if (data.url) {
-        window.location.href = data.url;
-      } else {
-        setPricingModalOpen(true);
-        setIsThankYouModalOpen(false);
-      }
-    } catch (error) {
-      console.error(error);
-      setPricingModalOpen(true);
-      setIsThankYouModalOpen(false);
-    } finally {
-      setPortalLoading(false);
     }
   };
 
@@ -175,16 +132,13 @@ export function Header() {
   else if (location.pathname === '/podcasts') pageTitle = t('podcasts') || 'Podcasts';
   else if (location.pathname === '/youtube') pageTitle = t('youtube') || 'YouTube';
   else if (location.pathname === '/radio') pageTitle = t('radio') || 'Radio';
-  else if (location.pathname === '/webcam') pageTitle = t('webcam') || 'Webcams';
-  else if (location.pathname.startsWith('/blogs')) pageTitle = t('blogs') || 'Blogs';
   else if (location.pathname.startsWith('/discover')) pageTitle = t('discover') || 'Organisieren';
   // You can add more paths here if needed
   
-  const isArticleView = location.pathname.includes('/article/') || (location.pathname.startsWith('/blog/') && !location.pathname.startsWith('/blogs')) || location.pathname.includes('/p/');
-  const showViewMode = !['/', '/timeline', '/settings', '/admin', '/youtube', '/podcasts', '/radio', '/webcam', '/blogs', '/blogs/my', '/blogs/write', '/blogs/subscribed'].includes(location.pathname) && !location.pathname.startsWith('/discover') && !location.pathname.startsWith('/admin') && !isArticleView && !location.pathname.startsWith('/blogs/author');
+  const isArticleView = location.pathname.includes('/article/') || location.pathname.includes('/p/');
+  const showViewMode = !['/', '/timeline', '/settings', '/admin', '/youtube', '/podcasts', '/radio'].includes(location.pathname) && !location.pathname.startsWith('/discover') && !location.pathname.startsWith('/admin') && !isArticleView;
   const isDiscover = location.pathname.startsWith('/discover');
   const isAdmin = location.pathname.startsWith('/admin');
-  const isBlogs = location.pathname.startsWith('/blogs') && !location.pathname.startsWith('/blogs/author') && !location.pathname.includes('/p/') && !location.pathname.includes('/article/') && !location.pathname.includes('/user/');
   const isSettings = location.pathname.startsWith('/settings');
   const isProfile = location.pathname === '/profile';
 
@@ -222,14 +176,6 @@ export function Header() {
     searchPlaceholder = t('search-youtube') || 'YouTube Kanal suchen...';
     searchColorClassDark = 'bg-red-500/5 border-red-500/20 text-white focus:bg-red-500/10 focus:border-red-500/50';
     searchColorClassLight = 'bg-red-50 border-red-200 focus:bg-red-100 text-gray-900 focus:border-red-500/50';
-  } else if (location.pathname.includes('/webcam')) {
-    searchPlaceholder = t('search-webcams') || 'Webcams suchen...';
-    searchColorClassDark = 'bg-emerald-500/5 border-emerald-500/20 text-white focus:bg-emerald-500/10 focus:border-emerald-500/50';
-    searchColorClassLight = 'bg-emerald-50 border-emerald-200 focus:bg-emerald-100 text-gray-900 focus:border-emerald-500/50';
-  } else if (location.pathname.includes('/blogs')) {
-    searchPlaceholder = t('search-blogs') || 'Blogs suchen...';
-    searchColorClassDark = 'bg-yellow-500/5 border-yellow-500/20 text-white focus:bg-yellow-500/10 focus:border-yellow-500/50';
-    searchColorClassLight = 'bg-yellow-50 border-yellow-200 focus:bg-yellow-100 text-gray-900 focus:border-yellow-500/50';
   } else {
     searchPlaceholder = t('search-feeds') || 'Feeds suchen...';
     searchColorClassDark = 'bg-orange-500/5 border-orange-500/20 text-white focus:bg-orange-500/10 focus:border-orange-500/50';
@@ -315,7 +261,7 @@ export function Header() {
         )}
         {isDiscoverOrAdmin && (
           <div className={`flex overflow-x-auto hide-scrollbar ${settings.theme === 'dark' ? 'bg-white/5' : 'bg-gray-100'} rounded-lg p-1 max-w-[50vw] sm:max-w-none`}>
-            {(isAdmin ? ['feeds', 'podcasts', 'radio', 'youtube', 'webcams', 'blogs', 'news'] : ['feeds', 'podcasts', 'radio', 'youtube', 'webcams', 'blogs']).map((cat) => {
+            {(isAdmin ? ['feeds', 'podcasts', 'radio', 'youtube', 'news'] : ['feeds', 'podcasts', 'radio', 'youtube']).map((cat) => {
               const isActive = location.pathname === `${basePath}/${cat}` || (location.pathname === basePath && cat === 'feeds');
               
               let activeLight = 'bg-white text-gray-900';
@@ -334,19 +280,13 @@ export function Header() {
                 } else if (cat === 'radio') {
                   activeLight = 'bg-blue-100 text-blue-700';
                   activeDark = 'bg-blue-500/20 text-blue-400';
-                } else if (cat === 'webcams') {
-                  activeLight = 'bg-emerald-100 text-emerald-800';
-                  activeDark = 'bg-emerald-500/20 text-emerald-400';
-                } else if (cat === 'blogs') {
-                  activeLight = 'bg-yellow-100 text-yellow-800';
-                  activeDark = 'bg-yellow-500/20 text-yellow-400';
                 } else if (cat === 'news') {
                   activeLight = 'bg-orange-100 text-orange-700';
                   activeDark = 'bg-orange-500/20 text-orange-400';
                 }
               }
               
-              const text = cat === 'feeds' ? t('rss-feeds') : cat === 'webcams' ? t('webcam') : cat === 'blogs' ? t('blogs') : cat === 'news' ? 'Admin News' : t(cat) || cat;
+              const text = cat === 'feeds' ? t('rss-feeds') : cat === 'news' ? 'Admin News' : t(cat) || cat;
               
               return (
               <button 
@@ -365,39 +305,10 @@ export function Header() {
                    cat === 'podcasts' ? <Podcast className="w-4 h-4" /> : 
                    cat === 'youtube' ? <Youtube className="w-4 h-4" /> : 
                    cat === 'radio' ? <Radio className="w-4 h-4" /> : 
-                   cat === 'webcams' ? <Camera className="w-4 h-4" /> : 
-                   cat === 'news' ? <Megaphone className="w-4 h-4" /> :
-                   <FileText className="w-4 h-4" />}
+                   <Megaphone className="w-4 h-4" />}
                 </span>
               </button>
             )})}
-          </div>
-        )}
- 
-        {isBlogs && (
-          <div className={`flex overflow-x-auto hide-scrollbar ${settings.theme === 'dark' ? 'bg-white/5' : 'bg-gray-100'} rounded-lg p-1 max-w-[50vw] sm:max-w-none`}>
-            {[
-              { id: 'subscribed', name: t('subscribed-blogs') || 'Abonnierte Blogs', path: '/blogs/subscribed', icon: <Bookmark className="w-4 h-4" /> },
-              { id: 'my', name: t('my-posts') || 'Meine Beiträge', path: '/blogs/my', icon: <User className="w-4 h-4" /> },
-              { id: 'write', name: t('write-post') || 'Schreibe einen Beitrag', path: '/blogs/write', icon: <PenTool className="w-4 h-4" /> }
-            ].map((tab) => {
-              const isActive = location.pathname.includes(tab.path) || (location.pathname === '/blogs' && tab.id === 'subscribed');
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => navigate(tab.path)}
-                  title={tab.name}
-                  className={`px-3 py-1 flex items-center justify-center text-xs font-medium rounded transition-colors ${
-                    isActive 
-                      ? (settings.theme === 'dark' ? 'bg-yellow-500/20 text-yellow-400' : 'bg-yellow-100 text-yellow-800')
-                      : (settings.theme === 'dark' ? 'text-white/70 hover:text-white hover:bg-white/10' : 'text-gray-600 hover:text-gray-900 hover:bg-white/50')
-                  }`}
-                >
-                  <span className="hidden sm:inline">{tab.name}</span>
-                  <span className="sm:hidden">{tab.icon}</span>
-                </button>
-              );
-            })}
           </div>
         )}
       </div>
@@ -448,31 +359,13 @@ export function Header() {
                 <Link to="/settings" onClick={() => setIsDropdownOpen(false)} className={`flex items-center gap-3 px-4 py-2.5 text-sm font-medium ${settings.theme === 'dark' ? 'hover:bg-white/5 text-white' : 'hover:bg-gray-50 text-gray-900'}`}>
                   <Settings className="w-4 h-4 opacity-70" /> {t('settings') || 'Einstellungen'}
                 </Link>
-                <Link to="/profile" onClick={() => setIsDropdownOpen(false)} className={`flex items-center gap-3 px-4 py-2.5 text-sm font-medium ${settings.theme === 'dark' ? 'hover:bg-white/5 text-white' : 'hover:bg-gray-50 text-gray-900'}`}>
-                  <User className="w-4 h-4 opacity-70" /> {t('profile') || 'Profil'}
-                </Link>
-
-                <button 
-                  onClick={handleManageSubscription}
-                  disabled={portalLoading}
-                  className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium ${settings.theme === 'dark' ? 'hover:bg-white/5 text-white' : 'hover:bg-gray-50 text-gray-900'} disabled:opacity-50`}
-                >
-                  {portalLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : (
-                    plan === 'FREE' ? <Zap className="w-4 h-4 text-orange-500 fill-current" /> : <Shield className="w-4 h-4 opacity-70" />
-                  )}
-                  {plan === 'FREE' ? t('subscribe') : t('manage-subscription')}
-                </button>
                 
                 <div className={`h-px my-1 ${settings.theme === 'dark' ? 'bg-white/10' : 'bg-gray-100'}`} />
                 
                 <button 
                   onClick={() => {
                     setIsDropdownOpen(false);
-                    if (plan === 'FREE') {
-                      setLimitModal({ isOpen: true, type: 'support' });
-                    } else {
-                      setContactModal({ isOpen: true, type: 'support' });
-                    }
+                    setContactModal({ isOpen: true, type: 'support' });
                   }} 
                   className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium ${settings.theme === 'dark' ? 'hover:bg-white/5 text-white' : 'hover:bg-gray-50 text-gray-900'}`}
                 >
@@ -482,11 +375,7 @@ export function Header() {
                 <button 
                   onClick={() => {
                     setIsDropdownOpen(false);
-                    if (plan === 'FREE') {
-                      setLimitModal({ isOpen: true, type: 'wishes' });
-                    } else {
-                      setContactModal({ isOpen: true, type: 'wishes' });
-                    }
+                    setContactModal({ isOpen: true, type: 'wishes' });
                   }} 
                   className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium ${settings.theme === 'dark' ? 'hover:bg-white/5 text-white' : 'hover:bg-gray-50 text-gray-900'}`}
                 >
@@ -504,28 +393,10 @@ export function Header() {
         </div>
       </div>
       </header>
-      <LimitReachedModal 
-        isOpen={limitModal.isOpen} 
-        onClose={() => setLimitModal({ ...limitModal, isOpen: false })} 
-        type={limitModal.type} 
-        onProceed={() => {
-          const currentType = limitModal.type;
-          setLimitModal({ ...limitModal, isOpen: false });
-          if (currentType === 'support' || currentType === 'wishes') {
-            setContactModal({ isOpen: true, type: currentType });
-          }
-        }}
-      />
       <ContactModal
         isOpen={contactModal.isOpen}
         onClose={() => setContactModal({ ...contactModal, isOpen: false })}
         type={contactModal.type}
-      />
-      <ThankYouPortalModal
-        isOpen={isThankYouModalOpen}
-        onClose={() => setIsThankYouModalOpen(false)}
-        onProceed={handleProceedToPortal}
-        loading={portalLoading}
       />
     </>
   );

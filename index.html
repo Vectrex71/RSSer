@@ -5,7 +5,29 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>RSSer News</title>
+    <meta name="theme-color" content="#f89440" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/RSSerLogo.png" />
+    <link rel="apple-touch-icon" href="/RSSerLogo.png" />
+    <link rel="manifest" href="/manifest.json" />
     <link rel="icon" type="image/png" href="/RSSerLogo.png" />
+    <script>
+      (function() {
+        try {
+          var s = localStorage.getItem('rsser-settings');
+          if (s) {
+            var parsed = JSON.parse(s);
+            if (parsed && parsed.theme === 'dark') {
+              document.documentElement.classList.add('dark');
+            } else if (parsed && parsed.theme === 'light') {
+              document.documentElement.classList.remove('dark');
+            }
+          }
+        } catch (e) {}
+      })();
+    </script>
     <link rel="preload" href="/Loader_RSS.gif" as="image" />
     <link rel="preload" href="/Loader_Podcast.gif" as="image" />
     <link rel="preload" href="/Loader_Radio.gif" as="image" />
@@ -22,7 +44,7 @@
     <meta name="twitter:image" content="/RSSerLogo.png" />
 
   </head>
-  <body>
+  <body class="bg-white dark:bg-[#0a0a0a] text-neutral-900 dark:text-white min-h-screen">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

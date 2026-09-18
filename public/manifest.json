@@ -1,0 +1,23 @@
+{
+  "name": "RSSer News",
+  "short_name": "RSSer",
+  "description": "Deine Nachrichten, Podcasts & Videos an einem Ort.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#f89440",
+  "icons": [
+    {
+      "src": "/RSSerLogo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/RSSerLogo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

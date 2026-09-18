@@ -63,7 +63,7 @@ export function Header() {
   return (
     <header className="fixed top-0 left-0 w-full z-50 px-6 py-4 flex items-center justify-between bg-black/40 backdrop-blur-md">
       <Link to="/" className="flex items-center gap-2">
-        <img src="/RSSerLogo.png" alt="RSSer Logo" className="w-8 h-8 rounded-lg" />
+        <img src="/RSSerLogo.png" alt="RSSer Logo" className="w-8 h-8 rounded-lg object-contain" style={{ imageRendering: '-webkit-optimize-contrast' }} />
         <div className="flex flex-col">
           <span className="text-xl font-bold text-white">RSSer</span>
         </div>

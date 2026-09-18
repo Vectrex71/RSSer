@@ -23,7 +23,8 @@ function formatTime(seconds: number): string {
   return `${mins < 10 ? '0' : ''}${mins}:${secs < 10 ? '0' : ''}${secs}`;
 }
 
-function MediaPlayerVoting({ targetUrl, targetTitle, type, settings }: { targetUrl: string; targetTitle: string; type: string; settings: any }) {
+function MediaPlayerVoting({ targetUrl, targetTitle, type, settings, isDark }: { targetUrl: string; targetTitle: string; type: string; settings: any; isDark?: boolean }) {
+  if (!settings?.showVoting) return null;
   const [voteData, setVoteData] = useState<{ votes: number; voters: Record<string, 'up' | 'down'> }>({ votes: 0, voters: {} });
   const docId = targetUrl ? targetUrl.replace(/[^a-zA-Z0-9_\-]+/g, '_').substring(0, 100) : '';
 
@@ -45,22 +46,33 @@ function MediaPlayerVoting({ targetUrl, targetTitle, type, settings }: { targetU
     return () => unsub();
   }, [docId]);
 
-  const uid = auth.currentUser?.uid;
-  const userVote = uid ? voteData.voters[uid] || null : null;
+  let currentUid = auth.currentUser?.uid;
+  if (!currentUid && typeof window !== 'undefined') {
+    currentUid = localStorage.getItem('rsser_community_user_id') || undefined;
+  }
+  const userVote = currentUid ? voteData.voters[currentUid] || null : null;
 
   const handleVote = async (voteType: 'up' | 'down') => {
-    if (!auth.currentUser) return;
-    const currentUid = auth.currentUser.uid;
-    const prevVote = voteData.voters[currentUid] || null;
+    let voterId = auth.currentUser?.uid;
+    if (!voterId) {
+      let guestId = localStorage.getItem('rsser_community_user_id');
+      if (!guestId) {
+        guestId = 'guest_' + Math.random().toString(36).substring(2, 15);
+        localStorage.setItem('rsser_community_user_id', guestId);
+      }
+      voterId = guestId;
+    }
+
+    const prevVote = voteData.voters[voterId] || null;
 
     let newVoters = { ...voteData.voters };
     let votesChange = 0;
 
     if (prevVote === voteType) {
-      delete newVoters[currentUid];
+      delete newVoters[voterId];
       votesChange = voteType === 'up' ? -1 : 1;
     } else {
-      newVoters[currentUid] = voteType;
+      newVoters[voterId] = voteType;
       if (!prevVote) {
         votesChange = voteType === 'up' ? 1 : -1;
       } else {
@@ -86,31 +98,47 @@ function MediaPlayerVoting({ targetUrl, targetTitle, type, settings }: { targetU
   };
 
   return (
-    <div className="flex items-center gap-1 bg-black/40 backdrop-blur-md border border-white/10 rounded-full px-2 py-0.5 select-none text-white shrink-0">
+    <div className={`flex items-center gap-1 rounded-full px-2 py-1 select-none shrink-0 transition-colors ${
+      isDark 
+        ? 'bg-white/5 border border-white/10 text-white' 
+        : 'bg-black/5 border border-black/10 text-gray-900'
+    }`}>
       <button
         onClick={() => handleVote('up')}
-        className={`p-1 rounded-full transition-all flex items-center justify-center hover:bg-emerald-500/10 ${userVote === 'up' ? 'text-emerald-500 scale-110' : 'text-neutral-400 hover:text-emerald-500'}`}
+        className={`p-1 rounded-full transition-all flex items-center justify-center ${
+          userVote === 'up' 
+            ? 'text-emerald-500 scale-110 font-bold' 
+            : isDark 
+              ? 'text-neutral-400 hover:text-emerald-400 hover:bg-emerald-500/10' 
+              : 'text-gray-500 hover:text-emerald-600 hover:bg-emerald-500/10'
+        }`}
         title="Upvote (+1)"
       >
-        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill={userVote === 'up' ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill={userVote === 'up' ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
       </button>
       
-      <span className={`text-[10px] font-bold font-mono min-w-[14px] text-center ${
+      <span className={`text-xs font-bold font-mono min-w-[16px] text-center ${
         voteData.votes > 0 
-          ? 'text-emerald-400' 
+          ? 'text-emerald-500 dark:text-emerald-400' 
           : voteData.votes < 0 
-            ? 'text-red-400' 
-            : 'text-neutral-400'
+            ? 'text-red-500 dark:text-red-400' 
+            : isDark ? 'text-neutral-300' : 'text-gray-800'
       }`}>
         {voteData.votes > 0 ? `+${voteData.votes}` : voteData.votes}
       </span>
       
       <button
         onClick={() => handleVote('down')}
-        className={`p-1 rounded-full transition-all flex items-center justify-center hover:bg-red-500/10 ${userVote === 'down' ? 'text-red-500 scale-110' : 'text-neutral-400 hover:text-red-500'}`}
+        className={`p-1 rounded-full transition-all flex items-center justify-center ${
+          userVote === 'down' 
+            ? 'text-red-500 scale-110 font-bold' 
+            : isDark 
+              ? 'text-neutral-400 hover:text-red-400 hover:bg-red-500/10' 
+              : 'text-gray-500 hover:text-red-600 hover:bg-red-500/10'
+        }`}
         title="Downvote (-1)"
       >
-        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill={userVote === 'down' ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill={userVote === 'down' ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
       </button>
     </div>
   );
@@ -339,58 +367,6 @@ export function GlobalMediaPlayer() {
         />
       )}
 
-      {/* Floating Minimized Pill / Capsule for Mobile & Desktop when minimized */}
-      {playingAudio && isAudioMinimized && (
-        <div className="fixed bottom-20 right-4 z-[90] animate-in fade-in slide-in-from-bottom-3 duration-200">
-          <div className={`flex items-center gap-2.5 px-3.5 py-2.5 rounded-full shadow-2xl border backdrop-blur-2xl ${
-            isDark ? 'bg-[#18181b]/95 border-white/15 text-white' : 'bg-white/95 border-gray-200 text-gray-900 shadow-xl'
-          }`}>
-            <button
-              onClick={() => setIsAudioMinimized(false)}
-              className="flex items-center gap-2.5 min-w-0 text-left cursor-pointer group"
-              title="Player vergrößern"
-            >
-              <div className="relative shrink-0">
-                {playingAudio.imageUrl ? (
-                  <img src={playingAudio.imageUrl} alt="" className="w-8 h-8 rounded-full object-cover ring-2 ring-orange-500/30" referrerPolicy="no-referrer" />
-                ) : (
-                  <div className="w-8 h-8 rounded-full bg-orange-500/20 text-orange-500 flex items-center justify-center">
-                    <Radio className="w-4 h-4" />
-                  </div>
-                )}
-                {isPlaying && (
-                  <span className="absolute -top-0.5 -right-0.5 flex h-2.5 w-2.5">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-orange-500"></span>
-                  </span>
-                )}
-              </div>
-              <div className="max-w-[120px] sm:max-w-[180px] truncate">
-                <p className="text-xs font-bold truncate">{playingAudio.title}</p>
-                <p className="text-[10px] opacity-60 truncate">{isLiveStream ? 'Live Stream' : formatTime(currentTime)}</p>
-              </div>
-            </button>
-
-            <div className="flex items-center gap-1 shrink-0 pl-1 border-l border-white/10">
-              <button
-                onClick={togglePlay}
-                className="p-1.5 rounded-full bg-orange-500 text-white hover:bg-orange-600 transition-colors"
-                title={isPlaying ? 'Pause' : 'Play'}
-              >
-                {isPlaying ? <Pause className="w-3.5 h-3.5 fill-white" /> : <Play className="w-3.5 h-3.5 fill-white ml-0.5" />}
-              </button>
-              <button
-                onClick={() => setIsAudioMinimized(false)}
-                className="p-1.5 rounded-full hover:bg-white/10 text-neutral-400 hover:text-white transition-colors"
-                title="Maximieren"
-              >
-                <Maximize2 className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Global Full Audio Player Floating Dock */}
       {playingAudio && !isAudioMinimized && (
         <div className={`fixed bottom-0 left-0 right-0 md:bottom-6 md:left-[50%] md:right-auto md:translate-x-[-50%] md:w-[94vw] md:max-w-[850px] md:rounded-3xl z-[90] ${
@@ -531,6 +507,7 @@ export function GlobalMediaPlayer() {
                 targetTitle={playingAudio.title}
                 type="podcast"
                 settings={settings}
+                isDark={isDark}
               />
 
               <button 
@@ -625,6 +602,7 @@ export function GlobalMediaPlayer() {
                   targetTitle={playingVideo.title}
                   type={playingVideo.isWebcam ? 'webcam' : 'youtube'}
                   settings={settings}
+                  isDark={isDark}
                 />
               </div>
 

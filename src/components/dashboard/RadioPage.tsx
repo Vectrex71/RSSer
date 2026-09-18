@@ -32,16 +32,8 @@ export function RadioPage() {
   const [stations, setStations] = useState<RadioStation[]>([]);
   const [publicSources, setPublicSources] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [transitionLoading, setTransitionLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string>("Alle");
   const [communityVotes, setCommunityVotes] = useState<Record<string, { votes: number, voters: Record<string, 'up' | 'down'> }>>({});
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setTransitionLoading(false);
-    }, 950);
-    return () => clearTimeout(timer);
-  }, []);
 
   useEffect(() => {
     try {
@@ -202,35 +194,37 @@ export function RadioPage() {
         </div>
 
         {/* Community Upvote/Downvote Buttons */}
-        <div 
-          className="flex items-center gap-0.5 bg-gray-100/80 dark:bg-neutral-950 border border-gray-200/50 dark:border-white/5 rounded-full px-1.5 py-0.5 select-none shrink-0"
-        >
-          <button
-            onClick={(e) => castFeedVote(e, station.url, station.title, 'up')}
-            className={`p-0.5 rounded-full transition-all flex items-center justify-center hover:bg-emerald-500/10 ${userVote === 'up' ? 'text-emerald-500 hover:text-emerald-600 scale-110' : 'text-gray-400 hover:text-emerald-500'}`}
-            title="Upvote (+1)"
+        {settings.showVoting && (
+          <div 
+            className="flex items-center gap-0.5 bg-gray-100/80 dark:bg-neutral-950 border border-gray-200/50 dark:border-white/5 rounded-full px-1.5 py-0.5 select-none shrink-0"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill={userVote === 'up' ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
-          </button>
-          
-          <span className={`text-[9px] font-bold font-mono min-w-[12px] text-center ${
-            voteCount > 0 
-              ? 'text-emerald-500' 
-              : voteCount < 0 
-                ? 'text-red-500' 
-                : 'opacity-80 text-gray-500 dark:text-gray-400'
-          }`}>
-            {voteCount > 0 ? `+${voteCount}` : voteCount}
-          </span>
-          
-          <button
-            onClick={(e) => castFeedVote(e, station.url, station.title, 'down')}
-            className={`p-0.5 rounded-full transition-all flex items-center justify-center hover:bg-red-500/10 ${userVote === 'down' ? 'text-red-500 hover:text-red-600 scale-110' : 'text-gray-400 hover:text-red-500'}`}
-            title="Downvote (-1)"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill={userVote === 'down' ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-          </button>
-        </div>
+            <button
+              onClick={(e) => castFeedVote(e, station.url, station.title, 'up')}
+              className={`p-0.5 rounded-full transition-all flex items-center justify-center hover:bg-emerald-500/10 ${userVote === 'up' ? 'text-emerald-500 hover:text-emerald-600 scale-110' : 'text-gray-400 hover:text-emerald-500'}`}
+              title="Upvote (+1)"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill={userVote === 'up' ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+            </button>
+            
+            <span className={`text-[9px] font-bold font-mono min-w-[12px] text-center ${
+              voteCount > 0 
+                ? 'text-emerald-500' 
+                : voteCount < 0 
+                  ? 'text-red-500' 
+                  : 'opacity-80 text-gray-500 dark:text-gray-400'
+            }`}>
+              {voteCount > 0 ? `+${voteCount}` : voteCount}
+            </span>
+            
+            <button
+              onClick={(e) => castFeedVote(e, station.url, station.title, 'down')}
+              className={`p-0.5 rounded-full transition-all flex items-center justify-center hover:bg-red-500/10 ${userVote === 'down' ? 'text-red-500 hover:text-red-600 scale-110' : 'text-gray-400 hover:text-red-500'}`}
+              title="Downvote (-1)"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill={userVote === 'down' ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+          </div>
+        )}
       </div>
     );
   };
@@ -246,12 +240,15 @@ export function RadioPage() {
     const fetchSources = async () => {
       try {
         const res = await fetch('/api/public-sources');
-        if (res.ok) {
+        const contentType = res.headers.get('content-type') || '';
+        if (res.ok && contentType.includes('application/json')) {
           const data = await res.json();
-          setPublicSources(data);
+          if (Array.isArray(data) && data.length > 0) {
+            setPublicSources(data);
+          }
         }
       } catch (e) {
-        console.error("Failed to fetch public sources", e);
+        // Silently continue
       }
     };
     fetchSources();
@@ -345,67 +342,6 @@ export function RadioPage() {
 
   return (
     <div className="max-w-[2400px] mx-auto h-full flex flex-col relative pt-4">
-      {/* Transition Progress Overlay */}
-      <AnimatePresence>
-        {transitionLoading && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className={`fixed inset-0 z-[150] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-hidden transition-all duration-300 ${
-              settings.sidebarVisible ? 'md:pl-64' : 'md:pl-20'
-            }`}
-          >
-            <motion.div 
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              className={`w-full max-w-2xl rounded-2xl sm:rounded-[32px] p-4 sm:p-5 md:p-6 pb-5 sm:pb-7 md:pb-8 shadow-2xl flex flex-col items-center text-center border overflow-y-auto max-h-[90vh] shrink-0 ${
-                isDark ? 'bg-neutral-900 border-white/10 text-white' : 'bg-white border-gray-100 text-gray-900'
-              }`}
-            >
-              <div className="relative mb-3 sm:mb-5 w-full h-[200px] sm:h-[280px] md:h-[350px] max-h-[42vh] min-h-[160px] overflow-hidden rounded-xl bg-neutral-950 shrink-0">
-                <img 
-                  src="/Loader_Radio.gif" 
-                  alt="Radio Mascot" 
-                  className="w-full h-full object-cover block select-none pointer-events-none rounded-xl shrink-0"
-                />
-              </div>
-
-              <h3 className="text-xl font-bold tracking-tight mb-2 shrink-0">
-                {isEn ? 'Opening Radio...' : 'Radio wird geladen...'}
-              </h3>
-              
-              <p className="text-xs opacity-65 mb-6 max-w-[280px] shrink-0">
-                {isEn ? 'Setting up pages and resources for your layout.' : 'Bereite Layout und Ressourcen für dich vor.'}
-              </p>
-
-              {/* Progress bar container */}
-              <div className="w-full bg-gray-100 dark:bg-white/10 h-3 rounded-full overflow-hidden relative mb-4 shrink-0">
-                <motion.div 
-                  className="bg-gradient-to-r from-blue-600 to-cyan-500 h-full rounded-full"
-                  style={{ boxShadow: '0 0 12px rgba(37,99,235,0.5)' }}
-                  initial={{ width: 0 }}
-                  animate={{ width: '100%' }}
-                  transition={{ duration: 0.9, ease: 'easeOut' }}
-                />
-              </div>
-
-              {/* Text indicator for progress */}
-              <div 
-                className="flex items-center justify-between w-full text-xs font-mono font-bold shrink-0"
-                style={{ color: '#3b82f6' }}
-              >
-                <span>100%</span>
-                <span className="animate-pulse">
-                  {isEn ? 'Ready!' : 'Bereit!'}
-                </span>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
       {categories.length > 1 && (
         <div 
           style={{

@@ -10,6 +10,16 @@ if (dns && typeof dns.setDefaultResultOrder === 'function') {
 // Disable TLS verification to bypass SSL/TLS certificate errors on older feed servers
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
+// Global error handlers to prevent unhandled rejection crashes or assertion leakage
+process.on('unhandledRejection', (reason: any) => {
+  if (reason && !String(reason?.message || reason).includes('PERMISSION_DENIED')) {
+    console.warn('[Server Handled] unhandledRejection:', reason?.message || reason);
+  }
+});
+process.on('uncaughtException', (err: any) => {
+  console.warn('[Server Handled] uncaughtException:', err?.message || err);
+});
+
 import { createServer as createViteServer } from "vite";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -17,7 +27,6 @@ import nodemailer from "nodemailer";
 import dotenv from "dotenv";
 import Parser from "rss-parser";
 import * as cheerio from "cheerio";
-import Stripe from "stripe";
 import { initializeApp, getApps as getAdminApps, cert } from "firebase-admin/app";
 import { getFirestore } from "firebase-admin/firestore";
 import { readFileSync, existsSync } from "fs";
@@ -27,6 +36,7 @@ import { decode as decodeHTML } from 'entities';
 import https from "https";
 import http from "http";
 import compression from "compression";
+import { DEFAULT_SOURCES } from "./src/lib/defaultSourcesData";
 
 dotenv.config();
 
@@ -40,49 +50,8 @@ console.log(`[YouTube] API Key status: ${(process.env.NEXT_PUBLIC_YOUTUBE_API_KE
 // Initialize Firebase Admin (Lazy)
 let db_admin_instance: any = null;
 
-// Initialize Firebase Client (for routes where Admin has permission issues)
-let db_client_instance: any = null;
+// Firebase Web Client SDK is strictly for browsers and produces AssertionError in Node.js
 function getDbClient() {
-  if (db_client_instance) return db_client_instance;
-  
-  const rootPath = process.cwd();
-  const configPath = path.join(rootPath, "firebase-applet-config.json");
-  let firebaseConfig: any = {};
-  
-  if (existsSync(configPath)) {
-    try {
-      firebaseConfig = JSON.parse(readFileSync(configPath, "utf-8"));
-    } catch (e: any) {
-      console.warn("[Firebase] Could not parse firebase-applet-config.json:", e.message);
-    }
-  }
-
-  const finalConfig = {
-    projectId: process.env.FIREBASE_PROJECT_ID || process.env.VITE_FIREBASE_PROJECT_ID || process.env.GOOGLE_CLOUD_PROJECT || firebaseConfig.projectId || "gen-lang-client-0728647424",
-    appId: process.env.FIREBASE_APP_ID || process.env.VITE_FIREBASE_APP_ID || firebaseConfig.appId,
-    apiKey: process.env.FIREBASE_API_KEY || process.env.VITE_FIREBASE_API_KEY || firebaseConfig.apiKey,
-    authDomain: process.env.FIREBASE_AUTH_DOMAIN || process.env.VITE_FIREBASE_AUTH_DOMAIN || firebaseConfig.authDomain,
-    firestoreDatabaseId: process.env.FIRESTORE_DATABASE_ID || process.env.VITE_FIRESTORE_DATABASE_ID || firebaseConfig.firestoreDatabaseId || "rsser-final",
-    storageBucket: process.env.FIREBASE_STORAGE_BUCKET || process.env.VITE_FIREBASE_STORAGE_BUCKET || firebaseConfig.storageBucket,
-    messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID || process.env.VITE_FIREBASE_MESSAGING_SENDER_ID || firebaseConfig.messagingSenderId,
-  };
-
-  if (finalConfig.apiKey && finalConfig.projectId) {
-    try {
-      const apps = getClientApps();
-      const existingClientApp = apps.find(a => a.name === "client-sdk");
-      
-      const app = existingClientApp || initializeClientApp(finalConfig, "client-sdk");
-      // Use initializeFirestore with long polling
-      db_client_instance = initializeClientFirestore(app, {
-        experimentalForceLongPolling: true
-      }, finalConfig.firestoreDatabaseId);
-      console.log(`[Firebase] Registered Client SDK on database: ${finalConfig.firestoreDatabaseId || '(default)'}`);
-      return db_client_instance;
-    } catch (e: any) {
-      console.error("[Firebase] Client SDK initialization failed:", e.message);
-    }
-  }
   return null;
 }
 
@@ -104,8 +73,8 @@ function getDbAdmin() {
     }
     
     // Check environment fallbacks
-    projectId = projectId || process.env.FIREBASE_PROJECT_ID || process.env.GOOGLE_CLOUD_PROJECT;
-    dbId = dbId || process.env.FIRESTORE_DATABASE_ID;
+    projectId = projectId || process.env.FIREBASE_PROJECT_ID || process.env.VITE_FIREBASE_PROJECT_ID || process.env.GOOGLE_CLOUD_PROJECT || "gen-lang-client-0728647424";
+    dbId = dbId || process.env.FIRESTORE_DATABASE_ID || process.env.VITE_FIRESTORE_DATABASE_ID || "rsser-final";
 
     if (projectId) {
       process.env.GOOGLE_CLOUD_PROJECT = projectId;
@@ -141,10 +110,6 @@ function getDbAdmin() {
     return null;
   }
 }
-
-const stripe = process.env.STRIPE_SECRET_KEY ? new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: "2023-10-16" as any,
-}) : null;
 
 const parser = new Parser({
   headers: {
@@ -196,6 +161,7 @@ function optimizeRssImageUrl(urlStr: string | undefined, link: string | undefine
   const siteLink = link ? String(link).toLowerCase() : '';
   const isBlick = siteLink.includes('blick.ch') || urlStr.toLowerCase().includes('blick.ch');
   const is20min = siteLink.includes('20min.ch') || urlStr.toLowerCase().includes('20min.ch');
+  const isDeskmodder = siteLink.includes('deskmodder.de') || urlStr.toLowerCase().includes('deskmodder.de');
   
   if (isBlick) {
     // Blick specific image optimization engine
@@ -218,6 +184,19 @@ function optimizeRssImageUrl(urlStr: string | undefined, link: string | undefine
     }
     if (upgraded.includes('height=')) {
       upgraded = upgraded.replace(/([\?&])height=\d+/gi, '$1height=750');
+    }
+  } else if (isDeskmodder || upgraded.includes('deskmodder.de') || upgraded.includes('wp-content/uploads')) {
+    // Deskmodder & WordPress responsive image upscaler:
+    // Convert thumbnails like banner-300x169.jpg or bild-150x150.png to full resolution (strip dimension suffix)
+    const wpThumbMatch = upgraded.match(/^(.+)-\d+x\d+(\.[a-zA-Z0-9]+(?:\?.*)?)$/i);
+    if (wpThumbMatch) {
+      upgraded = wpThumbMatch[1] + wpThumbMatch[2];
+    }
+    if (upgraded.includes('?resize=') || upgraded.includes('&resize=')) {
+      upgraded = upgraded.replace(/([\?&])resize=\d+,\d+/gi, '');
+    }
+    if (upgraded.includes('?w=') || upgraded.includes('&w=')) {
+      upgraded = upgraded.replace(/([\?&])w=\d+/gi, '$1w=1200');
     }
   }
   
@@ -336,11 +315,13 @@ function extractImageLocally(item: any): string | undefined {
 
     if (
       str.includes('favicon') || 
-      str.includes('pixel') || 
-      str.includes('track') || 
-      str.includes('gravatar') || 
+      str.includes('1x1') || 
+      str.includes('tracking-pixel') || 
+      str.includes('/track.') || 
+      str.includes('ad-tracker') || 
       str.includes('doubleclick') || 
       str.includes('statcounter') || 
+      str.includes('gravatar.com/avatar') || 
       str.includes('epaper') || 
       str.includes('e-paper') || 
       str.includes('teaser-abo') || 
@@ -348,11 +329,13 @@ function extractImageLocally(item: any): string | undefined {
       str.includes('abo-teaser') || 
       str.includes('abo_teaser') || 
       str.includes('subscription') || 
-      str.includes('werbung') || 
-      str.includes('advertisement') || 
-      str.includes('paywall') || 
-      str.includes('banner-') || 
-      str.match(/\/(?:spacer|transparent|dot)\.?(?:gif|png|jpg)?$/i)
+      str.includes('ad-banner') || 
+      str.includes('banner-ad') || 
+      str.includes('cookie-banner') || 
+      str.includes('werbebanner') || 
+      str.includes('smilies/') || 
+      str.includes('emoji/') || 
+      str.match(/\/(?:spacer|transparent|dot|blank|pixel)\.?(?:gif|png|jpg|svg)?$/i)
     ) {
       return false;
     }
@@ -366,6 +349,8 @@ function extractImageLocally(item: any): string | undefined {
     if (
       str.includes('blick.ch') || 
       str.includes('20min.ch') || 
+      str.includes('deskmodder.de') || 
+      str.includes('deskmodder') || 
       str.includes('nzz.ch') || 
       str.includes('heise.de') || 
       str.includes('t3n.de') || 
@@ -524,8 +509,61 @@ function extractImageLocally(item: any): string | undefined {
     for (const html of contentsToCheck) {
       if (html && typeof html === 'string') {
         const unescapedHtml = decodeHTML(html);
+        
+        // 1. Cheerio-based structured extraction
+        try {
+          if (unescapedHtml.includes('<img') || unescapedHtml.includes('<source') || unescapedHtml.includes('wp-content')) {
+            const $ = cheerio.load(unescapedHtml);
+            $('img').each((_, el) => {
+              if (url) return;
+              const $img = $(el);
+              const candidates: (string | undefined)[] = [
+                $img.attr('data-large-file'),
+                $img.attr('data-full-url'),
+                $img.attr('data-orig-file'),
+                $img.attr('src'),
+                $img.attr('data-src'),
+                $img.attr('data-original'),
+                $img.attr('data-img-src'),
+                $img.attr('data-lazy-src')
+              ];
+
+              // Check srcset: WordPress and Deskmodder include 500w, 810w, 1264w
+              const srcset = $img.attr('srcset') || $img.attr('data-srcset');
+              if (srcset) {
+                const parts = srcset.split(',').map(s => s.trim().split(/\s+/)[0]).filter(Boolean);
+                // Prefer crisp responsive images
+                for (let i = parts.length - 1; i >= 0; i--) {
+                  candidates.unshift(parts[i]);
+                }
+              }
+
+              for (const cand of candidates) {
+                if (cand && isAcceptableImage(cand)) {
+                  url = cand;
+                  break;
+                }
+              }
+            });
+
+            // Also check anchor links wrapping images linking to high-res media files
+            if (!url) {
+              $('a').each((_, el) => {
+                if (url) return;
+                const href = $(el).attr('href');
+                if (href && (href.includes('wp-content/uploads') || href.includes('deskmodder.de')) && href.match(/\.(jpeg|jpg|png|webp|avif)(?:\?.*)?$/i)) {
+                  if (isAcceptableImage(href)) {
+                    url = href;
+                  }
+                }
+              });
+            }
+          }
+        } catch (e) {}
+
+        if (url) break;
           
-        // Try various image attributes including lazy-loading ones
+        // 2. Regex fallback for any loose or malformed tags
         const imgRegexes = [
           /<img[^>]+src=["']([^"']+)["']/gi,
           /<img[^>]+data-src=["']([^"']+)["']/gi,
@@ -596,13 +634,15 @@ function extractImageLocally(item: any): string | undefined {
   return undefined;
 }
 
+let isFirestoreOgCacheAvailable = true;
+
 async function fetchOgImage(url: string, useProxy = false): Promise<string | undefined> {
   if (!url) return undefined;
   if (ogImageCache.has(url)) {
     return ogImageCache.get(url);
   }
 
-  // Check Firestore Cache first to load in milliseconds!
+  // Check Firestore Cache first to load in milliseconds if available and permitted
   const dbAdmin = getDbAdmin();
   const clientDb = getDbClient();
   const cacheId = Buffer.from(url).toString('base64').substring(0, 500).replace(/\//g, '_');
@@ -610,15 +650,18 @@ async function fetchOgImage(url: string, useProxy = false): Promise<string | und
   let cachedData: any = null;
   let cacheFound = false;
 
-  if (dbAdmin) {
+  if (isFirestoreOgCacheAvailable && dbAdmin) {
     try {
       const docSnap = await dbAdmin.collection("og_images_cache").doc(cacheId).get();
       if (docSnap.exists) {
         cachedData = docSnap.data();
         cacheFound = true;
       }
-    } catch (e) {
-      // Quietly ignore and let clientDb fallback try
+    } catch (e: any) {
+      if (e?.code === 7 || e?.code === 9 || e?.message?.includes('PERMISSION_DENIED') || e?.message?.includes('FAILED_PRECONDITION')) {
+        isFirestoreOgCacheAvailable = false;
+      }
+      // Quietly ignore and let fallback try
     }
   }
 
@@ -629,8 +672,10 @@ async function fetchOgImage(url: string, useProxy = false): Promise<string | und
         cachedData = docSnap.data();
         cacheFound = true;
       }
-    } catch (e) {
-      console.warn(`[Firestore Cache Read Error] for ${url}:`, e);
+    } catch (e: any) {
+      if (!e?.message?.includes('PERMISSION_DENIED') && e?.code !== 7) {
+        console.warn(`[Firestore Cache Read Error] for ${url}:`, e?.message || e);
+      }
     }
   }
 
@@ -665,27 +710,35 @@ async function fetchOgImage(url: string, useProxy = false): Promise<string | und
     let response: Response | null = null;
     let html = '';
     
-    // 1. Direct fetch with a fast timeout (1.5s)
+    // 1. Direct fetch with a balanced timeout (3.5s)
     try {
-      response = await fetchWithTimeout(url, 1500);
+      response = await fetchWithTimeout(url, 3500);
       if (response && response.ok) {
         html = await response.text();
       } else {
         throw new Error(`Direct fetch status: ${response ? response.status : 'unknown'}`);
       }
     } catch (err: any) {
-      // 2. Direct fetch failed. Try a CORS proxy to bypass any geo-blocks or scraping firewalls!
-      const proxyUrls = [
+      // 2. Direct fetch failed. Try resilient proxies to bypass any geo-blocks or scraping firewalls!
+      const isDeskmodderUrl = url.toLowerCase().includes('deskmodder.de');
+      const proxyUrls = isDeskmodderUrl ? [
+        `https://r.jina.ai/${url}`,
         `https://corsproxy.io/?url=${encodeURIComponent(url)}`,
-        `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`
+        `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+        `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`
+      ] : [
+        `https://corsproxy.io/?url=${encodeURIComponent(url)}`,
+        `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+        `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
+        `https://r.jina.ai/${url}`
       ];
       
       for (const proxyUrl of proxyUrls) {
         try {
-          const pResponse = await fetchWithTimeout(proxyUrl, 3000);
+          const pResponse = await fetchWithTimeout(proxyUrl, 3500);
           if (pResponse && pResponse.ok) {
             html = await pResponse.text();
-            if (html && (html.toLowerCase().includes('<html') || html.toLowerCase().includes('<meta'))) {
+            if (html && (html.toLowerCase().includes('<html') || html.toLowerCase().includes('<meta') || html.includes('Markdown Content:'))) {
               break;
             }
           }
@@ -697,6 +750,32 @@ async function fetchOgImage(url: string, useProxy = false): Promise<string | und
 
     if (!html) {
       return undefined;
+    }
+
+    // Check if proxy returned Jina markdown instead of HTML
+    if (html.includes('Markdown Content:') || (html.includes('![') && !html.includes('<html'))) {
+      const imgMatches = [...html.matchAll(/!\[.*?\]\((https?:\/\/[^\s\)]+)\)/g)];
+      for (const m of imgMatches) {
+        const candidate = m[1];
+        const lowerCand = candidate ? candidate.toLowerCase() : '';
+        if (
+          candidate &&
+          candidate.startsWith('http') &&
+          !lowerCand.includes('avatar') &&
+          !lowerCand.includes('gravatar') &&
+          !lowerCand.includes('smilies') &&
+          !lowerCand.includes('deskmodder_logo') &&
+          !lowerCand.includes('site-logo') &&
+          !lowerCand.includes('header-logo') &&
+          !lowerCand.includes('favicon') &&
+          !lowerCand.includes('pixel') &&
+          !candidate.endsWith('.html') &&
+          !candidate.endsWith('.xml')
+        ) {
+          ogImageCache.set(url, candidate);
+          return candidate;
+        }
+      }
     }
 
     const $ = cheerio.load(html);
@@ -797,26 +876,34 @@ async function fetchOgImage(url: string, useProxy = false): Promise<string | und
       try {
         ogImage = new URL(ogImage, url).href;
       } catch(e) {}
+      ogImage = optimizeRssImageUrl(ogImage, url) || ogImage;
     }
     
     if (ogImage) {
       ogImageCache.set(url, ogImage);
       const clientDb = getDbClient();
-      if (dbAdmin || clientDb) {
-        try {
-          const cacheId = Buffer.from(url).toString('base64').substring(0, 500).replace(/\//g, '_');
-          const cachePayload = {
-            url,
-            imageUrl: ogImage,
-            scrapedAt: new Date().toISOString()
-          };
-          if (clientDb) {
-            await setDoc(doc(clientDb, "og_images_cache", cacheId), cachePayload);
-          } else if (dbAdmin) {
-            await dbAdmin.collection("og_images_cache").doc(cacheId).set(cachePayload);
-          }
-        } catch (e) {
-          console.warn(`[Firestore Cache Write Error] for ${url}:`, e);
+      if (isFirestoreOgCacheAvailable && (dbAdmin || clientDb)) {
+        const cacheId = Buffer.from(url).toString('base64').substring(0, 500).replace(/\//g, '_');
+        const cachePayload = {
+          url,
+          imageUrl: ogImage,
+          scrapedAt: new Date().toISOString()
+        };
+
+        if (clientDb) {
+          setDoc(doc(clientDb, "og_images_cache", cacheId), cachePayload).catch((e: any) => {
+            if (e?.code === 7 || e?.code === 9 || e?.message?.includes('PERMISSION_DENIED') || e?.message?.includes('FAILED_PRECONDITION')) {
+              isFirestoreOgCacheAvailable = false;
+            }
+          });
+        } else if (dbAdmin) {
+          dbAdmin.collection("og_images_cache").doc(cacheId).set(cachePayload).catch((e: any) => {
+            if (e?.code === 7 || e?.code === 9 || e?.message?.includes('PERMISSION_DENIED') || e?.message?.includes('FAILED_PRECONDITION')) {
+              isFirestoreOgCacheAvailable = false;
+            } else {
+              console.warn(`[Firestore Cache Write Error] for ${url}:`, e?.message || e);
+            }
+          });
         }
       }
     }
@@ -992,57 +1079,15 @@ function xmlEscape(str: string): string {
 async function startServer() {
   try {
     const app = express();
-  const PORT = Number(process.env.PORT) || 3000;
+    const PORT = 3000;
 
-  app.use(compression());
+    // Fast health check endpoint for Cloud Run and platform startup probes
+    app.get("/api/health", (req, res) => {
+      res.json({ status: "ok" });
+    });
 
-  app.post("/api/webhook", express.raw({ type: "application/json" }), async (req, res) => {
-    if (!stripe || !process.env.STRIPE_WEBHOOK_SECRET) {
-      return res.status(400).send("Stripe not configured");
-    }
-
-    const sig = req.headers["stripe-signature"];
-    let event;
-
-    try {
-      event = stripe.webhooks.constructEvent(req.body, sig as string, process.env.STRIPE_WEBHOOK_SECRET);
-    } catch (err: any) {
-      console.error(`Webhook Error: ${err.message}`);
-      return res.status(400).send(`Webhook Error: ${err.message}`);
-    }
-
-    // Handle the event
-    switch (event.type) {
-      case "checkout.session.completed":
-        const checkoutSessionCompleted = event.data.object as any;
-        console.log("Checkout session completed", checkoutSessionCompleted);
-        const userId = checkoutSessionCompleted.client_reference_id;
-        const customerId = checkoutSessionCompleted.customer;
-        const planType = checkoutSessionCompleted.metadata?.planType || (checkoutSessionCompleted.line_items?.data[0]?.price?.recurring?.interval === 'year' ? 'yearly' : 'monthly');
-        
-        if (userId) {
-          const db = getDbAdmin();
-          if (db) {
-            await db.collection('users').doc(userId).set({ 
-              plan: planType === "Jährlich" ? "yearly" : (planType === "Monatlich" ? "monthly" : planType),
-              stripeCustomerId: customerId
-            }, { merge: true });
-            console.log(`Updated user ${userId} to plan ${planType} with customerId ${customerId}`);
-          }
-        }
-        break;
-      case "customer.subscription.deleted":
-        const customerSubscriptionDeleted = event.data.object as any;
-        console.log("Subscription deleted", customerSubscriptionDeleted);
-        break;
-      default:
-        console.log(`Unhandled event type ${event.type}`);
-    }
-
-    res.send();
-  });
-
-  app.use(express.json());
+    app.use(compression());
+    app.use(express.json());
 
   app.post("/api/admin/cleanup-sources", async (req, res) => {
     try {
@@ -1169,26 +1214,50 @@ async function startServer() {
   ]);
 
   app.get("/api/public-sources", async (req, res) => {
+    const normUrl = (u?: string) => (u || '').trim().toLowerCase().replace(/^https?:\/\//, '').replace(/\/$/, '');
+
+    const sanitizeSource = (s: any) => {
+      let imageUrl = s.imageUrl;
+      if (
+        (s.title && s.title.toLowerCase().includes('lage der nation')) ||
+        (s.url && s.url.toLowerCase().includes('lagedernation')) ||
+        (imageUrl && (imageUrl.includes('da720bc5-6fe3-b09b-65c9-9430c5e13589') || imageUrl.includes('mza_1079549307223055428')))
+      ) {
+        if (!s.customImageUrl) {
+          imageUrl = 'https://lagedernation.org/wp-content/blogs.dir/10/files/2020/06/apple_podcast_artwork_reverse.png';
+        }
+      }
+      return { ...s, imageUrl };
+    };
+
+    // Bootstrap fallback ONLY if the database is 100% empty
+    const defaultSourcesWithId = DEFAULT_SOURCES
+      .filter(s => s.url && !DEAD_SOURCE_URLS.has(s.url))
+      .map((s, idx) => sanitizeSource({
+        id: (s as any).id || `default-${s.type || 'src'}-${idx}`,
+        ...s,
+        category: s.category === 'Technik' ? 'Tech' : s.category
+      }));
+
     try {
-      // Prioritize Admin SDK for stability in Node environment, but handle permission issues
       const db = getDbAdmin();
       if (db) {
         try {
-          const snapshot = await db.collection('publicSources').limit(500).get();
-          let sources = snapshot.docs.map((doc: any) => {
-            const data = doc.data();
-            const mappedCategory = data.category === 'Technik' ? 'Tech' : data.category;
-            return { id: doc.id, ...data, category: mappedCategory };
-          });
-          
-          // Background clean up of dead sources
-          const deadDocs = snapshot.docs.filter((doc: any) => doc.data().url && DEAD_SOURCE_URLS.has(doc.data().url));
-          if (deadDocs.length > 0) {
-            Promise.all(deadDocs.map((doc: any) => doc.ref.delete().catch(() => {}))).catch(() => {});
-          }
+          const snapshot = await db.collection('publicSources').limit(1000).get();
+          if (!snapshot.empty) {
+            // Firestore database is the ONLY source of truth
+            const dbSources = snapshot.docs
+              .filter((doc: any) => !doc.data().deleted)
+              .map((doc: any) => {
+                const data = doc.data();
+                const mappedCategory = data.category === 'Technik' ? 'Tech' : data.category;
+                return sanitizeSource({ id: doc.id, ...data, category: mappedCategory });
+              })
+              .filter((s: any) => s.url && !DEAD_SOURCE_URLS.has(s.url));
 
-          sources = sources.filter((s: any) => s.url && !DEAD_SOURCE_URLS.has(s.url));
-          return res.json(sources);
+            dbSources.sort((a: any, b: any) => (a.title || '').localeCompare(b.title || ''));
+            return res.json(dbSources);
+          }
         } catch (adminErr: any) {
           if (!adminErr.message?.includes('PERMISSION_DENIED')) {
             console.warn("[Firebase Admin] Public sources fetch failed:", adminErr.message);
@@ -1196,53 +1265,59 @@ async function startServer() {
         }
       }
 
-      // Fallback to Client SDK if Admin fails (e.g. PERMISSION_DENIED)
+      // Fallback to clientDb if Admin SDK is unavailable
       const clientDb = getDbClient();
       if (clientDb) {
-        const q = query(collection(clientDb, 'publicSources'), limit(500));
-        const snap = await getDocs(q);
-        let sources = snap.docs.map(doc => {
-          const data = doc.data();
-          const mappedCategory = data.category === 'Technik' ? 'Tech' : data.category;
-          return { id: doc.id, ...data, category: mappedCategory };
-        });
+        try {
+          const snap = await getDocs(query(collection(clientDb, 'publicSources'), limit(1000)));
+          if (!snap.empty) {
+            const dbSources = snap.docs
+              .filter((d: any) => !d.data().deleted)
+              .map((d: any) => {
+                const data = d.data();
+                const mappedCategory = data.category === 'Technik' ? 'Tech' : data.category;
+                return sanitizeSource({ id: d.id, ...data, category: mappedCategory });
+              })
+              .filter((s: any) => s.url && !DEAD_SOURCE_URLS.has(s.url));
 
-        // Background clean up of dead sources
-        const deadDocsClient = snap.docs.filter(doc => doc.data().url && DEAD_SOURCE_URLS.has(doc.data().url));
-        if (deadDocsClient.length > 0) {
-          Promise.all(deadDocsClient.map(doc => deleteDoc(doc.ref).catch(() => {}))).catch(() => {});
+            dbSources.sort((a: any, b: any) => (a.title || '').localeCompare(b.title || ''));
+            return res.json(dbSources);
+          }
+        } catch (clientErr: any) {
+          // Ignore
         }
-
-        sources = sources.filter((s: any) => s.url && !DEAD_SOURCE_URLS.has(s.url));
-        return res.json(sources);
       }
     } catch (err: any) {
-      // Don't log PERMISSION_DENIED as it's expected in some environments and we have a fallback
       if (!err.message?.includes('PERMISSION_DENIED')) {
         console.error("[api/public-sources] Error:", err.message);
       }
     }
-    res.json([]);
+    return res.json(defaultSourcesWithId);
   });
 
   const imageProxyCache = new Map<string, { buffer: Buffer, contentType: string, timestamp: number }>();
 
   app.get("/api/image-proxy", async (req, res) => {
-    const imageUrl = req.query.url as string;
+    let imageUrl = req.query.url as string;
     if (!imageUrl) {
       return res.status(400).send("URL required");
     }
+
+    // Fix known broken mzstatic image URLs that Apple 404ed
+    if (imageUrl.includes('da720bc5-6fe3-b09b-65c9-9430c5e13589') || imageUrl.includes('mza_1079549307223055428')) {
+      imageUrl = 'https://lagedernation.org/wp-content/blogs.dir/10/files/2020/06/apple_podcast_artwork_reverse.png';
+    }
+
     if (!imageUrl.startsWith("http")) {
       return res.status(400).send("Absolute URL required");
     }
-
-    res.setHeader("Cache-Control", "public, max-age=2592000, immutable"); // 30 days browser cache, immutable
 
     // Check in-memory image cache
     const now = Date.now();
     const cachedImage = imageProxyCache.get(imageUrl);
     if (cachedImage && (now - cachedImage.timestamp < 12 * 60 * 60 * 1000)) { // 12 hours server cache
       res.setHeader("Content-Type", cachedImage.contentType);
+      res.setHeader("Cache-Control", "public, max-age=86400");
       return res.send(cachedImage.buffer);
     }
 
@@ -1255,11 +1330,12 @@ async function startServer() {
       }
     }
 
+    let imageRes: Response | null = null;
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 8000);
+      const timeoutId = setTimeout(() => controller.abort(), 6000); // 6s direct timeout
       
-      const imageRes = await fetch(imageUrl, {
+      imageRes = await fetch(imageUrl, {
         signal: controller.signal,
         headers: {
           "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
@@ -1271,9 +1347,38 @@ async function startServer() {
       if (!imageRes.ok) {
         throw new Error(`Failed to fetch image: ${imageRes.status}`);
       }
+    } catch (error: any) {
+      // Direct fetch failed (e.g. ECONNREFUSED from Hetzner/Deskmodder or timeout).
+      // Fall back to high-reliability image CDN proxies:
+      const fallbackProxies = [
+        `https://images.weserv.nl/?url=${encodeURIComponent(imageUrl)}`,
+        `https://wsrv.nl/?url=${encodeURIComponent(imageUrl)}`
+      ];
+      for (const fbUrl of fallbackProxies) {
+        try {
+          const fbController = new AbortController();
+          const fbTimeout = setTimeout(() => fbController.abort(), 6000);
+          const fbRes = await fetch(fbUrl, { signal: fbController.signal });
+          clearTimeout(fbTimeout);
+          if (fbRes.ok) {
+            imageRes = fbRes;
+            break;
+          }
+        } catch (fbErr) {
+          // ignore, try next fallback
+        }
+      }
+    }
 
+    if (!imageRes || !imageRes.ok) {
+      res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+      return res.status(404).send("Image not found or inaccessible");
+    }
+
+    try {
       const contentType = imageRes.headers.get("content-type") || "image/jpeg";
       res.setHeader("Content-Type", contentType);
+      res.setHeader("Cache-Control", "public, max-age=86400");
 
       const arrayBuffer = await imageRes.arrayBuffer();
       const buf = Buffer.from(arrayBuffer);
@@ -1281,9 +1386,10 @@ async function startServer() {
       // Save fetched image to in-memory cache
       imageProxyCache.set(imageUrl, { buffer: buf, contentType, timestamp: now });
 
-      res.send(buf);
-    } catch (error) {
-      res.redirect(imageUrl);
+      return res.send(buf);
+    } catch (streamErr) {
+      res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+      return res.status(404).send("Image streaming failed");
     }
   });
 
@@ -1730,8 +1836,23 @@ async function startServer() {
             if (item.enclosure && item.enclosure.link) {
               xml += `      <enclosure url="${item.enclosure.link}" type="${item.enclosure.type || 'audio/mpeg'}" length="${item.enclosure.length || '0'}"/>\n`;
             }
-            if (item.thumbnail) {
-              xml += `      <media:thumbnail url="${item.thumbnail}"/>\n`;
+            let thumbnail = item.thumbnail;
+            if (!thumbnail && (item.description || item.content)) {
+              const combined = (item.content || '') + ' ' + (item.description || '');
+              const imgMatch = combined.match(/<img\s+[^>]*?(?:src|data-src|data-original)=["']([^"']+)["']/i);
+              if (imgMatch && imgMatch[1]) {
+                thumbnail = imgMatch[1].replace(/&amp;/g, '&').trim();
+              } else {
+                const srcsetMatch = combined.match(/<img\s+[^>]*?(?:srcset|data-srcset)=["']([^"'\s,]+)/i);
+                if (srcsetMatch && srcsetMatch[1]) {
+                  thumbnail = srcsetMatch[1].replace(/&amp;/g, '&').trim();
+                }
+              }
+            }
+            if (thumbnail) {
+              xml += `      <media:thumbnail url="${thumbnail}"/>\n`;
+              xml += `      <media:content url="${thumbnail}" medium="image"/>\n`;
+              xml += `      <enclosure url="${thumbnail}" type="image/jpeg" length="0"/>\n`;
             }
             xml += `    </item>\n`;
           }
@@ -2121,10 +2242,11 @@ async function startServer() {
 
       const tryProxies = async (urlToFetch: string): Promise<string> => {
         const proxies = [
-          `https://r.jina.ai/${urlToFetch}`,
           `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(urlToFetch)}`,
+          `https://api.allorigins.win/raw?url=${encodeURIComponent(urlToFetch)}`,
           `https://api.allorigins.win/get?url=${encodeURIComponent(urlToFetch)}`,
-          `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(urlToFetch)}`
+          `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(urlToFetch)}`,
+          `https://r.jina.ai/${urlToFetch}`
         ];
  
         let lastErr: any = null;
@@ -3211,100 +3333,6 @@ async function startServer() {
     }
   });
 
-  app.post("/api/create-checkout-session", async (req, res) => {
-    if (!stripe) return res.status(500).json({ error: "Stripe not configured" });
-    const { userId, email, planType } = req.body;
-    let { priceId } = req.body;
-    
-    if (!priceId) {
-       if (planType === "Monatlich") {
-         priceId = process.env.NEXT_PUBLIC_STRIPE_MONTHLY_PRICE_ID || process.env.VITE_STRIPE_MONTHLY_PRICE_ID;
-       } else if (planType === "Jährlich") {
-         priceId = process.env.NEXT_PUBLIC_STRIPE_YEARLY_PRICE_ID || process.env.VITE_STRIPE_YEARLY_PRICE_ID;
-       }
-    }
-    
-    if (!priceId) return res.status(400).json({ error: "Price ID is required" });
-
-    try {
-      const protocol = req.headers['x-forwarded-proto'] || req.protocol;
-      const host = req.get('host');
-      const baseUrl = process.env.APP_URL || `${protocol}://${host}`;
-
-      const session = await stripe.checkout.sessions.create({
-        mode: "subscription",
-        payment_method_types: ["card"],
-        line_items: [
-          {
-            price: priceId,
-            quantity: 1,
-          },
-        ],
-        success_url: `${baseUrl}/dashboard?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${baseUrl}/#pricing`,
-        client_reference_id: userId,
-        customer_email: email,
-      });
-
-      res.json({ url: session.url });
-    } catch (e: any) {
-      console.error(e);
-      res.status(500).json({ error: e.message });
-    }
-  });
-
-  app.post("/api/create-portal-session", async (req, res) => {
-    if (!stripe) return res.status(500).json({ error: "Stripe not configured" });
-    const { sessionId, userId } = req.body;
-
-    try {
-      let customerId: string | null = null;
-      
-      if (sessionId) {
-        const checkoutSession = await stripe.checkout.sessions.retrieve(sessionId);
-        customerId = checkoutSession.customer as string;
-      } else if (userId) {
-        const db = getDbAdmin();
-        if (db) {
-          const userDoc = await db.collection('users').doc(userId).get();
-          if (userDoc.exists) {
-            customerId = userDoc.data()?.stripeCustomerId;
-          }
-        }
-        
-        // Fallback: search by email if no customerId in DB
-        if (!customerId) {
-           const email = req.body.email;
-           if (email) {
-             const customers = await stripe.customers.list({ email, limit: 1 });
-             if (customers.data.length > 0) {
-               customerId = customers.data[0].id;
-             }
-           }
-        }
-      }
-
-      if (!customerId) {
-        return res.status(404).json({ error: "Customer not found" });
-      }
-
-      const protocol = req.headers['x-forwarded-proto'] || req.protocol;
-      const host = req.get('host');
-      const baseUrl = process.env.APP_URL || `${protocol}://${host}`;
-      const returnUrl = `${baseUrl}/settings?tab=profile`;
-
-      const portalSession = await stripe.billingPortal.sessions.create({
-        customer: customerId,
-        return_url: returnUrl,
-      });
-
-      res.json({ url: portalSession.url });
-    } catch (e: any) {
-      console.error(e);
-      res.status(500).json({ error: e.message });
-    }
-  });
-
   app.post("/api/waiting-list", async (req, res) => {
     const { email } = req.body;
     if (!email) {
@@ -3676,6 +3704,11 @@ async function startServer() {
     }
   });
 
+  // Intercept any unmatched /api routes so they return JSON 404 instead of reaching Vite/HTML
+  app.use('/api', (req, res) => {
+    res.status(404).json({ error: `API route not found: ${req.method} ${req.originalUrl}` });
+  });
+
   // Vite middleware for development
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({
@@ -3687,6 +3720,9 @@ async function startServer() {
     // Explicitly fallback to index.html for Vite dev server if middleware didn't catch it
     app.use('*', async (req, res, next) => {
       try {
+        if (req.originalUrl.startsWith('/api/')) {
+          return res.status(404).json({ error: `API endpoint not found: ${req.originalUrl}` });
+        }
         const url = req.originalUrl;
         const indexPath = path.resolve(process.cwd(), 'index.html');
         if (existsSync(indexPath)) {
@@ -3708,6 +3744,9 @@ async function startServer() {
     // Explicitly handle all SPA routes in production
     app.get('*', (req, res) => {
       try {
+        if (req.originalUrl.startsWith('/api/')) {
+          return res.status(404).json({ error: `API endpoint not found: ${req.originalUrl}` });
+        }
         res.sendFile(path.join(distPath, 'index.html'));
       } catch (e) {
         res.status(500).send("Server Error: Missing index.html");
@@ -3715,18 +3754,18 @@ async function startServer() {
     });
   }
 
-  // Setup cleanup tasks
-  cleanupOldArticles(); // Run once on startup
-  resetAllItemVotesToZero(); // Run once on startup to reset all existing item votes to 0
-  setInterval(() => {
-    cleanupOldArticles();
-  }, 6 * 60 * 60 * 1000); // Every 6 hours
-
-  // Initialize server-side background feed pre-caching crawler
-  startBackgroundCrawler();
-
-  app.listen(PORT, "0.0.0.0", () => {
+    app.listen(PORT, "0.0.0.0", () => {
       console.log(`Server running on http://localhost:${PORT}`);
+
+      // Defer background cleanup and crawler so container startup TCP probes succeed instantly
+      setTimeout(() => {
+        cleanupOldArticles().catch(() => {});
+        setInterval(() => {
+          cleanupOldArticles().catch(() => {});
+        }, 6 * 60 * 60 * 1000); // Every 6 hours
+
+        startBackgroundCrawler();
+      }, 15000);
     });
   } catch (error) {
     console.error("CRITICAL: Failed to start server:", error);

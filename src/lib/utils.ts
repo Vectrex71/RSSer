@@ -1,4 +1,22 @@
 
+export const getRootDomain = (urlStr: string) => {
+  try {
+    const hostname = new URL(urlStr).hostname.replace(/^www\./, '');
+    const parts = hostname.split('.');
+    if (parts.length > 2) {
+      const secondToLast = parts[parts.length - 2];
+      const tlds = ['com', 'co', 'org', 'net', 'edu', 'gov', 'ac', 'de', 'ch', 'at'];
+      if (tlds.includes(secondToLast)) {
+        return parts.slice(-3).join('.');
+      }
+      return parts.slice(-2).join('.');
+    }
+    return hostname;
+  } catch {
+    return null;
+  }
+};
+
 export const getCanonicalOrigin = () => {
   if (typeof window === 'undefined') return 'https://rsser.news';
   const origin = window.location.origin;

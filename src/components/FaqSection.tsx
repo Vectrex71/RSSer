@@ -64,7 +64,7 @@ export function FaqSection() {
       <h2 className="text-3xl font-bold mb-12 text-center">{tr(settings.language, 'Frequently Asked Questions (FAQ)', 'Häufig gestellte Fragen (FAQ)')}</h2>
       <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6">
         {faqData.map((item, i) => (
-          <div key={i} className="glass-effect rounded-2xl border border-transparent overflow-hidden">
+          <div key={i} className="glass-effect rounded-2xl border overflow-hidden">
             <button
               onClick={() => toggle(i)}
               className="w-full flex items-center justify-between p-6 text-left font-bold"

@@ -1,20 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { Radio, Youtube, Podcast, Rss, Camera, Compass, Shield, FileText, Bell, Play } from 'lucide-react';
+import { Radio, Youtube, Podcast, Rss, Compass, Shield, Bell, Play } from 'lucide-react';
 import { useSettings } from '../../context/SettingsContext';
 import { useTranslation } from '../../hooks/useTranslation';
 import { NavLink } from 'react-router-dom';
 import { auth } from '../../lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
-import { usePlan } from '../../hooks/usePlan';
 import { fetchAnnouncements, fetchLatestAnnouncement, Announcement } from '../../services/announcementService';
 import { AnnouncementModal } from '../dashboard/AnnouncementModal';
 import { useMedia } from '../../context/MediaContext';
 import { isAdminEmail } from '../../lib/admin';
 
 export function Sidebar() {
-  const { settings, setPricingModalOpen, setLastSeenAnnouncementId } = useSettings();
+  const { settings, setLastSeenAnnouncementId } = useSettings();
   const { t } = useTranslation();
-  const { plan } = usePlan();
   const { playingAudio, isAudioMinimized, setIsAudioMinimized } = useMedia();
   
   const [isAdmin, setIsAdmin] = React.useState(false);
@@ -54,8 +52,6 @@ export function Sidebar() {
     { name: t('podcasts'), icon: Podcast, path: '/podcasts', colorClass: 'text-purple-500', hoverColorClass: 'group-hover:text-purple-500' },
     { name: t('radio'), icon: Radio, path: '/radio', colorClass: 'text-blue-500', hoverColorClass: 'group-hover:text-blue-500' },
     { name: t('youtube'), icon: Youtube, path: '/youtube', colorClass: 'text-red-500', hoverColorClass: 'group-hover:text-red-500' },
-    { name: t('webcam'), icon: Camera, path: '/webcam', colorClass: 'text-emerald-500', hoverColorClass: 'group-hover:text-emerald-500' },
-    { name: t('blogs') || 'Blogs', icon: FileText, path: '/blogs/subscribed', colorClass: 'text-yellow-500', hoverColorClass: 'group-hover:text-yellow-500' },
   ].filter(item => !(settings.hiddenSources || []).includes(item.path));
   
   const bottomNavItems = [
@@ -93,7 +89,7 @@ export function Sidebar() {
     <>
       <aside className={`${settings.sidebarVisible ? 'translate-x-0 w-64' : '-translate-x-full md:translate-x-0 md:w-20'} absolute md:relative z-50 flex flex-col h-full border-r transition-all duration-300 ${settings.theme === 'dark' ? 'border-white/10 bg-[#0f0f0f]' : 'border-gray-200 bg-gray-50'}`}>
         <div className={`flex items-center transition-all duration-300 ${settings.sidebarVisible ? 'p-4 gap-3' : 'pt-10 pb-6 px-0 justify-center'} ${settings.theme === 'dark' ? 'text-white' : 'text-[#0a0a0a]'}`}>
-          <img src="/RSSerLogo.png" alt="RSSer Logo" className={`${settings.sidebarVisible ? 'w-12 h-12' : 'w-12 h-12'} rounded-xl object-contain shrink-0 transition-all duration-300`} referrerPolicy="no-referrer" />
+          <img src="/RSSerLogo.png" alt="RSSer Logo" className={`${settings.sidebarVisible ? 'w-12 h-12' : 'w-12 h-12'} rounded-xl object-contain shrink-0 transition-all duration-300`} style={{ imageRendering: '-webkit-optimize-contrast' }} referrerPolicy="no-referrer" />
           <span className={`text-2xl font-bold tracking-tight transition-opacity duration-300 ${settings.sidebarVisible ? 'opacity-100' : 'opacity-0 w-0 overflow-hidden md:hidden'}`}>RSSer</span>
         </div>
         

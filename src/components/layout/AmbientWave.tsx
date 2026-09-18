@@ -43,14 +43,6 @@ export function AmbientWave({ className }: AmbientWaveProps) {
     activeCategory = 'radio';
   } else if (path.startsWith('/youtube')) {
     activeCategory = 'youtube';
-  } else if (path.startsWith('/webcam')) {
-    activeCategory = 'webcam';
-  } else if (
-    path.startsWith('/blogs') || 
-    path.startsWith('/article/') || 
-    path.startsWith('/p/')
-  ) {
-    activeCategory = 'blog';
   } else if (path.startsWith('/discover') || path.startsWith('/admin')) {
     if (path.includes('/feeds')) {
       activeCategory = 'rss';
@@ -60,10 +52,6 @@ export function AmbientWave({ className }: AmbientWaveProps) {
       activeCategory = 'radio';
     } else if (path.includes('/youtube')) {
       activeCategory = 'youtube';
-    } else if (path.includes('/webcams')) {
-      activeCategory = 'webcam';
-    } else if (path.includes('/blogs')) {
-      activeCategory = 'blog';
     } else {
       activeCategory = 'rss'; // Default discover category is feeds
     }
@@ -236,7 +224,7 @@ export function AmbientWave({ className }: AmbientWaveProps) {
     };
   }, [targetColor, isDark, settings.showAmbientWaves]);
 
-  if (settings.showAmbientWaves === false) {
+  if (!settings.showAmbientWaves) {
     return null;
   }
 

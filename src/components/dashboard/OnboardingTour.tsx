@@ -61,10 +61,10 @@ export function OnboardingTour() {
         es: 'Tu biblioteca de medios 📚'
       },
       text: {
-        de: 'Hier findest du alle deine abonnierten Quellen, perfekt sortiert nach Kategorien: RSS-Feeds, Podcasts, YouTube-Kanäle, Radiosender, Webcams und Blogs!',
-        en: 'Here you will find all your subscribed sources, perfectly organized by categories: RSS feeds, podcasts, YouTube channels, radio stations, webcams, and blogs!',
-        fr: 'Ici vous trouverez toutes vos sources d\'abonnements, parfaitement organisées par catégories : flux RSS, podcasts, chaînes YouTube, stations de radio, webcams et blogs !',
-        es: 'Aquí encontrarás todas tus fuentes suscritas, perfectamente organizadas por categorías: canales RSS, podcasts, canales de YouTube, estaciones de radio, webcams y blogs.'
+        de: 'Hier findest du alle deine abonnierten Quellen, perfekt sortiert nach Kategorien: RSS-Feeds, Podcasts, YouTube-Kanäle und Radiosender!',
+        en: 'Here you will find all your subscribed sources, perfectly organized by categories: RSS feeds, podcasts, YouTube channels, and radio stations!',
+        fr: 'Ici vous trouverez toutes vos sources d\'abonnements, parfaitement organisées par catégories : flux RSS, podcasts, chaînes YouTube et stations de radio !',
+        es: 'Aquí encontrarás todas tus fuentes suscritas, perfectamente organizadas por categorías: canales RSS, podcasts, canales de YouTube y estaciones de radio.'
       }
     },
     {

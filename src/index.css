@@ -88,15 +88,17 @@
 }
 
 .glass-effect {
-  background-color: rgba(255, 255, 255, 0.6);
+  background-color: rgba(238, 241, 246, 0.92);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(220, 220, 220, 0.4);
+  border: 1px solid rgba(215, 222, 232, 0.85);
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
 }
 
 .dark .glass-effect {
-  background-color: rgba(15, 15, 15, 0.55);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background-color: rgba(24, 24, 27, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5);
 }
 
 .reflection {

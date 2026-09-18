@@ -12,12 +12,12 @@ export const FEED_CATEGORIES = [
 
 export const PLAN_LIMITS = {
   FREE: {
-    rss: 3,
-    radio: 1,
-    podcast: 1,
-    youtube: 1,
-    webcam: 1,
-    blogs: 1
+    rss: Infinity,
+    radio: Infinity,
+    podcast: Infinity,
+    youtube: Infinity,
+    webcam: Infinity,
+    blogs: Infinity
   }
 };
 

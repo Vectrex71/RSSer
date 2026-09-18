@@ -11,14 +11,11 @@ import { DatenschutzPage } from './components/DatenschutzPage';
 import { WartelistePage } from './components/WartelistePage';
 import { AuthActionPage } from './components/AuthActionPage';
 import { SettingsPage } from './components/SettingsPage';
-import { ProfilePage } from './components/ProfilePage';
 import { DiscoverPage } from './components/dashboard/DiscoverPage';
 import { AdminPage } from './components/dashboard/AdminPage';
 import { RssPage } from './components/dashboard/RssPage';
 import { RadioPage } from './components/dashboard/RadioPage';
 
-import { BlogPage } from './components/dashboard/BlogPage';
-import { AuthorProfile } from './components/dashboard/AuthorProfile';
 import { AppShell } from './components/layout/AppShell';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
@@ -64,21 +61,18 @@ function HomeRoute() {
 
     const isLoggedIn = localStorage.getItem('rsser_logged_in') === 'true';
     if (isLoggedIn) {
-      const unsubscribe = onAuthStateChanged(auth, async (user) => {
-        if (user) {
-          try {
-            const settingsSnap = await getDoc(doc(db, 'users', user.uid, 'settings', 'userConfig'));
-            const startPage = settingsSnap.exists() ? settingsSnap.data().startPage || '/discover' : '/discover';
-            navigate(startPage, { replace: true });
-          } catch (err) {
-            navigate('/discover', { replace: true });
-          }
-        } else {
-          localStorage.removeItem('rsser_logged_in');
-          setChecking(false);
+      // Determine start page immediately from cached settings for instant zero-latency transition
+      let startPage = '/discover';
+      try {
+        const cachedSettings = localStorage.getItem('rsser-settings');
+        if (cachedSettings) {
+          const parsed = JSON.parse(cachedSettings);
+          if (parsed && parsed.startPage) startPage = parsed.startPage;
         }
-      });
-      return () => unsubscribe();
+      } catch (e) {}
+
+      navigate(startPage, { replace: true });
+      return;
     } else {
       setChecking(false);
     }
@@ -86,11 +80,16 @@ function HomeRoute() {
 
   if (checking) {
     return (
-      <div className="fixed inset-0 z-[9999] bg-[#0a0a0a] flex flex-col items-center justify-center text-white">
+      <div className="fixed inset-0 z-[9999] bg-white dark:bg-[#0a0a0a] flex flex-col items-center justify-center text-neutral-900 dark:text-white transition-colors duration-150">
         <div className="flex flex-col items-center gap-4 animate-fade-in">
-          <img src="/RSSerLogo.png" alt="RSSer Logo" className="w-16 h-16 rounded-2xl animate-pulse mb-2" />
+          <img 
+            src="/RSSerLogo.png" 
+            alt="RSSer Logo" 
+            className="w-16 h-16 rounded-2xl object-contain mb-2 shadow-sm drop-shadow-sm"
+            style={{ imageRendering: '-webkit-optimize-contrast' }}
+          />
           <Loader2 className="w-8 h-8 animate-spin text-[var(--brand-orange)]" />
-          <p className="text-xs font-mono tracking-[0.25em] uppercase text-white/60">
+          <p className="text-xs font-mono tracking-[0.25em] uppercase text-neutral-500 dark:text-white/60">
             VERBINDEN...
           </p>
         </div>
@@ -128,7 +127,7 @@ export default function App() {
               <Route path="/login" element={<LoginPage />} />
               <Route path="/reset-password" element={<AuthActionPage />} />
               <Route path="/settings" element={<AppShell><SettingsPage /></AppShell>} />
-              <Route path="/profile" element={<AppShell><ProfilePage /></AppShell>} />
+              <Route path="/profile" element={<Navigate to="/settings" replace />} />
               <Route path="/discover" element={<AppShell><DiscoverPage /></AppShell>} />
               <Route path="/discover/:category" element={<AppShell><DiscoverPage /></AppShell>} />
               <Route path="/admin" element={<AppShell><AdminPage /></AppShell>} />
@@ -137,18 +136,13 @@ export default function App() {
               <Route path="/podcasts" element={<AppShell><RssPage type="podcasts" /></AppShell>} />
               <Route path="/youtube" element={<AppShell><RssPage type="youtube" /></AppShell>} />
               <Route path="/radio" element={<AppShell><RadioPage /></AppShell>} />
-              <Route path="/webcam" element={<AppShell><RssPage type="webcams" /></AppShell>} />
-              <Route path="/article/:id" element={<BlogPage />} />
-              <Route path="/p/:slug" element={<BlogPage />} />
-              <Route path="/blogs/user/:userId/article/:articleId" element={<BlogPage />} />
-              <Route path="/blogs/user/:userId/p/:slug" element={<BlogPage />} />
-              <Route path="/blogs/article/:articleId" element={<BlogPage />} />
-              <Route path="/blogs/author/:userId" element={<AuthorProfile />} />
-              <Route path="/blog/:id" element={<BlogPage />} />
-              <Route path="/blogs" element={<BlogPage />} />
-              <Route path="/blogs/my" element={<BlogPage />} />
-              <Route path="/blogs/write" element={<BlogPage />} />
-              <Route path="/blogs/subscribed" element={<BlogPage />} />
+              <Route path="/webcam" element={<Navigate to="/discover" replace />} />
+              <Route path="/discover/webcam" element={<Navigate to="/discover" replace />} />
+              <Route path="/discover/webcams" element={<Navigate to="/discover" replace />} />
+              <Route path="/discover/blog" element={<Navigate to="/discover" replace />} />
+              <Route path="/discover/blogs" element={<Navigate to="/discover" replace />} />
+              <Route path="/blogs/*" element={<Navigate to="/discover" replace />} />
+              <Route path="/blog/*" element={<Navigate to="/discover" replace />} />
             </Routes>
             <GlobalMediaPlayer />
           </MediaProvider>

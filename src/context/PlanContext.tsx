@@ -139,21 +139,13 @@ export function PlanProvider({ children }: { children: React.ReactNode }) {
     setCounts(newCounts);
   }, [feedsList, radiosList]);
 
-  const isAtLimit = (type: keyof typeof PLAN_LIMITS.FREE) => {
-    if (plan !== 'FREE') return false;
-    return counts[type] >= PLAN_LIMITS.FREE[type];
+  const isAtLimit = (_type: any) => {
+    return false;
   };
 
-  const hasExceeded = plan === 'FREE' && (
-    counts.rss > PLAN_LIMITS.FREE.rss ||
-    counts.radio > PLAN_LIMITS.FREE.radio ||
-    counts.podcast > PLAN_LIMITS.FREE.podcast ||
-    counts.youtube > PLAN_LIMITS.FREE.youtube ||
-    counts.webcam > PLAN_LIMITS.FREE.webcam ||
-    counts.blogs > PLAN_LIMITS.FREE.blogs
-  );
+  const hasExceeded = false;
 
-  const canWriteBlog = plan !== 'FREE';
+  const canWriteBlog = true;
 
   return (
     <PlanContext.Provider value={{ plan, counts, isAtLimit, hasExceeded, canWriteBlog, loading, feedsList, radiosList }}>

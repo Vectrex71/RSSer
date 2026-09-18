@@ -32,6 +32,7 @@ interface Feed {
   type?: string;
   category?: string;
   imageUrl?: string;
+  customImageUrl?: string;
   originalImageUrl?: string;
   bannerUrl?: string;
   isPodcast?: boolean;
@@ -230,6 +231,23 @@ function safeLocalStorageSetItem(key: string, value: string) {
   }
 }
 
+function extractHtmlImage(htmlContent: string | undefined | null): string | undefined {
+  if (!htmlContent || typeof htmlContent !== 'string') return undefined;
+  const match = htmlContent.match(/<img\s+[^>]*?(?:src|data-src|data-original|data-lazy-src)=["']([^"']+)["']/i);
+  if (match && match[1]) {
+    const src = match[1].replace(/&amp;/g, '&').trim();
+    if (!src.includes('pixel') && !src.includes('spacer') && !src.includes('1x1') && !src.includes('favicon') && src.length > 8) {
+      return src;
+    }
+  }
+  const srcsetMatch = htmlContent.match(/<img\s+[^>]*?(?:srcset|data-srcset)=["']([^"'\s,]+)/i);
+  if (srcsetMatch && srcsetMatch[1]) {
+    const src = srcsetMatch[1].replace(/&amp;/g, '&').trim();
+    if (src.length > 8 && !src.includes('pixel')) return src;
+  }
+  return undefined;
+}
+
 function slimRssItemForCache(item: RssItem): any {
   return {
     id: item.id,
@@ -267,9 +285,8 @@ function slimFeedResponse(data: any): any {
       .map((item: any) => {
         let parsedImageUrl = item.imageUrl || item.image?.url;
         if (!parsedImageUrl) {
-          const htmlContent = item.content || item.contentEncoded || '';
-          const imgMatch = htmlContent.match(/<img [^>]+src="([^">]+)"/);
-          if (imgMatch) parsedImageUrl = imgMatch[1];
+          const htmlContent = item.content || item['content:encoded'] || item.contentEncoded || item.description || item.summary || '';
+          parsedImageUrl = extractHtmlImage(htmlContent);
         }
         
         const contentStr = item.content || item['content:encoded'] || item.contentEncoded || '';
@@ -539,6 +556,9 @@ const ScreensaverContainer = ({ items, settings, handleItemClick, setViewMode, s
 function proxyImageUrl(url: string | undefined | null): string | undefined {
   if (!url) return undefined;
   if (typeof url !== 'string') return url;
+  if (url.includes('da720bc5-6fe3-b09b-65c9-9430c5e13589') || url.includes('mza_1079549307223055428')) {
+    url = 'https://lagedernation.org/wp-content/blogs.dir/10/files/2020/06/apple_podcast_artwork_reverse.png';
+  }
   if (
     url.startsWith('/') || 
     url.startsWith('data:') || 
@@ -549,22 +569,6 @@ function proxyImageUrl(url: string | undefined | null): string | undefined {
   ) {
     return url;
   }
-  
-  // Directly load known good CDNs to avoid our own Node proxy bottleneck
-  const knownDirectHosts = [
-    'mzstatic.com', 'ytimg.com', 'spotifycdn.com', 'megaphone.fm', 'libsyn.com', 
-    'podigee.com', 'podigee.io', 'anchor.fm', 'acast.com', 'fireside.fm', 'blubrry.com', 
-    'podbean.com', 'art19.com', 'audioboom.com', 'radiopublic.com', 'captivate.fm', 
-    'transistor.fm', 'buzzsprout.com', 'castos.com', 'simplecast.com', 'rss.com', 
-    'spreaker.com', 'pinecast.com', 'omnycontent.com', 'omny.fm', 'podiant.co', 
-    'squarespace-cdn.com', 'wp.com', 'twimg.com', 'pbs.twimg.com', 'podcaster.de',
-    'jiggyboy.com', 'letscast.fm', 'amazonaws.com', 'cloudfront.net', 'podcasts.com'
-  ];
-
-  if (knownDirectHosts.some(host => url.toLowerCase().includes(host))) {
-    return url;
-  }
-
   return `/api/image-proxy?url=${encodeURIComponent(url)}`;
 }
 
@@ -611,45 +615,146 @@ function findPublicSource(feedUrl: string | undefined, feedTitle: string | undef
 function getFeedImageUrl(feed: any, publicSource?: any): string | undefined {
   if (!feed) return undefined;
 
-  // Prefer any non-hardcoded, custom/uploaded image first!
-  const imgUrl = feed.originalImageUrl || publicSource?.imageUrl || feed.imageUrl;
-  
-  // Check if imgUrl is valid and not the hardcoded iTunes image
-  const isHardcodedITunes = typeof imgUrl === 'string' && imgUrl.includes('mza_11977799580453303866');
-  if (imgUrl && !isHardcodedITunes) {
-    return proxyImageUrl(imgUrl);
+  // 1. Explicit custom cover set by user or saved in database (HIGHEST priority)
+  const customCover = feed.customImageUrl || publicSource?.customImageUrl;
+  if (customCover && typeof customCover === 'string' && customCover.trim()) {
+    return proxyImageUrl(customCover.trim());
   }
 
-  // Hardcoded fallback for Bits und so ONLY if no custom cover was uploaded/available
+  // Known broken URLs or podcasts fallback
   const lowerTitle = (feed.title || '').toLowerCase();
   const lowerUrl = (feed.url || '').toLowerCase();
+  if (lowerTitle.includes('lage der nation') || lowerUrl.includes('lagedernation') || lowerUrl.includes('ldn-mp3')) {
+    return proxyImageUrl('https://lagedernation.org/wp-content/blogs.dir/10/files/2020/06/apple_podcast_artwork_reverse.png');
+  }
+
+  // 2. Curated or updated public source image
+  if (publicSource?.imageUrl && typeof publicSource.imageUrl === 'string' && publicSource.imageUrl.trim()) {
+    const pImg = publicSource.imageUrl.trim();
+    if (!pImg.includes('mza_11977799580453303866')) {
+      return proxyImageUrl(pImg);
+    }
+  }
+
+  // 3. User feed imageUrl
+  if (feed.imageUrl && typeof feed.imageUrl === 'string' && feed.imageUrl.trim()) {
+    const fImg = feed.imageUrl.trim();
+    if (!fImg.includes('mza_11977799580453303866')) {
+      return proxyImageUrl(fImg);
+    }
+  }
+
+  // 4. Fallback for Bits und so ONLY if no custom cover was uploaded/available
   if (lowerTitle.includes('bits und so') || lowerTitle.includes('bitsundso') || lowerUrl.includes('bitsundso') || lowerUrl.includes('bits-und-so')) {
     return `/api/image-proxy?url=${encodeURIComponent("https://is1-ssl.mzstatic.com/image/thumb/Podcasts221/v4/bf/16/da/bf16da2d-abfa-ee92-a16f-cb9629b35b67/mza_18047970425501861730.png/600x600bb.jpg")}`;
   }
 
-  return proxyImageUrl(imgUrl);
+  // 5. Fallback to RSS feed original image from raw feed XML
+  if (feed.originalImageUrl && typeof feed.originalImageUrl === 'string' && feed.originalImageUrl.trim()) {
+    const oImg = feed.originalImageUrl.trim();
+    if (!oImg.includes('mza_11977799580453303866')) {
+      return proxyImageUrl(oImg);
+    }
+  }
+
+  // 6. Favicon fallback
+  if (feed.faviconUrl && typeof feed.faviconUrl === 'string' && feed.faviconUrl.trim()) {
+    return proxyImageUrl(feed.faviconUrl.trim());
+  }
+
+  return undefined;
 }
 
-function FadeInImage({ src, alt, className, onError, ...props }: React.ImgHTMLAttributes<HTMLImageElement>) {
-  const [loaded, setLoaded] = useState(false);
-  
+interface FadeInImageProps extends Omit<React.ImgHTMLAttributes<HTMLImageElement>, 'onError'> {
+  priority?: boolean;
+  onError?: (e: React.SyntheticEvent<HTMLImageElement, Event>) => void;
+  fallbackFavicon?: string;
+  feedTitle?: string;
+}
+
+function FadeInImage({ 
+  src, 
+  alt, 
+  className = "", 
+  onError, 
+  priority = false, 
+  fallbackFavicon,
+  feedTitle,
+  ...props 
+}: FadeInImageProps) {
+  const [currentSrc, setCurrentSrc] = useState<string | undefined>(() => proxyImageUrl(src));
+  const [failed, setFailed] = useState(false);
+  const [triedFallback, setTriedFallback] = useState(false);
+  const [triedWeserv, setTriedWeserv] = useState(false);
+
+  useEffect(() => {
+    setCurrentSrc(proxyImageUrl(src));
+    setFailed(false);
+    setTriedFallback(false);
+    setTriedWeserv(false);
+  }, [src]);
+
+  const handleError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+    // 1. If direct image failed, try internal server-proxy fallback once
+    if (currentSrc && !triedFallback && !currentSrc.includes('/api/image-proxy') && currentSrc.startsWith('http')) {
+      setTriedFallback(true);
+      setCurrentSrc(`/api/image-proxy?url=${encodeURIComponent(currentSrc)}`);
+      return;
+    }
+    // 2. If image or proxy failed, try global weserv.nl CDN proxy directly in browser before giving up
+    if (currentSrc && !triedWeserv) {
+      setTriedWeserv(true);
+      let rawUrl = currentSrc;
+      if (rawUrl.includes('/api/image-proxy?url=')) {
+        try {
+          rawUrl = decodeURIComponent(rawUrl.split('/api/image-proxy?url=')[1]);
+        } catch (err) {}
+      }
+      if (rawUrl.startsWith('http') && !rawUrl.includes('images.weserv.nl')) {
+        setCurrentSrc(`https://images.weserv.nl/?url=${encodeURIComponent(rawUrl)}`);
+        return;
+      }
+    }
+    setFailed(true);
+    if (onError) onError(e);
+  };
+
+  if (failed || !currentSrc) {
+    if (fallbackFavicon) {
+      return (
+        <div className="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-neutral-900 relative overflow-hidden pointer-events-none select-none">
+          <div 
+            className="absolute inset-[-20%] bg-cover bg-center blur-2xl opacity-40 dark:opacity-20 pointer-events-none"
+            style={{ backgroundImage: `url(${proxyImageUrl(fallbackFavicon)})` }}
+          />
+          <img 
+            src={proxyImageUrl(fallbackFavicon)} 
+            alt={feedTitle || ""} 
+            className="relative z-10 w-16 h-16 rounded-xl object-contain shadow-sm" 
+            referrerPolicy="no-referrer" 
+          />
+        </div>
+      );
+    }
+    return (
+      <div className="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-neutral-900 relative overflow-hidden pointer-events-none select-none">
+        <FileText className="w-12 h-12 opacity-20 relative z-10" />
+      </div>
+    );
+  }
+
   return (
-    <div className="relative w-full h-full flex items-center justify-center overflow-hidden">
-      {!loaded && (
-        <div className="absolute inset-0 bg-neutral-200 dark:bg-neutral-800 animate-pulse" />
-      )}
-      <img
-        src={src}
-        alt={alt}
-        className={`${className} transition-all duration-700 ease-out ${loaded ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
-        onLoad={() => setLoaded(true)}
-        onError={(e) => {
-          setLoaded(true); // Don't block loading state on error
-          if (onError) onError(e);
-        }}
-        {...props}
-      />
-    </div>
+    <img
+      src={currentSrc}
+      alt={alt || ""}
+      loading={priority ? 'eager' : 'lazy'}
+      fetchPriority={priority ? 'high' : 'auto'}
+      decoding="async"
+      className={className}
+      onError={handleError}
+      referrerPolicy="no-referrer"
+      {...props}
+    />
   );
 }
 
@@ -687,7 +792,11 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
   const [feedItems, setFeedItems] = useState<RssItem[]>(() => {
     try {
       const cached = localStorage.getItem(`cached_items_${type}`);
-      return cached ? JSON.parse(cached) : [];
+      const parsed = cached ? JSON.parse(cached) : [];
+      return Array.isArray(parsed) ? parsed.map((item: any) => ({
+        ...item,
+        imageUrl: proxyImageUrl(item.imageUrl)
+      })) : [];
     } catch (e) {
       return [];
     }
@@ -726,8 +835,6 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
   const [communityVotes, setCommunityVotes] = useState<Record<string, { votes: number, voters: Record<string, 'up' | 'down'> }>>({});
   const [showTrendingSection, setShowTrendingSection] = useState<boolean>(true);
   const [slideshowIndex, setSlideshowIndex] = useState(0);
-  const [isSlideshowPlaying, setIsSlideshowPlaying] = useState(true);
-  const [isFormatTransitioning, setIsFormatTransitioning] = useState(false);
   const [stableTrendingItems, setStableTrendingItems] = useState<RssItem[]>([]);
   const [inlinePlayingIds, setInlinePlayingIds] = useState<string[]>([]);
   const [userRadioStations, setUserRadioStations] = useState<any[]>([]);
@@ -1112,9 +1219,10 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
   const forceBypassRef = React.useRef<boolean>(false);
   const imageFetchAttemptsRef = React.useRef<Set<string>>(new Set());
 
-  // Clear image fetch attempts on channel change or refresh
+  // Clear image fetch attempts and failed images on channel change or refresh
   React.useEffect(() => {
     imageFetchAttemptsRef.current.clear();
+    setFailedImages({});
   }, [selectedChannelId, refreshTick]);
 
   // Lazy-load missing images for articles of text-only feeds
@@ -1128,28 +1236,35 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
 
     if (itemsToFetch.length === 0) return;
 
-    // Fetch the top 4 at a time to be lightweight
-    const sliceToFetch = itemsToFetch.slice(0, 4);
+    // Fetch in responsive batches of 8 at a time for high speed without blocking
+    const sliceToFetch = itemsToFetch.slice(0, 8);
 
     const runFetches = async () => {
+      const updates: { id: string; imageUrl: string }[] = [];
       await Promise.all(sliceToFetch.map(async (item) => {
         if (!item.link) return;
         imageFetchAttemptsRef.current.add(item.link);
         try {
           const res = await fetch(`/api/og-image?url=${encodeURIComponent(item.link)}`);
-          if (res.ok) {
+          const contentType = res.headers.get('content-type') || '';
+          if (res.ok && contentType.includes('application/json')) {
             const data = await res.json() as { imageUrl?: string };
-            if (data.imageUrl) {
-              setFeedItems(prev => prev.map(p => p.id === item.id ? { ...p, imageUrl: data.imageUrl } : p));
+            if (data?.imageUrl) {
+              updates.push({ id: item.id, imageUrl: data.imageUrl });
             }
           }
         } catch (err) {
-          console.error("Failed to lazy-load og:image:", err);
+          // Gracefully ignore lazy-load failure for individual item
         }
       }));
+
+      if (updates.length > 0) {
+        const updateMap = new Map(updates.map(u => [u.id, u.imageUrl]));
+        setFeedItems(prev => prev.map(p => updateMap.has(p.id) ? { ...p, imageUrl: updateMap.get(p.id)! } : p));
+      }
     };
 
-    const timer = setTimeout(runFetches, 1000);
+    const timer = setTimeout(runFetches, 200);
     return () => clearTimeout(timer);
   }, [feedItems, loadingItems]);
 
@@ -1175,6 +1290,8 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
     // Reset fetch blocks
     lastFetchedUrlsRef.current = "";
     forceBypassRef.current = true;
+    setFailedImages({});
+    imageFetchAttemptsRef.current.clear();
     
     // Clear the session synced flag on manual sync to allow hard sync
     try {
@@ -1245,12 +1362,15 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
     const fetchSources = async () => {
       try {
         const res = await fetch('/api/public-sources');
-        if (res.ok) {
+        const contentType = res.headers.get('content-type') || '';
+        if (res.ok && contentType.includes('application/json')) {
           const data = await res.json();
-          setPublicSources(data);
+          if (Array.isArray(data) && data.length > 0) {
+            setPublicSources(data);
+          }
         }
       } catch (e) {
-        console.error("Failed to fetch public sources", e);
+        // Silently continue with local defaults
       }
     };
     fetchSources();
@@ -1265,10 +1385,8 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
     const loadPool = async () => {
       const pool: InterspersePool = { podcasts: [], youtube: [], webcams: [], blogs: [] };
 
-      // Webcams: select from publicSources first, fallback to DEFAULT_SOURCES
-      const webcamSources = publicSources.length > 0 
-        ? publicSources.filter(s => s.type === 'webcams')
-        : DEFAULT_SOURCES.filter(s => s.type === 'webcams');
+      // Webcams: select from publicSources
+      const webcamSources = publicSources.filter(s => s.type === 'webcams');
       
       pool.webcams = [...webcamSources].sort(() => 0.5 - Math.random()).slice(0, 5);
 
@@ -1278,13 +1396,7 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
           return subscribed;
         }
 
-        let discovery: any[] = [];
-        if (publicSources.length > 0) {
-          discovery = publicSources.filter(s => s.type === t);
-        }
-        if (discovery.length === 0) {
-          discovery = DEFAULT_SOURCES.filter(s => s.type === t).map((s, idx) => ({ id: `default-${idx}`, ...s }));
-        }
+        const discovery: any[] = publicSources.filter(s => s.type === t);
 
         const userLang = (settings.language || 'de').toLowerCase();
         const filteredDiscovery = discovery.filter(s => {
@@ -1401,8 +1513,12 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
       }
       if (cachedItems) {
         const parsed = JSON.parse(cachedItems);
-        setFeedItems(parsed);
-        if (parsed && parsed.length > 0) {
+        const cleaned = Array.isArray(parsed) ? parsed.map((item: any) => ({
+          ...item,
+          imageUrl: proxyImageUrl(item.imageUrl)
+        })) : [];
+        setFeedItems(cleaned);
+        if (cleaned && cleaned.length > 0) {
           hasCachedItems = true;
         }
       } else {
@@ -1416,8 +1532,12 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
     // Hydrate richer caches asynchronously from IndexedDB
     getCachedCategoryItems(type).then((idbItems) => {
       if (idbItems && idbItems.length > 0) {
+        const cleanedIdb = idbItems.map((item: any) => ({
+          ...item,
+          imageUrl: proxyImageUrl(item.imageUrl)
+        }));
         setFeedItems(prev => {
-          if (!prev || prev.length === 0) return idbItems;
+          if (!prev || prev.length === 0) return cleanedIdb;
           return prev;
         });
       }
@@ -1610,9 +1730,8 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
                         let parsedImageUrl = item.imageUrl || item.image?.url;
                         if (isYoutubeItem && ytThumbnail && !parsedImageUrl) parsedImageUrl = ytThumbnail;
                         if (!parsedImageUrl && !isYoutubeItem && !feed.isPodcast) {
-                            const htmlContent = item.content || item.contentEncoded || '';
-                            const imgMatch = htmlContent.match(/<img [^>]+src="([^">]+)"/);
-                            if (imgMatch) parsedImageUrl = imgMatch[1];
+                            const htmlContent = item.content || item['content:encoded'] || item.contentEncoded || item.description || item.summary || '';
+                            parsedImageUrl = extractHtmlImage(htmlContent);
                         }
 
                         return {
@@ -1891,7 +2010,7 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
                          updates.originalImageUrl = originalImg;
                          hasUpdates = true;
                       }
-                      if (responseData.image?.url && feed.imageUrl !== responseData.image.url) {
+                      if (!feed.customImageUrl && responseData.image?.url && feed.imageUrl !== responseData.image.url) {
                          updates.imageUrl = responseData.image.url;
                          hasUpdates = true;
                       }
@@ -1927,9 +2046,8 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
                       if (isYoutubeItem && ytThumbnail && !parsedImageUrl) parsedImageUrl = ytThumbnail;
                       
                       if (!parsedImageUrl && !isYoutubeItem && !feed.isPodcast) {
-                          const htmlContent = item.content || item.contentEncoded || '';
-                          const imgMatch = htmlContent.match(/<img [^>]+src="([^">]+)"/);
-                          if (imgMatch) parsedImageUrl = imgMatch[1];
+                          const htmlContent = item.content || item['content:encoded'] || item.contentEncoded || item.description || item.summary || '';
+                          parsedImageUrl = extractHtmlImage(htmlContent);
                       }
 
                       // Fallback for podcast episode cards: use feed/channel logo so they are not blank / gray
@@ -1951,7 +2069,7 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
                                             feedTitleLower.includes('podcast') || 
                                             item.enclosure?.url;
 
-                      const rawFeedImg = feed.imageUrl || responseData.image?.url || responseData.itunes?.image || feed.originalImageUrl || pSource?.imageUrl || pSource?.authorAvatar;
+                      const rawFeedImg = feed.customImageUrl || pSource?.customImageUrl || pSource?.imageUrl || feed.imageUrl || responseData.image?.url || responseData.itunes?.image || feed.originalImageUrl || pSource?.authorAvatar;
                       let finalFeedImageUrl = rawFeedImg && typeof rawFeedImg === 'string' ? rawFeedImg : '';
                       if (finalFeedImageUrl.includes('mza_11977799580453303866')) {
                         finalFeedImageUrl = "https://is1-ssl.mzstatic.com/image/thumb/Podcasts221/v4/bf/16/da/bf16da2d-abfa-ee92-a16f-cb9629b35b67/mza_18047970425501861730.png/600x600bb.jpg";
@@ -2315,7 +2433,12 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
     });
     
     if (selectedChannelId) {
-      sourceItems = sourceItems.filter(item => item.feedId === selectedChannelId);
+      const selectedFeed = feeds.find(f => f.id === selectedChannelId || (f.url && f.url === selectedChannelId));
+      if (selectedFeed) {
+        sourceItems = sourceItems.filter(item => item.feedId === selectedFeed.id || (selectedFeed.url && item.feedUrl === selectedFeed.url));
+      } else {
+        sourceItems = sourceItems.filter(item => item.feedId === selectedChannelId || item.feedUrl === selectedChannelId);
+      }
     } else if (selectedCategory === "Favoriten") {
       sourceItems = Object.values(savedItemsDb).filter((i: any) => {
         if (!i.isStarred) return false;
@@ -2437,15 +2560,6 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
     return () => clearTimeout(handler);
   }, [trendingItems]);
 
-  // Smooth mascot transition overlay when changing formats
-  useEffect(() => {
-    setIsFormatTransitioning(true);
-    const timer = setTimeout(() => {
-      setIsFormatTransitioning(false);
-    }, 950);
-    return () => clearTimeout(timer);
-  }, [type]);
-
   // Preload all custom loading animation GIFs on mount
   useEffect(() => {
     const gifsToPreload = [
@@ -2462,14 +2576,14 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
     });
   }, []);
 
-  // Auto-play interval for Top Aktuell slideshow
+  // Auto-play interval for Top Aktuell slideshow (always runs automatically, timer resets on interaction)
   useEffect(() => {
-    if (!isSlideshowPlaying || stableTrendingItems.length === 0) return;
+    if (stableTrendingItems.length <= 1) return;
     const interval = setInterval(() => {
       setSlideshowIndex((prev) => (prev + 1) % stableTrendingItems.length);
     }, 7000);
     return () => clearInterval(interval);
-  }, [isSlideshowPlaying, stableTrendingItems.length]);
+  }, [stableTrendingItems.length, slideshowIndex]);
 
   // Reset slideshow index on type, channel or category changes to prevent fast transition glitching
   useEffect(() => {
@@ -2520,36 +2634,38 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
         </div>
 
         {/* Community Upvote/Downvote Buttons */}
-        <div 
-          onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
-          className="flex items-center gap-1 bg-gray-100/80 dark:bg-neutral-900 border border-gray-200/50 dark:border-white/5 rounded-full px-2 py-0.5 select-none pointer-events-auto"
-        >
-          <button
-            onClick={(e) => castVote(e, item, 'up')}
-            className={`p-1 rounded-full transition-all flex items-center justify-center hover:bg-emerald-500/10 ${userVote === 'up' ? 'text-emerald-500 hover:text-emerald-600 scale-110' : 'text-gray-400 hover:text-emerald-500'}`}
-            title="Upvote (+1)"
+        {settings.showVoting && (
+          <div 
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+            className="flex items-center gap-1 bg-gray-100/80 dark:bg-neutral-900 border border-gray-200/50 dark:border-white/5 rounded-full px-2 py-0.5 select-none pointer-events-auto"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill={userVote === 'up' ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-chevron-up"><polyline points="18 15 12 9 6 15"/></svg>
-          </button>
-          
-          <span className={`text-[11px] font-bold font-mono min-w-[16px] text-center ${
-            voteCount > 0 
-              ? 'text-emerald-500' 
-              : voteCount < 0 
-                ? 'text-red-500' 
-                : 'opacity-80 text-gray-500 dark:text-gray-400'
-          }`}>
-            {voteCount > 0 ? `+${voteCount}` : voteCount}
-          </span>
-          
-          <button
-            onClick={(e) => castVote(e, item, 'down')}
-            className={`p-1 rounded-full transition-all flex items-center justify-center hover:bg-red-500/10 ${userVote === 'down' ? 'text-red-500 hover:text-red-600 scale-110' : 'text-gray-400 hover:text-red-500'}`}
-            title="Downvote (-1)"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill={userVote === 'down' ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-chevron-down"><polyline points="6 9 12 15 18 9"/></svg>
-          </button>
-        </div>
+            <button
+              onClick={(e) => castVote(e, item, 'up')}
+              className={`p-1 rounded-full transition-all flex items-center justify-center hover:bg-emerald-500/10 ${userVote === 'up' ? 'text-emerald-500 hover:text-emerald-600 scale-110' : 'text-gray-400 hover:text-emerald-500'}`}
+              title="Upvote (+1)"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill={userVote === 'up' ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-chevron-up"><polyline points="18 15 12 9 6 15"/></svg>
+            </button>
+            
+            <span className={`text-[11px] font-bold font-mono min-w-[16px] text-center ${
+              voteCount > 0 
+                ? 'text-emerald-500' 
+                : voteCount < 0 
+                  ? 'text-red-500' 
+                  : 'opacity-80 text-gray-500 dark:text-gray-400'
+            }`}>
+              {voteCount > 0 ? `+${voteCount}` : voteCount}
+            </span>
+            
+            <button
+              onClick={(e) => castVote(e, item, 'down')}
+              className={`p-1 rounded-full transition-all flex items-center justify-center hover:bg-red-500/10 ${userVote === 'down' ? 'text-red-500 hover:text-red-600 scale-110' : 'text-gray-400 hover:text-red-500'}`}
+              title="Downvote (-1)"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill={userVote === 'down' ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-chevron-down"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+          </div>
+        )}
       </div>
     );
   };
@@ -2570,6 +2686,23 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
     if (confirmed) {
       try {
         await deleteDoc(doc(db, 'users', auth.currentUser.uid, subcollectionName, feed.id));
+        setFeeds(prev => {
+          const next = prev.filter(f => f.id !== feed.id && f.url !== feed.url);
+          try {
+            safeLocalStorageSetItem(`cached_feeds_${type}`, JSON.stringify(next));
+          } catch (_) {}
+          return next;
+        });
+        setFeedItems(prev => prev.filter(i => i.feedId !== feed.id && i.feedUrl !== feed.url));
+        if (feed.url) {
+          const cacheId = encodeURIComponent(feed.url).replace(/[.#$/\[\]]/g, '_').substring(0, 500);
+          try {
+            localStorage.removeItem('rss_v5_' + cacheId);
+          } catch (_) {}
+        }
+        if (selectedChannelId === feed.id || selectedChannelId === feed.url) {
+          setSelectedChannelId(null);
+        }
       } catch (err: any) {
         console.error(err);
         handleFirestoreError(err, OperationType.DELETE, `users/${auth.currentUser.uid}/${subcollectionName}/${feed.id}`);
@@ -2625,36 +2758,38 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
         </div>
 
         {/* Community Upvote/Downvote Buttons */}
-        <div 
-          onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
-          className="flex items-center gap-1 bg-gray-100/80 dark:bg-neutral-900 border border-gray-200/50 dark:border-white/5 rounded-full px-2 py-0.5 select-none pointer-events-auto shrink-0"
-        >
-          <button
-            onClick={(e) => castFeedVote(e, feed.url, feed.title, 'up')}
-            className={`p-1 rounded-full transition-all flex items-center justify-center hover:bg-emerald-500/10 ${userVote === 'up' ? 'text-emerald-500 hover:text-emerald-600 scale-110' : 'text-gray-400 hover:text-emerald-500'}`}
-            title="Upvote (+1)"
+        {settings.showVoting && (
+          <div 
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+            className="flex items-center gap-1 bg-gray-100/80 dark:bg-neutral-900 border border-gray-200/50 dark:border-white/5 rounded-full px-2 py-0.5 select-none pointer-events-auto shrink-0"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill={userVote === 'up' ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-chevron-up"><polyline points="18 15 12 9 6 15"/></svg>
-          </button>
-          
-          <span className={`text-[11px] font-bold font-mono min-w-[16px] text-center ${
-            voteCount > 0 
-              ? 'text-emerald-500' 
-              : voteCount < 0 
-                ? 'text-red-500' 
-                : 'opacity-80 text-gray-500 dark:text-gray-400'
-          }`}>
-            {voteCount > 0 ? `+${voteCount}` : voteCount}
-          </span>
-          
-          <button
-            onClick={(e) => castFeedVote(e, feed.url, feed.title, 'down')}
-            className={`p-1 rounded-full transition-all flex items-center justify-center hover:bg-red-500/10 ${userVote === 'down' ? 'text-red-500 hover:text-red-600 scale-110' : 'text-gray-400 hover:text-red-500'}`}
-            title="Downvote (-1)"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill={userVote === 'down' ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-chevron-down"><polyline points="6 9 12 15 18 9"/></svg>
-          </button>
-        </div>
+            <button
+              onClick={(e) => castFeedVote(e, feed.url, feed.title, 'up')}
+              className={`p-1 rounded-full transition-all flex items-center justify-center hover:bg-emerald-500/10 ${userVote === 'up' ? 'text-emerald-500 hover:text-emerald-600 scale-110' : 'text-gray-400 hover:text-emerald-500'}`}
+              title="Upvote (+1)"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill={userVote === 'up' ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-chevron-up"><polyline points="18 15 12 9 6 15"/></svg>
+            </button>
+            
+            <span className={`text-[11px] font-bold font-mono min-w-[16px] text-center ${
+              voteCount > 0 
+                ? 'text-emerald-500' 
+                : voteCount < 0 
+                  ? 'text-red-500' 
+                  : 'opacity-80 text-gray-500 dark:text-gray-400'
+            }`}>
+              {voteCount > 0 ? `+${voteCount}` : voteCount}
+            </span>
+            
+            <button
+              onClick={(e) => castFeedVote(e, feed.url, feed.title, 'down')}
+              className={`p-1 rounded-full transition-all flex items-center justify-center hover:bg-red-500/10 ${userVote === 'down' ? 'text-red-500 hover:text-red-600 scale-110' : 'text-gray-400 hover:text-red-500'}`}
+              title="Downvote (-1)"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill={userVote === 'down' ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-chevron-down"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+          </div>
+        )}
       </div>
     );
   };
@@ -2755,7 +2890,7 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
     }
   };
 
-  const renderGridItem = (item: RssItem) => {
+  const renderGridItem = (item: RssItem, index?: number) => {
     const isRead = !!readItemsDb[item.id];
     const isWebcamItem = type === 'webcams' || item.category === 'WebCam';
     const isRadioItem = type === 'radio' || item.category === 'Radio';
@@ -2767,7 +2902,7 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
         target="_blank" 
         rel="noopener noreferrer"
         onClick={(e) => handleItemClick(e, item)}
-        key={item.id} 
+        key={`grid-item-${item.id || item.link}-${index ?? 0}`} 
         className={`content-visibility-auto group relative overflow-hidden flex flex-col rounded-xl border transition-all duration-300 hover:-translate-y-1 ${isDark ? 'border-white/10 bg-neutral-900/55 hover:bg-neutral-800/85 hover:border-white/25 dark:backdrop-blur-sm' : 'border-gray-200 bg-white/70 hover:bg-white/85 shadow-sm backdrop-blur-sm'} ${shouldShowReadState ? 'opacity-50 saturate-[40%]' : ''}`}
       >
       {hasImage ? (
@@ -2775,6 +2910,9 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
           <FadeInImage 
             src={proxyImageUrl(item.imageUrl)!} 
             alt={item.title} 
+            priority={typeof index === 'number' && index < 6}
+            fallbackFavicon={item.faviconUrl}
+            feedTitle={item.feedTitle}
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
             referrerPolicy="no-referrer"
             onError={() => {
@@ -2974,6 +3112,9 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
                       <FadeInImage 
                         src={proxyImageUrl(displayImageUrl)!} 
                         alt={item.title} 
+                        priority={typeof index === 'number' && index < 4}
+                        fallbackFavicon={item.faviconUrl}
+                        feedTitle={item.feedTitle}
                         className="w-full h-full object-contain relative z-10 transition-transform duration-700 group-hover:scale-105" 
                         referrerPolicy="no-referrer"
                         onError={() => {
@@ -2985,6 +3126,9 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
                     <FadeInImage 
                       src={proxyImageUrl(displayImageUrl)!} 
                       alt={item.title} 
+                      priority={typeof index === 'number' && index < 4}
+                      fallbackFavicon={item.faviconUrl}
+                      feedTitle={item.feedTitle}
                       className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
                       referrerPolicy="no-referrer"
                       onError={() => {
@@ -3872,15 +4016,11 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
     let itemIndex = 0;
     let intersperseCount = 0;
 
-    const cardsSequence = ['podcast', 'radio', 'youtube', 'webcam', 'blog'];
+    const cardsSequence = ['podcast', 'radio', 'youtube'];
 
     const isValidCardType = (typeStr: string) => {
       if (typeStr === 'radio') {
         if (globalNewsCount - lastRadioNewsCount < 100) return false;
-        return true;
-      }
-      if (typeStr === 'webcam') {
-        if (usedWebcamCount >= interspersePool.webcams.length) return false;
         return true;
       }
       if (typeStr === 'podcast') {
@@ -3888,9 +4028,6 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
       }
       if (typeStr === 'youtube') {
         return interspersePool.youtube.length > 0;
-      }
-      if (typeStr === 'blog') {
-        return interspersePool.blogs.length > 0;
       }
       return false;
     };
@@ -3908,7 +4045,7 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
         let cardType = cardsSequence[intersperseCount % cardsSequence.length];
         
         if (!isValidCardType(cardType)) {
-          const alternatives = ['podcast', 'youtube', 'webcam', 'blog', 'radio'];
+          const alternatives = ['podcast', 'youtube', 'radio'];
           let foundAlternative = false;
           for (const alt of alternatives) {
             if (alt !== cardType && isValidCardType(alt)) {
@@ -4013,7 +4150,7 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
 
 
 
-  const renderListItem = (item: RssItem) => {
+  const renderListItem = (item: RssItem, index?: number) => {
     const isRead = !!readItemsDb[item.id];
     const isWebcamItem = type === 'webcams' || item.category === 'WebCam';
     const isRadioItem = type === 'radio' || item.category === 'Radio';
@@ -4025,7 +4162,7 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
         target="_blank" 
         rel="noopener noreferrer"
         onClick={(e) => handleItemClick(e, item)}
-        key={item.id} 
+        key={`list-item-${item.id || item.link}-${index ?? 0}`} 
         className={`content-visibility-auto group relative overflow-hidden rounded-xl border transition-all duration-300 hover:-translate-y-1 ${isDark ? 'border-white/10 bg-neutral-900/55 hover:bg-neutral-800/85 hover:border-white/25 dark:backdrop-blur-sm' : 'border-gray-200 bg-white/70 hover:bg-white/85 shadow-sm backdrop-blur-sm'} p-5 flex items-center justify-between gap-5 ${shouldShowReadState ? 'opacity-50 saturate-[40%]' : ''}`}
       >
       <div className="flex gap-4 sm:gap-5 items-start flex-1 min-w-0">
@@ -4034,6 +4171,9 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
               <FadeInImage 
                 src={proxyImageUrl(item.imageUrl)!} 
                 alt={item.title} 
+                priority={typeof index === 'number' && index < 6}
+                fallbackFavicon={item.faviconUrl}
+                feedTitle={item.feedTitle}
                 className="w-full h-full object-cover" 
                 referrerPolicy="no-referrer"
                 onError={() => {
@@ -4256,74 +4396,39 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
 
   return (
     <div className="max-w-[2400px] mx-auto h-full flex flex-col relative">
-      {/* Synchronization Progress Overlay */}
+      {/* Non-blocking top synchronization progress bar */}
       <AnimatePresence>
-        {(isSyncing || isFormatTransitioning) && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className={`fixed inset-0 z-[150] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-hidden transition-all duration-300 ${
-              settings.sidebarVisible ? 'md:pl-64' : 'md:pl-20'
+        {isSyncing && (
+          <div className="fixed top-0 left-0 right-0 z-[100] h-1 bg-transparent overflow-hidden pointer-events-none">
+            <motion.div 
+              className={`h-full bg-gradient-to-r ${formatColor.gradient}`}
+              style={{ boxShadow: `0 0 10px ${formatColor.glowColor}` }}
+              initial={{ width: '5%' }}
+              animate={{ width: `${Math.max(8, syncProgress)}%` }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2, ease: 'easeOut' }}
+            />
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Floating non-blocking sync status pill */}
+      <AnimatePresence>
+        {isSyncing && (
+          <motion.div
+            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.95 }}
+            className={`fixed bottom-5 right-5 z-[90] flex items-center gap-3 px-3.5 py-2 rounded-full shadow-xl border backdrop-blur-md text-xs font-semibold select-none ${
+              isDark ? 'bg-neutral-900/90 text-white border-white/15' : 'bg-white/95 text-gray-900 border-gray-200'
             }`}
           >
-            <motion.div 
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              className={`w-full max-w-2xl rounded-2xl sm:rounded-[32px] p-4 sm:p-5 md:p-6 pb-5 sm:pb-7 md:pb-8 shadow-2xl flex flex-col items-center text-center border overflow-y-auto max-h-[90vh] shrink-0 ${
-                isDark ? 'bg-neutral-900 border-white/10 text-white' : 'bg-white border-gray-100 text-gray-900'
-              }`}
-            >
-              <div className="relative mb-3 sm:mb-5 w-full h-[200px] sm:h-[280px] md:h-[350px] max-h-[42vh] min-h-[160px] overflow-hidden rounded-xl bg-neutral-950 shrink-0">
-                <img loading="lazy" 
-                  src={formatColor.loaderGif} 
-                  alt="RSSer Mascot" 
-                  className="w-full h-full object-cover block select-none pointer-events-none rounded-xl shrink-0"
-                />
-              </div>
-
-              <h3 className="text-xl font-bold tracking-tight mb-2 shrink-0">
-                {isFormatTransitioning && !isSyncing 
-                  ? (type === 'rss' ? (isEn ? 'Opening RSS Feeds...' : 'RSS-Feeds werden geladen...')
-                    : type === 'podcasts' ? (isEn ? 'Opening Podcasts...' : 'Podcasts werden geladen...')
-                    : type === 'youtube' ? (isEn ? 'Opening YouTube...' : 'YouTube wird geladen...')
-                    : type === 'webcams' ? (isEn ? 'Opening WebCams...' : 'WebCams werden geladen...')
-                    : type === 'blogs' ? (isEn ? 'Opening Blogs...' : 'Blogs werden geladen...')
-                    : (isEn ? 'Loading...' : 'Wird geladen...'))
-                  : (isEn ? 'Syncing Feeds...' : 'Feeds werden geladen...')}
-              </h3>
-              
-              <p className="text-xs opacity-65 mb-6 max-w-[280px] shrink-0">
-                {isFormatTransitioning && !isSyncing
-                  ? (isEn ? 'Setting up pages and resources for your layout.' : 'Bereite Layout und Ressourcen für dich vor.')
-                  : (isEn ? 'Adding newly published news and updates to your timeline.' : 'Aktuelle Meldungen deiner abonnierten Feeds werden geladen.')}
-              </p>
-
-              {/* Progress bar container */}
-              <div className="w-full bg-gray-100 dark:bg-white/10 h-3 rounded-full overflow-hidden relative mb-4 shrink-0">
-                <motion.div 
-                  className={`bg-gradient-to-r ${formatColor.gradient} h-full rounded-full`}
-                  style={{ boxShadow: `0 0 12px ${formatColor.glowColor}` }}
-                  initial={{ width: 0 }}
-                  animate={{ width: isSyncing ? `${syncProgress}%` : '100%' }}
-                  transition={{ duration: isFormatTransitioning && !isSyncing ? 0.9 : 0.3, ease: 'easeOut' }}
-                />
-              </div>
-
-              {/* Text indicator for progress */}
-              <div 
-                className="flex items-center justify-between w-full text-xs font-mono font-bold shrink-0"
-                style={{ color: formatColor.textHex }}
-              >
-                <span>{isSyncing ? `${syncProgress}%` : '100%'}</span>
-                <span className="animate-pulse">
-                  {isSyncing 
-                    ? (syncProgress === 100 ? (isEn ? 'Finishing...' : 'Fertigstellen...') : (isEn ? 'Checking...' : 'Synchronisieren...'))
-                    : (isEn ? 'Ready!' : 'Bereit!')}
-                </span>
-              </div>
-            </motion.div>
+            <div className="w-2 h-2 rounded-full animate-ping bg-amber-400 shrink-0" />
+            <span>
+              {syncProgress === 100 
+                ? (isEn ? 'Finishing up...' : 'Wird abgeschlossen...') 
+                : (isEn ? `Syncing feeds (${syncProgress}%)...` : `Feeds werden synchronisiert (${syncProgress}%)...`)}
+            </span>
           </motion.div>
         )}
       </AnimatePresence>
@@ -4499,11 +4604,11 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
           
           return (
             <div 
-              className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch min-h-[340px] md:h-[380px] z-20"
+              className="w-full min-h-[340px] md:h-[380px] z-20"
             >
-              {/* Left Column Container: Active Article & Slideshow with blurred background */}
+              {/* Active Article & Slideshow with blurred background - Full Width */}
               <div 
-                className={`md:col-span-2 border border-gray-200/50 dark:border-white/5 bg-gradient-to-br ${formatColors.gradientFrom} via-transparent to-transparent dark:bg-neutral-900/40 p-4 rounded-2xl relative overflow-hidden shadow-sm flex flex-col justify-between z-20 min-h-0`}
+                className={`w-full h-full border border-gray-200/50 dark:border-white/5 bg-gradient-to-br ${formatColors.gradientFrom} via-transparent to-transparent dark:bg-neutral-900/40 p-5 md:p-6 rounded-2xl relative overflow-hidden shadow-sm flex flex-col justify-between z-20 min-h-0`}
               >
                 {/* Solid backdrop layer to prevent background AmbientWave from shining through semi-transparent areas */}
                 <div className="absolute inset-0 bg-white dark:bg-[#0a0a0a] z-[-1] rounded-2xl pointer-events-none" />
@@ -4515,12 +4620,12 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
                       <motion.img 
                         key={`top-aktuell-bg-${currentItem.id}`}
                         src={proxyImageUrl(currentItem.imageUrl)!} 
-                        className="absolute inset-0 w-full h-full object-cover blur-md saturate-150" 
-                        style={{ opacity: isDark ? 0.35 : 0.22 }}
+                        className="absolute inset-0 w-full h-full object-cover blur-3xl saturate-150" 
+                        style={{ opacity: isDark ? 0.25 : 0.15 }}
                         alt="" 
                         referrerPolicy="no-referrer"
-                        initial={{ scale: 1.25, opacity: 0 }}
-                        animate={{ scale: 1.05, opacity: isDark ? 0.35 : 0.22 }}
+                        initial={{ scale: 1.15, opacity: 0 }}
+                        animate={{ scale: 1.02, opacity: isDark ? 0.25 : 0.15 }}
                         exit={{ opacity: 0, scale: 1 }}
                         transition={{ duration: 0.8, ease: "easeOut" }}
                       />
@@ -4535,15 +4640,15 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
                   {currentItem.imageUrl ? (
                     <motion.div 
                       key={`top-aktuell-preview-${currentItem.id}`}
-                      className="absolute right-0 top-0 bottom-0 w-[55%] sm:w-[62%] md:w-[68%] overflow-hidden z-0 pointer-events-none glanz-auto"
+                      className="absolute right-0 top-0 bottom-0 w-[42%] sm:w-[46%] md:w-[48%] lg:w-[50%] overflow-hidden z-0 pointer-events-none glanz-auto"
                       style={{
-                        WebkitMaskImage: 'linear-gradient(to right, transparent 0%, rgba(0, 0, 0, 0.1) 15%, rgba(0, 0, 0, 1) 60%)',
-                        maskImage: 'linear-gradient(to right, transparent 0%, rgba(0, 0, 0, 0.1) 15%, rgba(0, 0, 0, 1) 60%)',
+                        WebkitMaskImage: 'linear-gradient(to right, transparent 0%, rgba(0, 0, 0, 0.15) 15%, rgba(0, 0, 0, 0.85) 60%, rgba(0, 0, 0, 1) 100%)',
+                        maskImage: 'linear-gradient(to right, transparent 0%, rgba(0, 0, 0, 0.15) 15%, rgba(0, 0, 0, 0.85) 60%, rgba(0, 0, 0, 1) 100%)',
                       }}
                       initial={{ x: 80, opacity: 0 }}
                       animate={{ 
                         x: 0, 
-                        opacity: isDark ? 0.7 : 0.85, 
+                        opacity: isDark ? 0.85 : 0.95, 
                         transition: {
                           x: { duration: 1.2, ease: [0.16, 1, 0.3, 1] },
                           opacity: { duration: 0.8 }
@@ -4568,13 +4673,13 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
                         transition={{ duration: 7, ease: "linear" }}
                       />
                       {/* Smooth gradient overlay so the text remains highly readable over the image */}
-                      <div className={`absolute inset-0 bg-gradient-to-r ${isDark ? 'from-neutral-950 via-neutral-950/40 to-transparent' : 'from-white via-white/45 to-transparent'} z-10`} />
+                      <div className={`absolute inset-0 bg-gradient-to-r ${isDark ? 'from-neutral-950 via-neutral-950/40 to-transparent' : 'from-white via-white/40 to-transparent'} z-10`} />
                     </motion.div>
                   ) : null}
                 </AnimatePresence>
 
                 {/* Left Column Content: Active Article with slide controls */}
-                <div className="flex-1 flex flex-col justify-between relative z-10 min-w-0">
+                <div className="w-full flex-1 flex flex-col justify-between relative z-10 min-w-0">
                   {/* Header */}
                   <div className="flex flex-col gap-2 pb-2">
                     <div className="flex items-center justify-between gap-4">
@@ -4618,7 +4723,7 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
                         </div>
 
                         {/* Header title/meta info in 2-line structure */}
-                        <div className="flex flex-col justify-center text-[10px] sm:text-[11px] font-bold text-gray-400 uppercase tracking-wider truncate max-w-[200px] sm:max-w-[280px]">
+                        <div className="flex flex-col justify-center text-[10px] sm:text-[11px] font-bold text-gray-400 uppercase tracking-wider truncate max-w-[260px] sm:max-w-[400px] md:max-w-[600px]">
                           <span className={`truncate text-gray-800 dark:text-neutral-200 font-extrabold text-[13px] normal-case tracking-normal ${(currentItem.authorId || currentItem.feedId) ? 'group-hover/author:underline' : ''}`}>{currentItem.feedTitle}</span>
                           <span className="opacity-65 font-medium mt-0.5">
                             {formatTime(currentItem.pubDate)}
@@ -4626,23 +4731,23 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
                         </div>
                       </div>
                     </div>
-                    {/* Decorative elegant short divider line (about 1/3 of the left field) */}
-                    <div className="h-[1px] w-1/3 bg-gray-200/20 dark:bg-white/5" />
+                    {/* Decorative elegant short divider line */}
+                    <div className="h-[1px] w-32 bg-gray-200/40 dark:bg-white/10" />
                   </div>
 
                   {/* Content Segment with custom deceleration (entering) and slow-start acceleration (leaving) animations */}
-                  <div className="flex-1 flex items-center min-w-0 py-1 overflow-hidden min-h-0 relative h-full">
+                  <div className="w-full flex-1 flex items-center min-w-0 py-1 overflow-hidden min-h-0 relative h-full">
                     <AnimatePresence mode="wait">
                       <motion.div
                         key={`top-aktuell-slide-${currentItem.id}-${rank}`}
-                        className="relative w-full h-full flex items-center min-w-0"
+                        className="w-full h-full flex items-center min-w-0"
                         initial="initial"
                         animate="animate"
                         exit="exit"
                       >
                         {/* Text content overlapping the image (plenty of room to breathe and read everything) */}
                         <motion.div 
-                          className="flex-1 min-w-0 flex flex-col justify-center relative z-10 pr-4 sm:pr-[55%] md:pr-[58%] pl-1"
+                          className={`w-full ${currentItem.imageUrl ? 'max-w-full sm:max-w-[68%] md:max-w-[72%] lg:max-w-[75%]' : 'max-w-full'} flex flex-col justify-center relative z-10 pl-1 pr-3 sm:pr-6`}
                           variants={{
                             initial: { y: -60, opacity: 0 },
                             animate: { 
@@ -4655,7 +4760,7 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
                             },
                             exit: { 
                               y: 100,
-                              opacity: 0,
+                              opacity: 0, 
                               transition: {
                                 y: { duration: 0.8, ease: [0.7, 0, 0.84, 0] },
                                 opacity: { duration: 0.8 }
@@ -4668,12 +4773,12 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
                             target="_blank"
                             rel="noopener noreferrer"
                             onClick={(e) => handleItemClick(e, currentItem)}
-                            className={`block font-extrabold text-base sm:text-lg md:text-xl lg:text-2xl leading-tight tracking-tight ${formatColors.hoverText} text-gray-900 dark:text-neutral-100 line-clamp-3 md:line-clamp-4 transition-colors mb-2`}
+                            className={`block font-extrabold text-lg sm:text-xl md:text-2xl lg:text-[26px] leading-snug tracking-tight ${formatColors.hoverText} text-gray-900 dark:text-neutral-100 line-clamp-2 md:line-clamp-3 transition-colors mb-2.5`}
                           >
                             {currentItem.title}
                           </a>
                           {currentItem.contentSnippet && (
-                            <p className="text-xs sm:text-sm md:text-sm lg:text-[15px] leading-relaxed text-gray-700 dark:text-neutral-200 line-clamp-3 md:line-clamp-4">
+                            <p className="text-xs sm:text-sm md:text-[15px] lg:text-base leading-relaxed text-gray-700 dark:text-neutral-300 line-clamp-3 md:line-clamp-4">
                               {currentItem.contentSnippet}
                             </p>
                           )}
@@ -4682,80 +4787,99 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
                     </AnimatePresence>
                   </div>
 
-                  {/* Footer bar with vote action and indicator */}
-                  <div className="flex items-center justify-between pt-2">
-                    <div className="flex items-center gap-1">
-                      <span className={`text-[10px] font-bold uppercase tracking-wider opacity-90 ${formatColors.text}`}>
-                        {t('top-aktuell') || 'Top Aktuell'}
-                      </span>
+                  {/* Footer bar with controls, slide indicator pills, and optional vote action */}
+                  <div className="flex items-center justify-between pt-2 gap-4 flex-wrap">
+                    <div className="flex items-center gap-3 sm:gap-4 flex-wrap">
+                      <div className="flex items-center gap-1.5">
+                        <span className={`text-[10px] font-bold uppercase tracking-wider opacity-90 ${formatColors.text}`}>
+                          {t('top-aktuell') || 'Top Aktuell'}
+                        </span>
+                        <span className="text-[11px] font-mono text-gray-400 dark:text-neutral-400 font-bold ml-1">
+                          {rank} / {stableTrendingItems.length}
+                        </span>
+                      </div>
+
+                      {/* Carousel navigation controls (prev & next only, transparent without pill background) */}
+                      <div className="flex items-center gap-0.5">
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setSlideshowIndex((prev) => (prev - 1 + stableTrendingItems.length) % stableTrendingItems.length);
+                          }}
+                          className="p-1 rounded-md text-gray-500 hover:text-gray-900 dark:text-neutral-400 dark:hover:text-white transition-colors"
+                          title={settings.language === 'en' ? "Previous slide" : "Vorheriger Beitrag"}
+                        >
+                          <ChevronLeft className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setSlideshowIndex((prev) => (prev + 1) % stableTrendingItems.length);
+                          }}
+                          className="p-1 rounded-md text-gray-500 hover:text-gray-900 dark:text-neutral-400 dark:hover:text-white transition-colors"
+                          title={settings.language === 'en' ? "Next slide" : "Nächster Beitrag"}
+                        >
+                          <ChevronRight className="w-4 h-4" />
+                        </button>
+                      </div>
+
+                      {/* Direct slide indicator pills */}
+                      <div className="hidden sm:flex items-center gap-1.5">
+                        {stableTrendingItems.slice(0, 10).map((_, idx) => (
+                          <button
+                            key={`slide-pill-${idx}`}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              setSlideshowIndex(idx);
+                            }}
+                            className={`h-1.5 rounded-full transition-all ${
+                              idx === activeIndex
+                                ? 'w-6 bg-orange-500'
+                                : 'w-1.5 bg-gray-300 dark:bg-white/20 hover:bg-gray-400 dark:hover:bg-white/40'
+                            }`}
+                            title={`#${idx + 1}`}
+                          />
+                        ))}
+                      </div>
                     </div>
 
                     {/* Compact Vote actions inside active slide */}
-                    <div 
-                      onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
-                      className="flex items-center gap-2 bg-white/70 dark:bg-neutral-900/80 border border-gray-200/50 dark:border-white/5 rounded-full px-2.5 py-0.5 select-none shrink-0"
-                    >
-                      <button
-                        onClick={(e) => castVote(e, currentItem, 'up')}
-                        className={`p-0.5 rounded transition-all hover:bg-emerald-500/10 ${userVote === 'up' ? 'text-emerald-500 scale-110' : 'text-gray-400 hover:text-emerald-500'}`}
-                        title="Upvote (+1)"
+                    {settings.showVoting && (
+                      <div 
+                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                        className="flex items-center gap-2 bg-white/70 dark:bg-neutral-900/80 border border-gray-200/50 dark:border-white/5 rounded-full px-2.5 py-0.5 select-none shrink-0"
                       >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill={userVote === 'up' ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2.7" strokeLinecap="round" strokeLinejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
-                      </button>
-                      
-                      <span className={`text-[10px] font-black font-mono leading-none min-w-[14px] text-center ${
-                        voteCount > 0 
-                          ? 'text-emerald-500' 
-                          : voteCount < 0 
-                            ? 'text-red-500' 
-                            : 'text-gray-500 dark:text-gray-400 opacity-80'
-                      }`}>
-                        {voteCount > 0 ? `+${voteCount}` : voteCount}
-                      </span>
-                      
-                      <button
-                        onClick={(e) => castVote(e, currentItem, 'down')}
-                        className={`p-0.5 rounded transition-all hover:bg-red-500/10 ${userVote === 'down' ? 'text-red-500 scale-110' : 'text-gray-400 hover:text-red-500'}`}
-                        title="Downvote (-1)"
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill={userVote === 'down' ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2.7" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Right Column Container: Completely separated with solid white background, immune to left-column effects */}
-              <div className="hidden md:flex md:col-span-1 bg-white dark:bg-neutral-900 border border-gray-200/50 dark:border-white/10 rounded-2xl p-4 flex-col justify-between relative z-20 shadow-sm min-h-0">
-                <div className="text-[10px] font-mono tracking-wider text-gray-400 uppercase font-black mb-1 shrink-0 flex items-center justify-between">
-                  <span>{settings.language === 'en' ? 'Top 10 Updates' : 'Top 10 Beiträge'}</span>
-                  <span className={`p-0.5 ${formatColors.liveBadgeBg} ${formatColors.liveBadgeText} rounded text-[8px] px-1 font-bold`}>LIVE</span>
-                </div>
-                
-                <div className="flex-1 flex flex-col gap-1 overflow-y-auto pr-1 select-none scrollbar-none min-h-0">
-                  {stableTrendingItems.map((item, index) => {
-                    const isActive = index === activeIndex;
-                    return (
-                      <button
-                        key={`list-nav-${item.id}-${index}`}
-                        onClick={(e) => {
-                          e.preventDefault();
-                          setSlideshowIndex(index);
-                          setIsSlideshowPlaying(false);
-                        }}
-                        className={`text-left text-xs md:text-[13px] font-semibold leading-snug py-1.5 px-2 rounded-lg transition-all flex items-center gap-2 min-w-0 ${
-                          isActive 
-                            ? `${formatColors.activeBg} ${formatColors.activeText}` 
-                            : `hover:bg-gray-100/70 dark:hover:bg-neutral-800/70 ${formatColors.hoverBg} text-gray-500 hover:text-gray-900 dark:hover:text-neutral-100`
-                        }`}
-                      >
-                        <span className={`font-mono text-xs font-bold shrink-0 ${isActive ? formatColors.hashColor : 'opacity-40'}`}>
-                          #{index + 1}
+                        <button
+                          onClick={(e) => castVote(e, currentItem, 'up')}
+                          className={`p-0.5 rounded transition-all hover:bg-emerald-500/10 ${userVote === 'up' ? 'text-emerald-500 scale-110' : 'text-gray-400 hover:text-emerald-500'}`}
+                          title="Upvote (+1)"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill={userVote === 'up' ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2.7" strokeLinecap="round" strokeLinejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+                        </button>
+                        
+                        <span className={`text-[10px] font-black font-mono leading-none min-w-[14px] text-center ${
+                          voteCount > 0 
+                            ? 'text-emerald-500' 
+                            : voteCount < 0 
+                              ? 'text-red-500' 
+                              : 'text-gray-500 dark:text-gray-400 opacity-80'
+                        }`}>
+                          {voteCount > 0 ? `+${voteCount}` : voteCount}
                         </span>
-                        <span className="truncate flex-1">{item.title}</span>
-                      </button>
-                    );
-                  })}
+                        
+                        <button
+                          onClick={(e) => castVote(e, currentItem, 'down')}
+                          className={`p-0.5 rounded transition-all hover:bg-red-500/10 ${userVote === 'down' ? 'text-red-500 scale-110' : 'text-gray-400 hover:text-red-500'}`}
+                          title="Downvote (-1)"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill={userVote === 'down' ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2.7" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
@@ -4868,7 +4992,7 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
                       )}
                       
                       <div className={`grid ${type === 'podcasts' ? 'grid-cols-[repeat(auto-fill,minmax(210px,1fr))]' : 'grid-cols-[repeat(auto-fill,minmax(240px,1fr))]'} gap-6`}>
-                        {filteredFeeds.map(feed => {
+                        {filteredFeeds.map((feed, index) => {
                           const hasNewVideos = feedItems.some(item => {
                             if (item.feedId !== feed.id) return false;
                             const pubTime = new Date(item.pubDate).getTime();
@@ -4887,21 +5011,23 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
                           if (type === 'podcasts') {
                             return (
                               <div 
-                                key={feed.id}
+                                key={`podcast-channel-${feed.id || feed.url}-${index}`}
                                 onClick={() => setSelectedChannelId(feed.id)}
                                 className={`group relative overflow-hidden flex flex-col rounded-xl border transition-all hover:-translate-y-1 ${isDark ? 'border-white/10 bg-neutral-900/55 hover:bg-neutral-800/85 hover:border-white/25 dark:backdrop-blur-sm' : 'border-gray-200 bg-white/70 hover:bg-white/85 shadow-sm backdrop-blur-sm'} cursor-pointer`}
                               >
                                 <div className="aspect-square w-full flex items-center justify-center bg-gray-100 dark:bg-neutral-900 border-b border-gray-100 dark:border-white/5 relative overflow-hidden select-none glanz-image-container">
-                                  {finalImageUrl ? (
+                                  <Headphones className="w-12 h-12 opacity-20 relative z-10" />
+                                  {finalImageUrl && (
                                     <img 
                                       src={proxyImageUrl(finalImageUrl)} 
                                       alt="" 
                                       loading="lazy"
-                                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
+                                      onError={(e) => {
+                                        (e.currentTarget as HTMLElement).style.display = 'none';
+                                      }}
+                                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 absolute inset-0 z-10" 
                                       referrerPolicy="no-referrer" 
                                     />
-                                  ) : (
-                                    <Headphones className="w-12 h-12 opacity-20 relative z-10" />
                                   )}
 
                                   <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/40 z-20">
@@ -4947,7 +5073,7 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
 
                           return (
                             <div
-                              key={feed.id}
+                              key={`feed-channel-${feed.id || feed.url}-${index}`}
                               onClick={() => {
                                   if (isWebcamsMain && feed.url) {
                                     const videoId = getOutputVideoId(feed.url);
@@ -4958,7 +5084,7 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
                                     setSelectedChannelId(feed.id);
                                   }
                               }}
-                              className={`group flex flex-col rounded-3xl overflow-hidden transition-transform hover:-translate-y-1 ${isDark ? 'bg-neutral-900/50 hover:bg-neutral-800 border border-white/10 dark:backdrop-blur-sm' : 'bg-white/70 hover:bg-white/85 border border-gray-200 backdrop-blur-sm shadow-sm'} cursor-pointer relative text-left w-full`}
+                              className={`group flex flex-col rounded-3xl overflow-hidden transition-transform hover:-translate-y-1 ${isDark ? 'border-white/10 bg-neutral-900/55 hover:bg-neutral-800/85 hover:border-white/25 dark:backdrop-blur-sm' : 'border-gray-200 bg-white/70 hover:bg-white/85 shadow-sm backdrop-blur-sm'} cursor-pointer relative text-left w-full`}
                             >
                               {isWebcamsMain ? (
                                 <div className="absolute top-3 right-3 bg-red-600 text-white text-[10px] font-bold px-2.5 py-1 rounded-full z-20 flex items-center gap-1 shadow-md animate-pulse">
@@ -5009,12 +5135,16 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
                   )}
 
                   {/* Episodes block */}
-                  {selectedCategory !== "Alle" && (recentItems.length > 0 || midItems.length > 0 || olderItems.length > 0) && (
+                  {(recentItems.length > 0 || midItems.length > 0 || olderItems.length > 0) && (
                     <div className="space-y-6 pt-6 border-t border-dashed border-gray-200 dark:border-white/10">
                       <h3 className={`text-xl font-bold font-heading ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                        {type === 'podcasts' ? (isEn ? 'Saved Podcast Episodes' : 'Gespeicherte Podcast-Folgen') :
-                         type === 'youtube' ? (isEn ? 'Saved Videos' : 'Gespeicherte Videos') :
-                         (isEn ? 'Saved Webcams' : 'Gespeicherte Webcams')}
+                        {selectedCategory === "Favoriten" || selectedCategory === "Später hören" || selectedCategory === "Später sehen"
+                          ? (type === 'podcasts' ? (isEn ? 'Saved Podcast Episodes' : 'Gespeicherte Podcast-Folgen') :
+                             type === 'youtube' ? (isEn ? 'Saved Videos' : 'Gespeicherte Videos') :
+                             (isEn ? 'Saved Webcams' : 'Gespeicherte Webcams'))
+                          : (type === 'podcasts' ? (isEn ? 'Latest Podcast Episodes' : 'Neueste Podcast-Folgen') :
+                             type === 'youtube' ? (isEn ? 'Latest Videos' : 'Neueste Videos') :
+                             (isEn ? 'Webcams' : 'Webcams'))}
                         {` (${recentItems.length + midItems.length + olderItems.length})`}
                       </h3>
 
@@ -5025,9 +5155,9 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
                             viewMode === 'list' ? "flex flex-col gap-4 w-full" :
                             type === 'podcasts' ? "grid grid-cols-[repeat(auto-fill,minmax(210px,1fr))] gap-6" : "grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-6"
                           }>
-                            {(viewMode === 'grid' || viewMode === 'screensaver') && recentItems.map(item => renderGridItem(item))}
+                            {(viewMode === 'grid' || viewMode === 'screensaver') && recentItems.map((item, idx) => renderGridItem(item, idx))}
                             {viewMode === 'magazine' && renderMagazineSection(recentItems, 'recent')}
-                            {viewMode === 'list' && recentItems.map(item => renderListItem(item))}
+                            {viewMode === 'list' && recentItems.map((item, idx) => renderListItem(item, idx))}
                           </div>
                         )}
 
@@ -5058,9 +5188,9 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
                                       viewMode === 'list' ? "flex flex-col gap-4 w-full pb-4" :
                                       type === 'podcasts' ? "grid grid-cols-[repeat(auto-fill,minmax(210px,1fr))] gap-6 pb-4" : "grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-6 pb-4"
                                     }>
-                                      {(viewMode === 'grid' || viewMode === 'screensaver') && midItems.map(item => renderGridItem(item))}
+                                      {(viewMode === 'grid' || viewMode === 'screensaver') && midItems.map((item, idx) => renderGridItem(item, idx))}
                                       {viewMode === 'magazine' && renderMagazineSection(midItems, 'mid')}
-                                      {viewMode === 'list' && midItems.map(item => renderListItem(item))}
+                                      {viewMode === 'list' && midItems.map((item, idx) => renderListItem(item, idx))}
                                    </div>
                                 </motion.div>
                               )}
@@ -5095,9 +5225,9 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
                                       viewMode === 'list' ? "flex flex-col gap-4 w-full pb-4" :
                                       type === 'podcasts' ? "grid grid-cols-[repeat(auto-fill,minmax(210px,1fr))] gap-6 pb-4" : "grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-6 pb-4"
                                     }>
-                                      {(viewMode === 'grid' || viewMode === 'screensaver') && olderItems.map(item => renderGridItem(item))}
+                                      {(viewMode === 'grid' || viewMode === 'screensaver') && olderItems.map((item, idx) => renderGridItem(item, idx))}
                                       {viewMode === 'magazine' && renderMagazineSection(olderItems, 'older')}
-                                      {viewMode === 'list' && olderItems.map(item => renderListItem(item))}
+                                      {viewMode === 'list' && olderItems.map((item, idx) => renderListItem(item, idx))}
                                    </div>
                                 </motion.div>
                               )}
@@ -5133,8 +5263,8 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
               <p className={`text-base sm:text-lg max-w-xl mx-auto mb-8 ${isDark ? 'text-white/70' : 'text-gray-600'}`}>
                 {tr(
                   settings.language, 
-                  'Your clean, algorithmic-free hub for news, podcasts, videos, and live webcams. Get started by exploring our curated catalog or running the quick interactive tour.',
-                  'Dein sauberer, algorithmusfreier Feed für Nachrichten, Podcasts, Videos und Live-Webcams. Starte jetzt mit der interaktiven Tour oder füge beliebte Quellen mit einem Klick hinzu.'
+                  'Your clean, algorithmic-free hub for news, podcasts, videos, and radio. Get started by exploring our curated catalog or running the quick interactive tour.',
+                  'Dein sauberer, algorithmusfreier Feed für Nachrichten, Podcasts, Videos und Radio. Starte jetzt mit der interaktiven Tour oder füge beliebte Quellen mit einem Klick hinzu.'
                 )}
               </p>
 
@@ -5163,7 +5293,7 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
                   {tr(settings.language, 'Popular Starter Sources (1-Click Add)', 'Beliebte Starter-Quellen (1-Klick)')}
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                  {DEFAULT_SOURCES.filter(s => {
+                  {publicSources.filter(s => {
                     const matchType = (type === 'rss' || type === 'feeds') ? s.type === 'feeds' : s.type === type;
                     return matchType && s.language === (settings.language === 'en' ? 'en' : 'de');
                   }).slice(0, 6).map((starter, idx) => {
@@ -5221,9 +5351,9 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
                   viewMode === 'list' ? "flex flex-col gap-4 w-full" :
                   type === 'podcasts' ? "grid grid-cols-[repeat(auto-fill,minmax(210px,1fr))] gap-6" : "grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-6"
                 }>
-                  {(viewMode === 'grid' || viewMode === 'screensaver') && recentItems.map(item => renderGridItem(item))}
+                  {(viewMode === 'grid' || viewMode === 'screensaver') && recentItems.map((item, idx) => renderGridItem(item, idx))}
                   {viewMode === 'magazine' && renderMagazineSection(recentItems, 'recent')}
-                  {viewMode === 'list' && recentItems.map(item => renderListItem(item))}
+                  {viewMode === 'list' && recentItems.map((item, idx) => renderListItem(item, idx))}
                 </div>
               )}
 
@@ -5255,9 +5385,9 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
                             viewMode === 'list' ? "flex flex-col gap-4 w-full pb-4" :
                             type === 'podcasts' ? "grid grid-cols-[repeat(auto-fill,minmax(210px,1fr))] gap-6 pb-4" : "grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-6 pb-4"
                           }>
-                            {(viewMode === 'grid' || viewMode === 'screensaver') && midItems.map(item => renderGridItem(item))}
+                            {(viewMode === 'grid' || viewMode === 'screensaver') && midItems.map((item, idx) => renderGridItem(item, idx))}
                             {viewMode === 'magazine' && renderMagazineSection(midItems, 'mid')}
-                            {viewMode === 'list' && midItems.map(item => renderListItem(item))}
+                            {viewMode === 'list' && midItems.map((item, idx) => renderListItem(item, idx))}
                         </div>
                       </motion.div>
                     )}
@@ -5293,9 +5423,9 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
                             viewMode === 'list' ? "flex flex-col gap-4 w-full pb-4" :
                             type === 'podcasts' ? "grid grid-cols-[repeat(auto-fill,minmax(210px,1fr))] gap-6 pb-4" : "grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-6 pb-4"
                           }>
-                            {(viewMode === 'grid' || viewMode === 'screensaver') && olderItems.map(item => renderGridItem(item))}
+                            {(viewMode === 'grid' || viewMode === 'screensaver') && olderItems.map((item, idx) => renderGridItem(item, idx))}
                             {viewMode === 'magazine' && renderMagazineSection(olderItems, 'older')}
-                            {viewMode === 'list' && olderItems.map(item => renderListItem(item))}
+                            {viewMode === 'list' && olderItems.map((item, idx) => renderListItem(item, idx))}
                         </div>
                       </motion.div>
                     )}

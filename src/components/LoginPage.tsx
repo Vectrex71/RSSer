@@ -113,7 +113,7 @@ export function LoginPage() {
 
         <div className="flex flex-col items-center justify-center mb-6">
           <Link to="/">
-            <img src="/RSSerLogo.png" alt="RSSer Logo" className="w-16 h-16 rounded-2xl hover:scale-105 transition-transform shadow-md mb-2" />
+            <img src="/RSSerLogo.png" alt="RSSer Logo" className="w-16 h-16 rounded-2xl object-contain hover:scale-105 transition-transform shadow-md mb-2" style={{ imageRendering: '-webkit-optimize-contrast' }} />
           </Link>
           <span className="text-xs font-bold uppercase tracking-[0.2em] text-[var(--brand-orange)]">RSSer</span>
         </div>

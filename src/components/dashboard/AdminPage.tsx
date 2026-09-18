@@ -5,9 +5,9 @@ import { useSettings } from '../../context/SettingsContext';
 import { useParams, useNavigate } from 'react-router-dom';
 import { onAuthStateChanged } from 'firebase/auth';
 import { db, auth, storage } from '../../lib/firebase';
-import { collection, getDocs, updateDoc, doc, deleteDoc, query, orderBy, addDoc, limit, where } from 'firebase/firestore';
+import { collection, getDocs, getDoc, updateDoc, doc, deleteDoc, query, orderBy, addDoc, limit, where, setDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { Loader2, Edit3, X, Upload, Trash2, Search, Filter, Settings, Youtube, Podcast, Radio, Rss, Camera, FileText, AlertTriangle, RefreshCw, Play, Globe, CheckCheck, Megaphone, Send, Bold, Italic, List as ListIcon, ListOrdered, Heading1, Heading2, Quote, Underline as UnderlineIcon, Pilcrow, Calendar } from 'lucide-react';
+import { Loader2, Edit3, X, Upload, Trash2, Search, Filter, Settings, Youtube, Podcast, Radio, Rss, Camera, FileText, AlertTriangle, RefreshCw, Play, Globe, CheckCheck, Megaphone, Send, Bold, Italic, List as ListIcon, ListOrdered, Heading1, Heading2, Quote, Underline as UnderlineIcon, Pilcrow, Calendar, Image as ImageIcon } from 'lucide-react';
 import { useMedia } from '../../context/MediaContext';
 import { FEED_CATEGORIES } from '../../lib/constants';
 import { tr } from '../../lib/t';
@@ -20,6 +20,7 @@ import { testGeminiConnection, translateContent } from '../../services/geminiSer
 import { generateDefaultSources } from '../../lib/defaultSources';
 import { useModal } from '../../context/ModalContext';
 import { isAdminEmail } from '../../lib/admin';
+import { processImageFile } from '../../lib/imageUtils';
 
 const AdminMenuBar = ({ editor }: { editor: any }) => {
   const { settings } = useSettings();
@@ -511,45 +512,16 @@ export function AdminPage() {
     e.preventDefault();
     setEditUploading(true);
     try {
-      // similar image logic as handleSave
       let imageUrl = '';
       if (editFile) {
-        imageUrl = await new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = (ev) => {
-            const img = new Image();
-            img.onload = () => {
-              const canvas = document.createElement('canvas');
-              const max_size = 512;
-              let width = img.width;
-              let height = img.height;
-              if (width > height) {
-                if (width > max_size) { height *= max_size / width; width = max_size; }
-              } else {
-                if (height > max_size) { width *= max_size / height; height = max_size; }
-              }
-              canvas.width = width; canvas.height = height;
-              const ctx = canvas.getContext('2d');
-              
-              // Clear canvas for transparent PNGs
-              ctx?.clearRect(0, 0, width, height);
-              ctx?.drawImage(img, 0, 0, width, height);
-              
-              const format = editFile.type === 'image/png' ? 'image/png' : 'image/jpeg';
-              resolve(canvas.toDataURL(format, format === 'image/jpeg' ? 0.85 : undefined));
-            };
-            img.onerror = () => reject(new Error('Invalid image'));
-            img.src = ev.target?.result as string;
-          };
-          reader.readAsDataURL(editFile);
-        });
+        imageUrl = await processImageFile(editFile, 512);
       }
 
       await addDoc(collection(db, 'publicSources'), {
-        title: editingSource.title,
-        url: editingSource.url,
-        category: editingSource.category,
-        type: editingSource.type,
+        title: editingSource.title || '',
+        url: editingSource.url || '',
+        category: editingSource.category || '',
+        type: editingSource.type || 'feeds',
         language: editingSource.language || 'de',
         imageUrl: imageUrl,
       });
@@ -561,7 +533,7 @@ export function AdminPage() {
       setEditFile(null);
     } catch (err: any) {
       console.error(err);
-      await showAlert('Fehler beim Hinzufügen der Quelle.', 'Fehler');
+      await showAlert(`Fehler beim Hinzufügen der Quelle: ${err.message || 'Unbekannter Fehler'}`, 'Fehler');
     } finally {
       setEditUploading(false);
     }
@@ -572,80 +544,102 @@ export function AdminPage() {
     if (!editingSource) return;
     setEditUploading(true);
     try {
-      const docRef = doc(db, 'publicSources', editingSource.id);
-      
-      let newImageUrl = editingSource.imageUrl;
+      let finalImageUrl = (editingSource.imageUrl || '').trim();
       if (editFile) {
-        newImageUrl = await new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = (ev) => {
-            const img = new Image();
-            img.onload = () => {
-              const canvas = document.createElement('canvas');
-              const max_size = 512;
-              let width = img.width;
-              let height = img.height;
-              if (width > height) {
-                if (width > max_size) {
-                  height *= max_size / width;
-                  width = max_size;
-                }
-              } else {
-                if (height > max_size) {
-                  width *= max_size / height;
-                  height = max_size;
-                }
-              }
-              canvas.width = width;
-              canvas.height = height;
-              const ctx = canvas.getContext('2d');
-              
-              // Clear canvas for transparent PNGs
-              ctx?.clearRect(0, 0, width, height);
-              ctx?.drawImage(img, 0, 0, width, height);
-              
-              const format = editFile.type === 'image/png' ? 'image/png' : 'image/jpeg';
-              resolve(canvas.toDataURL(format, format === 'image/jpeg' ? 0.85 : undefined));
-            };
-            img.onerror = () => reject(new Error('Invalid image'));
-            img.src = ev.target?.result as string;
-          };
-          reader.onerror = () => reject(new Error('Failed to read file'));
-          reader.readAsDataURL(editFile);
-        });
+        finalImageUrl = await processImageFile(editFile, 512);
       }
       
       const updateData: any = {
-        title: editingSource.title || '',
-        url: editingSource.url || '',
+        title: (editingSource.title || '').trim(),
+        url: (editingSource.url || '').trim(),
         category: editingSource.category || '',
         type: editingSource.type || 'feeds',
         language: editingSource.language || 'de',
+        imageUrl: finalImageUrl,
+        customImageUrl: finalImageUrl
       };
       
-      if (newImageUrl) {
-        updateData.imageUrl = newImageUrl;
-        if (editingSource.type === 'radio') {
-          updateData.faviconUrl = newImageUrl;
+      if (editingSource.type === 'radio') {
+        updateData.faviconUrl = finalImageUrl;
+      }
+
+      let targetDocRef = doc(db, 'publicSources', editingSource.id);
+      let docExists = false;
+
+      if (!editingSource.id.startsWith('default-')) {
+        try {
+          const snap = await getDoc(targetDocRef);
+          docExists = snap.exists();
+        } catch (e) {
+          console.warn('Check doc existence error in admin:', e);
+        }
+      }
+
+      if (!docExists && editingSource.url) {
+        try {
+          const q = query(collection(db, 'publicSources'), where('url', '==', editingSource.url));
+          const snap = await getDocs(q);
+          if (!snap.empty) {
+            targetDocRef = snap.docs[0].ref;
+            docExists = true;
+          }
+        } catch (e) {
+          console.warn('Query publicSources by URL in admin:', e);
+        }
+      }
+
+      if (docExists) {
+        await setDoc(targetDocRef, updateData, { merge: true });
+      } else {
+        const newDoc = await addDoc(collection(db, 'publicSources'), {
+          ...updateData,
+          addedAt: new Date().toISOString()
+        });
+        targetDocRef = newDoc;
+      }
+
+      // Also update any matching feeds or radio stations for currently logged in user
+      if (auth.currentUser && updateData.url) {
+        try {
+          const uFeedsQ = query(collection(db, 'users', auth.currentUser.uid, 'feeds'), where('url', '==', updateData.url));
+          const uSnap = await getDocs(uFeedsQ);
+          for (const uDoc of uSnap.docs) {
+            await setDoc(uDoc.ref, {
+              imageUrl: finalImageUrl,
+              customImageUrl: finalImageUrl,
+              title: updateData.title || uDoc.data().title
+            }, { merge: true });
+          }
+          const uRadioQ = query(collection(db, 'users', auth.currentUser.uid, 'radioStations'), where('url', '==', updateData.url));
+          const rSnap = await getDocs(uRadioQ);
+          for (const rDoc of rSnap.docs) {
+            await setDoc(rDoc.ref, {
+              imageUrl: finalImageUrl,
+              faviconUrl: finalImageUrl,
+              customImageUrl: finalImageUrl,
+              title: updateData.title || rDoc.data().title
+            }, { merge: true });
+          }
+        } catch (subErr) {
+          console.warn('Error updating user subscriptions:', subErr);
         }
       }
       
-      await updateDoc(docRef, updateData);
-      
-      setSources(sources.map(s => s.id === editingSource.id ? { ...s, ...updateData } : s));
+      setSources(sources.map(s => (s.id === editingSource.id || (s.url && s.url === editingSource.url)) ? { ...s, ...updateData, id: targetDocRef.id } : s));
       
       setEditingSource(null);
       setEditFile(null);
-      await showAlert('Die Quelle wurde erfolgreich aktualisiert.', 'Erfolg');
+      await showAlert('Die Quelle und das Cover wurden erfolgreich aktualisiert.', 'Erfolg');
     } catch (err: any) {
       console.error(err);
-      await showAlert('Fehler beim Speichern der Quelle.', 'Fehler');
+      await showAlert(`Fehler beim Speichern der Quelle: ${err.message || 'Unbekannter Fehler'}`, 'Fehler');
     } finally {
       setEditUploading(false);
     }
   };
 
   const handleDelete = async (id: string) => {
+    const sourceToDelete = sources.find(s => s.id === id);
     const confirmed = await showConfirm(
       'Möchtest du diese Quelle wirklich dauerhaft aus der globalen Datenbank löschen?',
       'Quelle löschen',
@@ -653,9 +647,36 @@ export function AdminPage() {
     );
     if (!confirmed) return;
     try {
+      // 1. Delete the doc from Firestore
       await deleteDoc(doc(db, 'publicSources', id));
-      setSources(sources.filter(s => s.id !== id));
-      await showAlert('Die Quelle wurde gelöscht.', 'Erfolg');
+
+      // 2. Clean up any duplicate doc with the same URL
+      if (sourceToDelete?.url) {
+        try {
+          const qUrl = query(collection(db, 'publicSources'), where('url', '==', sourceToDelete.url));
+          const snap = await getDocs(qUrl);
+          for (const d of snap.docs) {
+            await deleteDoc(d.ref);
+          }
+        } catch (_) {}
+      }
+
+      // 3. Update active state
+      setSources(sources.filter(s => s.id !== id && (!sourceToDelete?.url || s.url !== sourceToDelete.url)));
+
+      // 4. Update public sources cache
+      try {
+        const raw = localStorage.getItem('rsser_public_sources_cache');
+        if (raw) {
+          const cached = JSON.parse(raw);
+          if (Array.isArray(cached)) {
+            const next = cached.filter((s: any) => s.id !== id && (!sourceToDelete?.url || s.url !== sourceToDelete.url));
+            localStorage.setItem('rsser_public_sources_cache', JSON.stringify(next));
+          }
+        }
+      } catch (_) {}
+
+      await showAlert('Die Quelle wurde dauerhaft gelöscht.', 'Erfolg');
     } catch (e) {
       console.error(e);
       await showAlert('Fehler beim Löschen der Quelle.', 'Fehler');
@@ -1067,7 +1088,7 @@ export function AdminPage() {
                 ? 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6'
                 : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
             }`}>
-              {filteredSources.map((source) => {
+              {filteredSources.map((source, idx) => {
                 const domain = source.url ? (new URL(source.url).hostname.replace('www.', '')) : '';
                 let ytThumbnail = null;
                 if (source.url) {
@@ -1079,8 +1100,8 @@ export function AdminPage() {
                 
                 if (source.type === 'podcasts' || source.type === 'radio') {
                   return (
-                    <div key={source.id} className={`group flex flex-col overflow-hidden rounded-2xl border transition-all hover:-translate-y-1 relative ${
-                      isDark ? 'border-white/10 bg-neutral-900/50' : 'border-gray-200 bg-white'
+                    <div key={`admin-src-${source.id || source.url}-${idx}`} className={`group flex flex-col overflow-hidden rounded-2xl border transition-all hover:-translate-y-1 relative ${
+                      isDark ? 'border-white/10 bg-neutral-900/55 hover:bg-neutral-800/85 hover:border-white/25 dark:backdrop-blur-sm' : 'border-gray-200 bg-white/70 hover:bg-white/85 shadow-sm backdrop-blur-sm'
                     }`}>
                       <div className="absolute top-2 right-2 flex gap-2 z-20 opacity-0 group-hover:opacity-100 transition-opacity">
                         <button onClick={() => setEditingSource(source)} className={`p-1.5 rounded-full ${isDark ? 'bg-black/40 hover:bg-black/60 text-white/70 hover:text-white' : 'bg-white/80 hover:bg-white text-gray-500 hover:text-black'} backdrop-blur-sm transition-all`} title="Bearbeiten">
@@ -1134,7 +1155,7 @@ export function AdminPage() {
                 }
 
                 return (
-                  <div key={source.id} className={`flex items-center gap-4 p-4 rounded-xl border ${isDark ? 'border-white/10 bg-neutral-900' : 'border-gray-200 bg-white'}`}>
+                  <div key={`admin-list-${source.id || source.url}-${idx}`} className={`flex items-center gap-4 p-4 rounded-xl border ${isDark ? 'border-white/10 bg-neutral-900/55 hover:bg-neutral-800/85 hover:border-white/25 dark:backdrop-blur-sm' : 'border-gray-200 bg-white/70 hover:bg-white/85 shadow-sm backdrop-blur-sm'}`}>
                     {source.imageUrl || ytThumbnail || fallbackImage ? (
                       <img 
                         src={source.imageUrl || ytThumbnail || fallbackImage || undefined} 
@@ -1458,28 +1479,73 @@ export function AdminPage() {
                     </div>
                   </div>
 
-                  <div>
-                    <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 mb-2 ml-1">Icon / Logo</label>
-                    <div className="flex items-center gap-4">
-                      {(editFile || editingSource.imageUrl) && (
-                        <img src={editFile ? URL.createObjectURL(editFile) : editingSource.imageUrl} 
-                          alt="" 
-                          className="w-16 h-16 rounded-2xl object-cover bg-black/5 dark:bg-white/5 border border-white/10 shadow-lg" referrerPolicy="no-referrer" />
-                      )}
-                      <input 
-                        type="file" 
-                        accept="image/*"
-                        id="edit-upload"
-                        className="hidden"
-                        onChange={e => e.target.files && setEditFile(e.target.files[0])}
-                      />
-                      <label 
-                        htmlFor="edit-upload"
-                        className={`flex-1 h-16 cursor-pointer flex items-center justify-center gap-3 rounded-2xl font-bold transition-all ${isDark ? 'bg-white/5 hover:bg-white/10 border border-white/10' : 'bg-gray-50 hover:bg-gray-100 border border-gray-200 text-gray-600'}`}
-                      >
-                        <Upload className="w-5 h-5" />
-                        BILD WÄHLEN
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 ml-1">
+                        {editingSource.type === 'podcasts' ? 'Podcast Cover / Artwork' : 'Icon / Cover-Bild'}
                       </label>
+                      {(editFile || editingSource.imageUrl) && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setEditFile(null);
+                            setEditingSource({ ...editingSource, imageUrl: '' });
+                          }}
+                          className="text-xs text-red-500 hover:text-red-600 flex items-center gap-1 font-semibold"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                          Cover entfernen
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="flex items-center gap-4">
+                      {(editFile || editingSource.imageUrl) ? (
+                        <img 
+                          src={editFile ? URL.createObjectURL(editFile) : editingSource.imageUrl} 
+                          alt="Cover Vorschau" 
+                          className="w-16 h-16 rounded-2xl object-cover bg-black/5 dark:bg-white/5 border border-white/10 shadow-lg shrink-0" 
+                          referrerPolicy="no-referrer"
+                          onError={(e) => {
+                            (e.target as HTMLElement).style.opacity = '0.3';
+                          }}
+                        />
+                      ) : (
+                        <div className="w-16 h-16 rounded-2xl border border-dashed border-gray-300 dark:border-white/10 flex items-center justify-center text-gray-400 bg-black/5 dark:bg-white/5 shrink-0">
+                          <ImageIcon className="w-7 h-7 opacity-40" />
+                        </div>
+                      )}
+                      
+                      <div className="flex-1 space-y-2">
+                        <input 
+                          type="url" 
+                          value={editingSource.imageUrl || ''} 
+                          onChange={e => {
+                            setEditFile(null);
+                            setEditingSource({ ...editingSource, imageUrl: e.target.value });
+                          }}
+                          className={`w-full px-3.5 py-2.5 rounded-xl border text-xs font-medium ${isDark ? 'bg-neutral-800 border-white/10 focus:border-orange-500 text-white' : 'bg-gray-50 border-gray-200 focus:border-orange-500 text-gray-800'} transition-all outline-none`}
+                          placeholder="https://... Bild-URL einfügen"
+                        />
+                        
+                        <div className="flex items-center gap-2">
+                          <input 
+                            type="file" 
+                            accept="image/*"
+                            id="edit-upload"
+                            className="hidden"
+                            onChange={e => e.target.files && setEditFile(e.target.files[0])}
+                          />
+                          <label 
+                            htmlFor="edit-upload"
+                            className={`cursor-pointer px-3 py-1.5 rounded-lg text-[11px] font-bold inline-flex items-center gap-1.5 transition-all ${isDark ? 'bg-white/10 hover:bg-white/20 text-white' : 'bg-gray-100 hover:bg-gray-200 text-gray-700'}`}
+                          >
+                            <Upload className="w-3.5 h-3.5" />
+                            {editFile ? 'Anderes Bild wählen' : 'Datei hochladen'}
+                          </label>
+                          <span className="text-[10px] text-gray-400">JPG, PNG, WebP (max 512px)</span>
+                        </div>
+                      </div>
                     </div>
                   </div>
 

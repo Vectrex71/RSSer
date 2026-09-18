@@ -15,6 +15,7 @@ interface Settings {
   shareSourcesPublicly: boolean;
   showTopAktuell?: boolean;
   showAmbientWaves?: boolean;
+  showVoting?: boolean;
   lastSeenAnnouncementId?: string;
   isQuotaExceeded: boolean;
   hiddenSources: string[];
@@ -24,10 +25,8 @@ interface Settings {
 interface SettingsContextType {
   settings: Settings;
   searchQuery: string;
-  pricingModalOpen: boolean;
   showHeader1: boolean;
   showHeader2: boolean;
-  setPricingModalOpen: (open: boolean) => void;
   setSearchQuery: (query: string) => void;
   toggleSidebar: () => void;
   setSidebarVisible: (visible: boolean) => void;
@@ -40,6 +39,7 @@ interface SettingsContextType {
   setShareSourcesPublicly: (share: boolean) => void;
   setShowTopAktuell: (show: boolean) => void;
   setShowAmbientWaves: (show: boolean) => void;
+  setShowVoting: (show: boolean) => void;
   setLastSeenAnnouncementId: (id: string) => void;
   setQuotaExceeded: (exceeded: boolean) => void;
   toggleSourceVisibility: (path: string) => void;
@@ -57,7 +57,8 @@ const defaultSettings: Settings = {
   startPage: '/rss-feeds',
   shareSourcesPublicly: false,
   showTopAktuell: true,
-  showAmbientWaves: true,
+  showAmbientWaves: false,
+  showVoting: false,
   isQuotaExceeded: false,
   hiddenSources: [],
   hasSeenTour: false
@@ -67,7 +68,6 @@ const SettingsContext = createContext<SettingsContextType | undefined>(undefined
 
 export function SettingsProvider({ children }: { children: ReactNode }) {
   const [searchQuery, setSearchQuery] = useState('');
-  const [pricingModalOpen, setPricingModalOpen] = useState(false);
   const [showHeader1, setShowHeader1] = useState(true);
   const [showHeader2, setShowHeader2] = useState(true);
   const [settings, setSettings] = useState<Settings>(() => {
@@ -87,7 +87,8 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
       return { 
         ...loaded, 
         hiddenSources: loaded.hiddenSources || [],
-        showAmbientWaves: loaded.showAmbientWaves !== false,
+        showAmbientWaves: loaded.showAmbientWaves === true,
+        showVoting: loaded.showVoting === true,
         isQuotaExceeded: false 
       };
     } catch {
@@ -120,7 +121,8 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
                 ...prev, 
                 ...data, 
                 hiddenSources: Array.isArray(data.hiddenSources) ? data.hiddenSources : (prev.hiddenSources || []),
-                showAmbientWaves: data.showAmbientWaves !== false,
+                showAmbientWaves: data.showAmbientWaves === true,
+                showVoting: data.showVoting === true,
                 isQuotaExceeded: false 
               }));
             }
@@ -178,6 +180,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   const setShareSourcesPublicly = (share: boolean) => updateSetting('shareSourcesPublicly', share);
   const setShowTopAktuell = (show: boolean) => updateSetting('showTopAktuell', show);
   const setShowAmbientWaves = (show: boolean) => updateSetting('showAmbientWaves', show);
+  const setShowVoting = (show: boolean) => updateSetting('showVoting', show);
   const setLastSeenAnnouncementId = (id: string) => updateSetting('lastSeenAnnouncementId', id);
   const setQuotaExceeded = (exceeded: boolean) => updateSetting('isQuotaExceeded', exceeded);
   const setHasSeenTour = useCallback((seen: boolean) => updateSetting('hasSeenTour', seen), [updateSetting]);
@@ -209,10 +212,8 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     <SettingsContext.Provider value={{ 
       settings, 
       searchQuery, 
-      pricingModalOpen, 
       showHeader1,
       showHeader2,
-      setPricingModalOpen, 
       setSearchQuery, 
       toggleSidebar, 
       setSidebarVisible,
@@ -225,6 +226,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
       setShareSourcesPublicly, 
       setShowTopAktuell, 
       setShowAmbientWaves,
+      setShowVoting,
       setLastSeenAnnouncementId, 
       setQuotaExceeded, 
       toggleSourceVisibility,
