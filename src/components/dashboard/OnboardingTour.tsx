@@ -141,10 +141,10 @@ export function OnboardingTour() {
         es: 'Perfil y ajustes 👤'
       },
       text: {
-        de: 'Passe die App an deine Vorlieben an: Wähle deine Startseite, importiere/exportiere OPML-Dateien, verwalte dein Abonnement oder kontaktiere den Support.',
-        en: 'Customize the app to your preferences: choose your start page, import/export OPML files, manage your subscription, or contact support.',
-        fr: 'Personnalisez l\'application selon vos préférences : choisissez votre page de démarrage, importez/exportez des fichiers OPML, gérez votre abonnement ou contactez l\'assistance.',
-        es: 'Personaliza la aplicación a tus preferencias: elige tu página de inicio, importa/exporta archivos OPML, gestiona tu suscripción o contacta con soporte.'
+        de: 'Passe die App an deine Vorlieben an: Wähle deine Startseite, importiere/exportiere OPML-Dateien oder kontaktiere den Support.',
+        en: 'Customize the app to your preferences: choose your start page, import/export OPML files, or contact support.',
+        fr: 'Personnalisez l\'application selon vos préférences : choisissez votre page de démarrage, importez/exportez des fichiers OPML ou contactez l\'assistance.',
+        es: 'Personaliza la aplicación a tus preferencias: elige tu página de inicio, importa/exporta archivos OPML o contacta con soporte.'
       }
     },
     {
