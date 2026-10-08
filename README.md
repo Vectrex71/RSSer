@@ -53,7 +53,7 @@ In today's digital landscape, algorithmic feeds decide what you read, see, and l
 * **Multiple Layout Views**: Choose your preferred style — Magazine Grid, Compact List, Card Feed, or News Ticker.
 * **Fully Responsive & PWA-Ready**: Crafted for desktop, tablet, and mobile browsers.
 
-Go to http://www.RSSer.news to use it RIGHT NOW !
+Go to https://RSSer.syn-labs.app to use it RIGHT NOW !
 
 
 
