@@ -19,6 +19,7 @@ import { RadioPage } from './components/dashboard/RadioPage';
 import { AppShell } from './components/layout/AppShell';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
+import { DomainMigrationNotice } from './components/DomainMigrationNotice';
 import { GlobalMediaPlayer } from './components/layout/GlobalMediaPlayer';
 import { auth, db } from './lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
@@ -119,6 +120,7 @@ export default function App() {
         <ModalProvider>
           <PlanProvider>
             <MediaProvider>
+              <DomainMigrationNotice />
               <Routes>
               <Route path="/" element={<HomeRoute />} />
               <Route path="/impressum" element={<><Header /><ImpressumPage /><Footer /></>} />

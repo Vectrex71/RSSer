@@ -83,7 +83,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div 
-      className={`flex h-screen overflow-hidden ${settings.theme === 'dark' ? 'dark bg-[#0a0a0a] text-[#ededed]' : 'bg-white text-[#1c1c1c]'}`}
+      className={`flex flex-1 h-full min-h-0 overflow-hidden ${settings.theme === 'dark' ? 'dark bg-[#0a0a0a] text-[#ededed]' : 'bg-white text-[#1c1c1c]'}`}
     >
       <Sidebar />
       <div className={`flex-1 flex flex-col relative overflow-hidden ${settings.theme === 'dark' ? 'bg-[#0a0a0a]' : 'bg-white'}`}>

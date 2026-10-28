@@ -195,5 +195,11 @@
   "auth-error-invalid-email": "La dirección de correo electrónico no es válida.",
   "auth-error-too-many-requests": "Demasiados intentos. Por favor, espere un momento.",
   "auth-error-default": "Error al enviar el correo electrónico.",
-  "auth-error-referer-blocked": "Acceso bloqueado desde este dominio. Por favor autorice 'rsser.news' en las restricciones de clave API de Google Cloud y Firebase."
+  "auth-error-referer-blocked": "Acceso bloqueado desde este dominio. Por favor autorice 'rsser.syn-labs.app' en las restricciones de clave API de Google Cloud y Firebase.",
+  "migration-badge": "Aviso",
+  "migration-notice-text-prefix": "A partir del ",
+  "migration-notice-date": "13 de noviembre de 2026",
+  "migration-notice-text-middle": ", RSSer se trasladará exclusivamente a ",
+  "migration-notice-text-suffix": ".",
+  "migration-notice-close": "Ocultar aviso"
 }

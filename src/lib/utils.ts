@@ -18,7 +18,7 @@ export const getRootDomain = (urlStr: string) => {
 };
 
 export const getCanonicalOrigin = () => {
-  if (typeof window === 'undefined') return 'https://rsser.news';
+  if (typeof window === 'undefined') return 'https://rsser.syn-labs.app';
   const origin = window.location.origin;
   // During development or preview, we want links to be relative to the current origin
   // so that internal navigation works within the platform.
@@ -35,6 +35,8 @@ export const isInternalBlogLink = (link: string) => {
         
         // Hostname check
         const isInternalHost = url.hostname === window.location.hostname || 
+                            url.hostname.includes('rsser.syn-labs.app') || 
+                            url.hostname.includes('syn-labs.app') || 
                             url.hostname.includes('rsser.news') || 
                             url.hostname.includes('run.app') || 
                             url.hostname.includes('localhost') ||
@@ -120,6 +122,8 @@ export const normalizeLinks = (html: string) => {
       try {
         const url = new URL(href, window.location.origin);
         const isInternal = url.hostname === window.location.hostname || 
+                          url.hostname.includes('rsser.syn-labs.app') || 
+                          url.hostname.includes('syn-labs.app') || 
                           url.hostname.includes('rsser.news') || 
                           url.hostname.includes('run.app') || 
                           url.hostname.includes('localhost') ||

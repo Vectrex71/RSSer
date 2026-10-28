@@ -30,7 +30,7 @@ export function DatenschutzPage() {
                 <p>Die verantwortliche Stelle für die Datenverarbeitung auf dieser Website ist:</p>
                 <div className="bg-slate-500/5 dark:bg-white/5 border border-slate-500/10 dark:border-white/5 backdrop-blur-sm p-4 rounded-xl font-mono text-sm space-y-1">
                   <p className="font-bold">RSSer News Support</p>
-                  <p>E-Mail: <a href="mailto:support@rsser.news" className="text-[var(--brand-orange)] hover:underline">support@rsser.news</a></p>
+                  <p>E-Mail: <a href="mailto:hj.wuethrich@gmail.com" className="text-[var(--brand-orange)] hover:underline">hj.wuethrich@gmail.com</a></p>
                 </div>
                 <p className="text-sm">
                   Verantwortliche Stelle ist die natürliche oder juristische Person, die allein oder gemeinsam mit anderen über die Zwecke und Mittel der Verarbeitung von personenbezogenen Daten (z. B. Namen, E-Mail-Adressen o. Ä.) entscheidet.
@@ -185,7 +185,7 @@ export function DatenschutzPage() {
                 <p>Le responsable du traitement des données sur ce site internet est :</p>
                 <div className="bg-slate-500/5 dark:bg-white/5 border border-slate-500/10 dark:border-white/5 backdrop-blur-sm p-4 rounded-xl font-mono text-sm space-y-1">
                   <p className="font-bold">RSSer News Support</p>
-                  <p>E-mail : <a href="mailto:support@rsser.news" className="text-[var(--brand-orange)] hover:underline">support@rsser.news</a></p>
+                  <p>E-mail : <a href="mailto:hj.wuethrich@gmail.com" className="text-[var(--brand-orange)] hover:underline">hj.wuethrich@gmail.com</a></p>
                 </div>
                 <p className="text-sm">
                   Le responsable du traitement est la personne physique ou morale qui, seule ou conjointement avec d'autres, détermine les finalités et les moyens du traitement des données personnelles (par exemple, les noms, les adresses e-mail, etc.).
@@ -337,7 +337,7 @@ export function DatenschutzPage() {
                 <p>El responsable del tratamiento de datos en este sitio web es:</p>
                 <div className="bg-slate-500/5 dark:bg-white/5 border border-slate-500/10 dark:border-white/5 backdrop-blur-sm p-4 rounded-xl font-mono text-sm space-y-1">
                   <p className="font-bold">RSSer News Support</p>
-                  <p>Correo electrónico: <a href="mailto:support@rsser.news" className="text-[var(--brand-orange)] hover:underline">support@rsser.news</a></p>
+                  <p>Correo electrónico: <a href="mailto:hj.wuethrich@gmail.com" className="text-[var(--brand-orange)] hover:underline">hj.wuethrich@gmail.com</a></p>
                 </div>
                 <p className="text-sm">
                   El responsable es la persona física o jurídica que, de forma individual o conjunta con otras, determina los fines y los medios del tratamiento de datos personales (por ejemplo, nombres, direcciones de correo electrónico, etc.).
@@ -490,7 +490,7 @@ export function DatenschutzPage() {
                 <p>The party responsible for data processing on this website is:</p>
                 <div className="bg-slate-500/5 dark:bg-white/5 border border-slate-500/10 dark:border-white/5 backdrop-blur-sm p-4 rounded-xl font-mono text-sm space-y-1">
                   <p className="font-bold">RSSer News Support</p>
-                  <p>Email: <a href="mailto:support@rsser.news" className="text-[var(--brand-orange)] hover:underline">support@rsser.news</a></p>
+                  <p>Email: <a href="mailto:hj.wuethrich@gmail.com" className="text-[var(--brand-orange)] hover:underline">hj.wuethrich@gmail.com</a></p>
                 </div>
                 <p className="text-sm">
                   The controller is the natural or legal person who alone or jointly with others determines the purposes and means of the processing of personal data (e.g., names, email addresses, etc.).

@@ -3333,35 +3333,105 @@ async function startServer() {
     }
   });
 
+function getMailTransporter() {
+  const user = (process.env.SMTP_USER || '').trim();
+  const rawPass = (process.env.SMTP_PASS || '').trim();
+  const pass = rawPass.replace(/\s+/g, ''); // strip spaces in Google App passwords (xxxx xxxx xxxx xxxx)
+
+  if (!user || !pass) {
+    console.log("[Mail] SMTP_USER or SMTP_PASS missing in environment. (SMTP_USER:", user ? 'set' : 'empty', ", SMTP_PASS:", pass ? 'set' : 'empty', ")");
+    return null;
+  }
+
+  const host = (process.env.SMTP_HOST || '').trim() || (user.toLowerCase().includes('gmail') ? 'smtp.gmail.com' : '');
+  const port = parseInt((process.env.SMTP_PORT || '').trim() || '465');
+
+  // If using Gmail (either explicit host or gmail address)
+  if (host.includes('gmail') || user.toLowerCase().includes('gmail')) {
+    console.log(`[Mail] Initializing nodemailer Gmail service for ${user}`);
+    return nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: user,
+        pass: pass,
+      },
+    });
+  }
+
+  if (!host) {
+    console.log("[Mail] No SMTP host defined and not a Gmail address.");
+    return null;
+  }
+
+  console.log(`[Mail] Initializing nodemailer SMTP host ${host}:${port} for ${user}`);
+  return nodemailer.createTransport({
+    host: host,
+    port: port,
+    secure: port === 465,
+    auth: {
+      user: user,
+      pass: pass,
+    },
+  });
+}
+
   app.post("/api/waiting-list", async (req, res) => {
     const { email } = req.body;
     if (!email) {
       return res.status(400).json({ error: "Email is required" });
     }
 
-    const port = parseInt(process.env.SMTP_PORT || "587");
-    const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: port,
-      secure: port === 465, // Use SSL/TLS if port is 465
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
-      },
-    });
+    const trimmedEmail = email.trim();
+    const recipient = process.env.SUPPORT_EMAIL && !process.env.SUPPORT_EMAIL.toLowerCase().includes('support@rsser.news')
+      ? process.env.SUPPORT_EMAIL
+      : 'hj.wuethrich@gmail.com';
 
+    // Store in Firestore server-side as well
     try {
-      await transporter.sendMail({
-        from: process.env.SMTP_USER,
-        to: process.env.SUPPORT_EMAIL,
-        subject: "Neue Newsletter-Anmeldung",
-        text: `Ein neuer Nutzer hat sich für den RSSer Newsletter eingetragen: ${email}`,
-      });
-      res.json({ message: "Erfolgreich angemeldet" });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: "Fehler beim Senden der Email" });
+      const db = getDbAdmin();
+      if (db) {
+        // Save to newsletter subscriber list
+        await db.collection('newsletter').add({
+          email: trimmedEmail,
+          createdAt: new Date().toISOString(),
+          source: 'landingpage'
+        });
+        // Also save to messages so it is visible in Admin Support & Wünsche
+        await db.collection('messages').add({
+          userEmail: trimmedEmail,
+          type: 'newsletter',
+          message: `Neuer Newsletter-Abonnent von der Landingpage: ${trimmedEmail}`,
+          createdAt: new Date().toISOString(),
+          status: 'new'
+        });
+      }
+    } catch (saveErr) {
+      console.warn("Could not save newsletter signup to database:", saveErr);
     }
+
+    const transporter = getMailTransporter();
+    if (transporter) {
+      const fromUser = (process.env.SMTP_USER || '').trim();
+      const fromAddress = `"RSSer News" <${fromUser || recipient}>`;
+
+      try {
+        console.log(`[Newsletter] Sending email notification to ${recipient}...`);
+        const info = await transporter.sendMail({
+          from: fromAddress,
+          to: recipient,
+          replyTo: trimmedEmail,
+          subject: "Neue Newsletter-Anmeldung (RSSer)",
+          text: `Ein neuer Nutzer hat sich für den RSSer Newsletter eingetragen:\n\nE-Mail: ${trimmedEmail}\nDatum: ${new Date().toLocaleString('de-CH')}`,
+        });
+        console.log(`[Newsletter] Email successfully sent! Message ID:`, info?.messageId);
+      } catch (error: any) {
+        console.error("[Newsletter] Email sending error:", error?.message || error);
+      }
+    } else {
+      console.log(`[Newsletter] SMTP not configured. Subscriber ${trimmedEmail} recorded in database for admin.`);
+    }
+
+    res.json({ message: "Erfolgreich angemeldet" });
   });
 
   app.post("/api/contact", async (req, res) => {
@@ -3370,31 +3440,50 @@ async function startServer() {
       return res.status(400).json({ error: "Email and message are required" });
     }
 
-    const port = parseInt(process.env.SMTP_PORT || "587");
-    const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: port,
-      secure: port === 465,
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
-      },
-    });
+    const recipient = process.env.SUPPORT_EMAIL && !process.env.SUPPORT_EMAIL.toLowerCase().includes('support@rsser.news')
+      ? process.env.SUPPORT_EMAIL
+      : 'hj.wuethrich@gmail.com';
 
-    const subject = type === 'wishes' ? "Neuer Funktionswunsch" : "Neue Support-Anfrage";
-
+    // Store in Firestore server-side as well
     try {
-      await transporter.sendMail({
-        from: process.env.SMTP_USER,
-        to: process.env.SUPPORT_EMAIL,
-        subject: subject,
-        text: `Typ: ${type}\nVon: ${email}\n\nNachricht:\n${message}`,
-      });
-      res.json({ success: true });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: "Fehler beim Senden der Email" });
+      const db = getDbAdmin();
+      if (db) {
+        await db.collection('messages').add({
+          userEmail: email.trim(),
+          type: type || 'support',
+          message: message.trim(),
+          createdAt: new Date().toISOString(),
+          status: 'new'
+        });
+      }
+    } catch (saveErr) {
+      console.warn("Could not save contact message to database:", saveErr);
     }
+
+    const transporter = getMailTransporter();
+    if (transporter) {
+      const fromUser = (process.env.SMTP_USER || '').trim();
+      const fromAddress = `"RSSer Support" <${fromUser || recipient}>`;
+      const subject = type === 'wishes' ? "Neuer Funktionswunsch (RSSer)" : "Neue Support-Anfrage (RSSer)";
+
+      try {
+        console.log(`[Contact] Sending ${type} email notification to ${recipient}...`);
+        const info = await transporter.sendMail({
+          from: fromAddress,
+          to: recipient,
+          replyTo: email.trim(),
+          subject: subject,
+          text: `Typ: ${type}\nVon: ${email}\n\nNachricht:\n${message}`,
+        });
+        console.log(`[Contact] Email successfully sent! Message ID:`, info?.messageId);
+      } catch (error: any) {
+        console.error("[Contact] Email sending error:", error?.message || error);
+      }
+    } else {
+      console.log(`[Contact] SMTP not configured. Form inquiry from ${email} successfully logged to database.`);
+    }
+
+    res.json({ success: true });
   });
 
   app.get("/api/rss/user/:userId", async (req, res) => {

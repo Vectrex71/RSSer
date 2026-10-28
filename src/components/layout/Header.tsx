@@ -1,4 +1,4 @@
-import { Search, Settings, Sun, Moon, User, Menu, Play, Pause, FastForward, Rewind, LayoutGrid, LayoutTemplate, List, Tv, LogOut, Rss, Podcast, Radio, Youtube, Bookmark, PenTool, MessageSquare, Heart, Shield, Loader2, Megaphone } from 'lucide-react';
+import { Search, Settings, Sun, Moon, User, Menu, Play, Pause, FastForward, Rewind, LayoutGrid, LayoutTemplate, List, Tv, LogOut, Rss, Podcast, Radio, Youtube, Bookmark, PenTool, MessageSquare, Heart, Shield, Loader2, Megaphone, Mail } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useSettings } from '../../context/SettingsContext';
 import { useTranslation } from '../../hooks/useTranslation';
@@ -261,7 +261,7 @@ export function Header() {
         )}
         {isDiscoverOrAdmin && (
           <div className={`flex overflow-x-auto hide-scrollbar ${settings.theme === 'dark' ? 'bg-white/5' : 'bg-gray-100'} rounded-lg p-1 max-w-[50vw] sm:max-w-none`}>
-            {(isAdmin ? ['feeds', 'podcasts', 'radio', 'youtube', 'news'] : ['feeds', 'podcasts', 'radio', 'youtube']).map((cat) => {
+            {(isAdmin ? ['feeds', 'podcasts', 'radio', 'youtube', 'news', 'messages'] : ['feeds', 'podcasts', 'radio', 'youtube']).map((cat) => {
               const isActive = location.pathname === `${basePath}/${cat}` || (location.pathname === basePath && cat === 'feeds');
               
               let activeLight = 'bg-white text-gray-900';
@@ -283,10 +283,13 @@ export function Header() {
                 } else if (cat === 'news') {
                   activeLight = 'bg-orange-100 text-orange-700';
                   activeDark = 'bg-orange-500/20 text-orange-400';
+                } else if (cat === 'messages') {
+                  activeLight = 'bg-emerald-100 text-emerald-700';
+                  activeDark = 'bg-emerald-500/20 text-emerald-400';
                 }
               }
               
-              const text = cat === 'feeds' ? t('rss-feeds') : cat === 'news' ? 'Admin News' : t(cat) || cat;
+              const text = cat === 'feeds' ? t('rss-feeds') : cat === 'news' ? 'Admin News' : cat === 'messages' ? 'Support & Wünsche' : t(cat) || cat;
               
               return (
               <button 
@@ -305,6 +308,7 @@ export function Header() {
                    cat === 'podcasts' ? <Podcast className="w-4 h-4" /> : 
                    cat === 'youtube' ? <Youtube className="w-4 h-4" /> : 
                    cat === 'radio' ? <Radio className="w-4 h-4" /> : 
+                   cat === 'messages' ? <Mail className="w-4 h-4" /> :
                    <Megaphone className="w-4 h-4" />}
                 </span>
               </button>

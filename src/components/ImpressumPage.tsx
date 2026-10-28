@@ -28,7 +28,7 @@ export function ImpressumPage() {
                 <p className="font-bold text-black dark:text-white">Hansjürg Wüthrich</p>
                 <p>8320 Fehraltorf</p>
                 <p>Schweiz / Switzerland</p>
-                <p className="pt-2">E-Mail: <a href="mailto:support@Rsser.news" className="text-[var(--brand-orange)] hover:underline font-medium">support@Rsser.news</a></p>
+                <p className="pt-2">E-Mail: <a href="mailto:hj.wuethrich@gmail.com" className="text-[var(--brand-orange)] hover:underline font-medium">hj.wuethrich@gmail.com</a></p>
               </div>
             </section>
 
@@ -101,7 +101,7 @@ export function ImpressumPage() {
                 <p className="font-bold text-black dark:text-white">Hansjürg Wüthrich</p>
                 <p>8320 Fehraltorf</p>
                 <p>Suisse / Switzerland</p>
-                <p className="pt-2">E-mail : <a href="mailto:support@Rsser.news" className="text-[var(--brand-orange)] hover:underline font-medium">support@Rsser.news</a></p>
+                <p className="pt-2">E-mail : <a href="mailto:hj.wuethrich@gmail.com" className="text-[var(--brand-orange)] hover:underline font-medium">hj.wuethrich@gmail.com</a></p>
               </div>
             </section>
 
@@ -168,7 +168,7 @@ export function ImpressumPage() {
                 <p className="font-bold text-black dark:text-white">Hansjürg Wüthrich</p>
                 <p>8320 Fehraltorf</p>
                 <p>Suiza / Switzerland</p>
-                <p className="pt-2">Correo electrónico: <a href="mailto:support@Rsser.news" className="text-[var(--brand-orange)] hover:underline font-medium">support@Rsser.news</a></p>
+                <p className="pt-2">Correo electrónico: <a href="mailto:hj.wuethrich@gmail.com" className="text-[var(--brand-orange)] hover:underline font-medium">hj.wuethrich@gmail.com</a></p>
               </div>
             </section>
 
@@ -236,7 +236,7 @@ export function ImpressumPage() {
                 <p className="font-bold text-black dark:text-white">Hansjürg Wüthrich</p>
                 <p>8320 Fehraltorf</p>
                 <p>Switzerland</p>
-                <p className="pt-2">Email: <a href="mailto:support@Rsser.news" className="text-[var(--brand-orange)] hover:underline font-medium">support@Rsser.news</a></p>
+                <p className="pt-2">Email: <a href="mailto:hj.wuethrich@gmail.com" className="text-[var(--brand-orange)] hover:underline font-medium">hj.wuethrich@gmail.com</a></p>
               </div>
             </section>
 

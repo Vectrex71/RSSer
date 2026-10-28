@@ -195,5 +195,11 @@
   "auth-error-invalid-email": "L'adresse e-mail n'est pas valide.",
   "auth-error-too-many-requests": "Trop de tentatives. Veuillez patienter un instant.",
   "auth-error-default": "Erreur lors de l'envoi de l'e-mail.",
-  "auth-error-referer-blocked": "Accès bloqué depuis ce domaine. Veuillez autoriser 'rsser.news' dans les restrictions de clé API Google Cloud et Firebase."
+  "auth-error-referer-blocked": "Accès bloqué depuis ce domaine. Veuillez autoriser 'rsser.syn-labs.app' dans les restrictions de clé API Google Cloud et Firebase.",
+  "migration-badge": "Information",
+  "migration-notice-text-prefix": "À compter du ",
+  "migration-notice-date": "13 novembre 2026",
+  "migration-notice-text-middle": ", RSSer déménagera exclusivement sur ",
+  "migration-notice-text-suffix": ".",
+  "migration-notice-close": "Masquer l'avis"
 }

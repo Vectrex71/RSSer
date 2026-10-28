@@ -7,7 +7,7 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { db, auth, storage } from '../../lib/firebase';
 import { collection, getDocs, getDoc, updateDoc, doc, deleteDoc, query, orderBy, addDoc, limit, where, setDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { Loader2, Edit3, X, Upload, Trash2, Search, Filter, Settings, Youtube, Podcast, Radio, Rss, Camera, FileText, AlertTriangle, RefreshCw, Play, Globe, CheckCheck, Megaphone, Send, Bold, Italic, List as ListIcon, ListOrdered, Heading1, Heading2, Quote, Underline as UnderlineIcon, Pilcrow, Calendar, Image as ImageIcon } from 'lucide-react';
+import { Loader2, Edit3, X, Upload, Trash2, Search, Filter, Settings, Youtube, Podcast, Radio, Rss, Camera, FileText, AlertTriangle, RefreshCw, Play, Globe, CheckCheck, Megaphone, Send, Bold, Italic, List as ListIcon, ListOrdered, Heading1, Heading2, Quote, Underline as UnderlineIcon, Pilcrow, Calendar, Image as ImageIcon, Mail, Check, Sparkles, MessageSquare, Reply } from 'lucide-react';
 import { useMedia } from '../../context/MediaContext';
 import { FEED_CATEGORIES } from '../../lib/constants';
 import { tr } from '../../lib/t';
@@ -91,6 +91,10 @@ export function AdminPage() {
   const [isSyncing, setIsSyncing] = useState(false);
   const [isCleaning, setIsCleaning] = useState(false);
 
+  const [messages, setMessages] = useState<any[]>([]);
+  const [loadingMessages, setLoadingMessages] = useState(false);
+  const [messageFilter, setMessageFilter] = useState<'all' | 'support' | 'wishes' | 'newsletter'>('all');
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (isAdminEmail(user?.email)) {
@@ -99,6 +103,7 @@ export function AdminPage() {
         fetchAlerts();
         loadAnnouncements();
         fetchWebcamReports();
+        fetchMessages();
       } else {
         setIsAdmin(false);
         if (user) navigate('/');
@@ -110,9 +115,67 @@ export function AdminPage() {
 
   useEffect(() => {
     if (isAdmin) {
-      fetchSources(typeFilter);
+      if (typeFilter === 'messages') {
+        fetchMessages();
+      } else if (typeFilter !== 'news') {
+        fetchSources(typeFilter);
+      }
     }
   }, [typeFilter, isAdmin]);
+
+  const fetchMessages = async () => {
+    setLoadingMessages(true);
+    try {
+      const q = query(collection(db, 'messages'), orderBy('createdAt', 'desc'), limit(100));
+      const snap = await getDocs(q);
+      const list = snap.docs.map(d => {
+        const data = d.data();
+        let dateObj = new Date();
+        if (data.createdAt?.toDate) {
+          dateObj = data.createdAt.toDate();
+        } else if (data.createdAt) {
+          dateObj = new Date(data.createdAt);
+        }
+        return {
+          id: d.id,
+          ...data,
+          formattedDate: isNaN(dateObj.getTime()) ? '' : dateObj.toLocaleString('de-CH', { dateStyle: 'medium', timeStyle: 'short' })
+        };
+      });
+      setMessages(list);
+    } catch (e) {
+      console.error("Error fetching messages:", e);
+    } finally {
+      setLoadingMessages(false);
+    }
+  };
+
+  const handleToggleMessageStatus = async (msgId: string, currentStatus: string) => {
+    try {
+      const nextStatus = currentStatus === 'new' ? 'read' : currentStatus === 'read' ? 'resolved' : 'new';
+      await updateDoc(doc(db, 'messages', msgId), { status: nextStatus });
+      setMessages(prev => prev.map(m => m.id === msgId ? { ...m, status: nextStatus } : m));
+    } catch (e) {
+      console.error("Error updating message status:", e);
+    }
+  };
+
+  const handleDeleteMessage = async (msgId: string) => {
+    const confirmed = await showConfirm(
+      'Möchtest du diese Nachricht wirklich unwiderruflich löschen?',
+      'Nachricht löschen',
+      'Löschen'
+    );
+    if (!confirmed) return;
+    try {
+      await deleteDoc(doc(db, 'messages', msgId));
+      setMessages(prev => prev.filter(m => m.id !== msgId));
+      await showAlert('Nachricht gelöscht.', 'Erfolg');
+    } catch (e) {
+      console.error("Error deleting message:", e);
+      await showAlert('Fehler beim Löschen der Nachricht.', 'Fehler');
+    }
+  };
 
   const loadAnnouncements = async () => {
     try {
@@ -1009,6 +1072,197 @@ export function AdminPage() {
                   )}
                 </div>
               </div>
+            </div>
+          </div>
+        ) : typeFilter === 'messages' ? (
+          /* Messages & Support Inquiries Section */
+          <div className="space-y-6">
+            <div className={`p-6 sm:p-8 rounded-3xl border ${isDark ? 'bg-neutral-900/50 border-white/10' : 'bg-white border-gray-100 shadow-sm'}`}>
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 pb-6 border-b border-gray-100 dark:border-white/5">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center">
+                    <Mail className="w-6 h-6 text-emerald-500" />
+                  </div>
+                  <div>
+                    <h1 className="text-2xl font-bold tracking-tight">Support-Anfragen & Nutzerwünsche</h1>
+                    <p className="text-xs sm:text-sm opacity-60">
+                      Nachrichten aus den Formularen (gehen direkt an <span className="font-semibold text-emerald-500">hj.wuethrich@gmail.com</span> und werden hier gespeichert)
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={fetchMessages}
+                    disabled={loadingMessages}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold border transition-colors ${
+                      isDark ? 'bg-white/5 hover:bg-white/10 border-white/10 text-white' : 'bg-gray-50 hover:bg-gray-100 border-gray-200 text-gray-800'
+                    }`}
+                  >
+                    <RefreshCw className={`w-4 h-4 ${loadingMessages ? 'animate-spin' : ''}`} />
+                    <span>Aktualisieren</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Filter Pills */}
+              <div className="flex flex-wrap items-center gap-2 mb-6">
+                <button
+                  onClick={() => setMessageFilter('all')}
+                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                    messageFilter === 'all'
+                      ? 'bg-emerald-500 text-white shadow-md shadow-emerald-500/20'
+                      : isDark ? 'bg-white/5 text-white/70 hover:bg-white/10' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  Alle ({messages.length})
+                </button>
+                <button
+                  onClick={() => setMessageFilter('support')}
+                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                    messageFilter === 'support'
+                      ? 'bg-orange-500 text-white shadow-md shadow-orange-500/20'
+                      : isDark ? 'bg-white/5 text-white/70 hover:bg-white/10' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  Support ({messages.filter(m => m.type === 'support').length})
+                </button>
+                <button
+                  onClick={() => setMessageFilter('wishes')}
+                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                    messageFilter === 'wishes'
+                      ? 'bg-purple-500 text-white shadow-md shadow-purple-500/20'
+                      : isDark ? 'bg-white/5 text-white/70 hover:bg-white/10' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  Wünsche ({messages.filter(m => m.type === 'wishes').length})
+                </button>
+                <button
+                  onClick={() => setMessageFilter('newsletter')}
+                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                    messageFilter === 'newsletter'
+                      ? 'bg-blue-500 text-white shadow-md shadow-blue-500/20'
+                      : isDark ? 'bg-white/5 text-white/70 hover:bg-white/10' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  Newsletter ({messages.filter(m => m.type === 'newsletter').length})
+                </button>
+              </div>
+
+              {/* Message List */}
+              {loadingMessages ? (
+                <div className="py-20 flex flex-col items-center justify-center text-center opacity-60">
+                  <Loader2 className="w-8 h-8 animate-spin text-emerald-500 mb-3" />
+                  <p className="text-sm font-medium">Nachrichten werden geladen...</p>
+                </div>
+              ) : messages.filter(m => messageFilter === 'all' || m.type === messageFilter).length === 0 ? (
+                <div className="py-20 text-center opacity-40">
+                  <Mail className="w-14 h-14 mx-auto mb-4 opacity-50" />
+                  <p className="text-base font-bold">Keine Nachrichten vorhanden</p>
+                  <p className="text-xs mt-1">Eingereichte Support-Tickets oder Wünsche erscheinen automatisch hier.</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {messages
+                    .filter(m => messageFilter === 'all' || m.type === messageFilter)
+                    .map(msg => {
+                      const isSupport = msg.type === 'support';
+                      const isNewsletter = msg.type === 'newsletter';
+                      const status = msg.status || 'new';
+
+                      return (
+                        <div
+                          key={msg.id}
+                          className={`p-6 rounded-2xl border transition-all ${
+                            isDark
+                              ? status === 'new'
+                                ? 'bg-emerald-950/10 border-emerald-500/30'
+                                : 'bg-black/20 border-white/5'
+                              : status === 'new'
+                                ? 'bg-emerald-50/50 border-emerald-200'
+                                : 'bg-gray-50 border-gray-200'
+                          }`}
+                        >
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                            <div className="flex flex-wrap items-center gap-2">
+                              {/* Type Badge */}
+                              <span
+                                className={`px-2.5 py-1 rounded-lg text-[11px] font-black uppercase tracking-wider ${
+                                  isSupport
+                                    ? 'bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20'
+                                    : isNewsletter
+                                    ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20'
+                                    : 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20'
+                                }`}
+                              >
+                                {isSupport ? 'Support' : isNewsletter ? 'Newsletter' : 'Wunsch'}
+                              </span>
+
+                              {/* Status Badge */}
+                              <button
+                                onClick={() => handleToggleMessageStatus(msg.id, status)}
+                                title="Klicken zum Ändern des Status"
+                                className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-transform active:scale-95 flex items-center gap-1 ${
+                                  status === 'new'
+                                    ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30'
+                                    : status === 'read'
+                                    ? 'bg-blue-500/15 text-blue-600 dark:text-blue-400 border border-blue-500/30'
+                                    : 'bg-gray-500/15 text-gray-600 dark:text-gray-400 border border-gray-500/30'
+                                }`}
+                              >
+                                {status === 'new' && <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />}
+                                <span>{status === 'new' ? 'Neu' : status === 'read' ? 'Gelesen' : 'Erledigt'}</span>
+                              </button>
+
+                              {/* Timestamp */}
+                              <span className="text-xs opacity-50 ml-1">
+                                {msg.formattedDate}
+                              </span>
+                            </div>
+
+                            {/* Actions Header */}
+                            <div className="flex items-center gap-2">
+                              <a
+                                href={`mailto:${msg.userEmail}?subject=Re: RSSer ${isSupport ? 'Support' : isNewsletter ? 'Newsletter' : 'Funktionswunsch'}&body=Hallo,%0A%0AVielen Dank für dein Interesse an RSSer!%0A%0A`}
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white transition-colors"
+                              >
+                                <Reply className="w-3.5 h-3.5" />
+                                <span>Antworten</span>
+                              </a>
+                              <button
+                                onClick={() => handleDeleteMessage(msg.id)}
+                                className="p-1.5 hover:bg-rose-500/10 hover:text-rose-500 rounded-lg transition-colors opacity-70 hover:opacity-100"
+                                title="Nachricht löschen"
+                              >
+                                <Trash2 className="w-4 h-4 text-rose-500" />
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* Sender details */}
+                          <div className="mb-3 flex items-center gap-2">
+                            <span className="text-xs opacity-50 font-bold uppercase tracking-wider">Absender:</span>
+                            <a
+                              href={`mailto:${msg.userEmail}`}
+                              className="text-sm font-semibold text-emerald-600 dark:text-emerald-400 hover:underline"
+                            >
+                              {msg.userEmail}
+                            </a>
+                          </div>
+
+                          {/* Message Body */}
+                          <div
+                            className={`p-4 rounded-xl text-sm leading-relaxed whitespace-pre-wrap ${
+                              isDark ? 'bg-black/30 border border-white/5 text-gray-200' : 'bg-white border border-gray-200/60 text-gray-800'
+                            }`}
+                          >
+                            {msg.message}
+                          </div>
+                        </div>
+                      );
+                    })}
+                </div>
+              )}
             </div>
           </div>
         ) : (
