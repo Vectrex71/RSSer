@@ -28,7 +28,7 @@ export const getCanonicalOrigin = () => {
   return origin;
 };
 
-export const isInternalBlogLink = (link: string) => {
+export const isInternalAppLink = (link: string) => {
     if (!link) return false;
     try {
         const url = new URL(link, window.location.origin);
@@ -48,18 +48,14 @@ export const isInternalBlogLink = (link: string) => {
         
         // List of routes that should be handled internally
         const internalRoutes = [
-            '/blogs',
-            '/blog/',
-            '/article/',
-            '/p/',
-            '/user/',
-            '/u/',
-            '/author/',
             '/discover',
             '/rss',
+            '/rss-feeds',
+            '/podcasts',
             '/radio',
             '/youtube',
-            '/webcam'
+            '/settings',
+            '/admin'
         ];
         
         return internalRoutes.some(route => path.includes(route));
@@ -68,16 +64,14 @@ export const isInternalBlogLink = (link: string) => {
         if (link.startsWith('/')) {
             const path = link.split('?')[0].split('#')[0];
             const internalRoutes = [
-                '/blogs',
-                '/blog/',
-                '/article/',
-                '/p/',
-                '/user/',
                 '/discover',
                 '/rss',
+                '/rss-feeds',
+                '/podcasts',
                 '/radio',
                 '/youtube',
-                '/webcam'
+                '/settings',
+                '/admin'
             ];
             return internalRoutes.some(route => path.includes(route));
         }
@@ -85,7 +79,9 @@ export const isInternalBlogLink = (link: string) => {
     }
 };
 
-export const getInternalBlogPath = (link: string) => {
+export const isInternalBlogLink = isInternalAppLink;
+
+export const getInternalPath = (link: string) => {
     if (!link) return '/';
     try {
         const url = new URL(link, window.location.origin);
@@ -94,6 +90,8 @@ export const getInternalBlogPath = (link: string) => {
         return link;
     }
 };
+
+export const getInternalBlogPath = getInternalPath;
 
 export const normalizeLinks = (html: string) => {
   if (typeof document === 'undefined') return html;

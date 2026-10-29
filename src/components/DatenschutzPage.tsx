@@ -109,7 +109,7 @@ export function DatenschutzPage() {
               <div className="space-y-3">
                 <h3 className="text-lg font-bold text-black dark:text-white">Registrierungsdaten (Firebase Authentication)</h3>
                 <p>
-                  Wenn du dich auf unserer Plattform registrierst (um Feeds zu speichern oder deinen eigenen Blog zu erstellen), erfassen wir:
+                  Wenn du dich auf unserer Plattform registrierst (um Feeds, Podcasts und Sender zu speichern), erfassen wir:
                 </p>
                 <ul className="list-disc pl-6 space-y-1">
                   <li>Deine E-Mail-Adresse</li>
@@ -127,9 +127,8 @@ export function DatenschutzPage() {
                   Für angemeldete Benutzer speichern wir deine individuellen Einstellungen und Feed-Abonnements in einer sicheren Cloud-Datenbank (Google Cloud Firestore):
                 </p>
                 <ul className="list-disc pl-6 space-y-1">
-                  <li>Abonnierte RSS-Feeds, Radio-Stationen, Podcasts, YouTube-Kanäle und Webcams</li>
+                  <li>Abonnierte RSS-Feeds, Radio-Stationen, Podcasts und YouTube-Kanäle</li>
                   <li>Gelesene, gespeicherte oder favorisierte Artikel</li>
-                  <li>Deinen eigenen Blog und die von dir verfassten Blog-Einträge (falls du die Blog-Funktion nutzt)</li>
                 </ul>
                 <p>
                   Diese Speicherung ist zwingend erforderlich, damit du von unterschiedlichen Geräten auf deine abonnierten Quellen zugreifen kannst. Wenn du dein Benutzerkonto löschst, werden all diese Daten automatisch und unwiderruflich aus unserer Datenbank gelöscht.
@@ -264,7 +263,7 @@ export function DatenschutzPage() {
               <div className="space-y-3">
                 <h3 className="text-lg font-bold text-black dark:text-white">Données d'enregistrement (Firebase Authentication)</h3>
                 <p>
-                  Si vous vous enregistrez sur notre plateforme (pour enregistrer des flux ou rédiger vos propres articles de blog), nous collectons :
+                  Si vous vous enregistrez sur notre plateforme (pour enregistrer des flux, des podcasts et des stations), nous collectons :
                 </p>
                 <ul className="list-disc pl-6 space-y-1">
                   <li>Votre adresse e-mail</li>
@@ -282,9 +281,8 @@ export function DatenschutzPage() {
                   Pour les utilisateurs enregistrés, nous enregistrons vos paramètres personnalisés et vos abonnements aux flux dans une base de données cloud sécurisée (Google Cloud Firestore) :
                 </p>
                 <ul className="list-disc pl-6 space-y-1">
-                  <li>Flux RSS abonnés, stations de radio, podcasts, chaînes YouTube et webcams</li>
+                  <li>Flux RSS abonnés, stations de radio, podcasts et chaînes YouTube</li>
                   <li>Articles lus, enregistrés ou favorisés</li>
-                  <li>Vos propres articles de blog et métadonnées (si vous utilisez la fonctionnalité de blog)</li>
                 </ul>
                 <p>
                   Ce stockage est techniquement nécessaire pour que vous puissiez accéder à votre fil d'actualité personnalisé depuis différents appareils. Si vous supprimez votre compte, toutes ces données sont définitivement et irrévocablement supprimées de notre base de données.
@@ -416,7 +414,7 @@ export function DatenschutzPage() {
               <div className="space-y-3">
                 <h3 className="text-lg font-bold text-black dark:text-white">Datos de registro (Firebase Authentication)</h3>
                 <p>
-                  Si se registra en nuestra plataforma (para guardar canales o escribir sus propias publicaciones de blog), recopilamos:
+                  Si se registra en nuestra plataforma (para guardar canales, podcasts y emisoras), recopilamos:
                 </p>
                 <ul className="list-disc pl-6 space-y-1">
                   <li>Su dirección de correo electrónico</li>
@@ -434,9 +432,8 @@ export function DatenschutzPage() {
                   Para los usuarios registrados, guardamos su configuración personalizada y suscripciones a canales en una base de datos segura en la nube (Google Cloud Firestore):
                 </p>
                 <ul className="list-disc pl-6 space-y-1">
-                  <li>Canales RSS suscritos, emisoras de radio, podcasts, canales de YouTube y cámaras web</li>
+                  <li>Canales RSS suscritos, emisoras de radio, podcasts y canales de YouTube</li>
                   <li>Artículos leídos, guardados o marcados como favoritos</li>
-                  <li>Sus propias publicaciones de blog y metadatos (si utiliza la función de blog)</li>
                 </ul>
                 <p>
                   Este almacenamiento es técnicamente necesario para que pueda acceder a su canal de noticias personalizado desde diferentes dispositivos. Si elimina su cuenta, todos estos datos se eliminarán de forma permanente e irrevocable de nuestra base de datos.
@@ -569,7 +566,7 @@ export function DatenschutzPage() {
               <div className="space-y-3">
                 <h3 className="text-lg font-bold text-black dark:text-white">Registration Data (Firebase Authentication)</h3>
                 <p>
-                  If you register on our platform (to save feeds or write your own blog posts), we collect:
+                  If you register on our platform (to save feeds, podcasts, and stations), we collect:
                 </p>
                 <ul className="list-disc pl-6 space-y-1">
                   <li>Your email address</li>
@@ -587,9 +584,8 @@ export function DatenschutzPage() {
                   For registered users, we save your custom settings and feed subscriptions in a secure cloud database (Google Cloud Firestore):
                 </p>
                 <ul className="list-disc pl-6 space-y-1">
-                  <li>Subscribed RSS feeds, radio stations, podcasts, YouTube channels, and webcams</li>
+                  <li>Subscribed RSS feeds, radio stations, podcasts, and YouTube channels</li>
                   <li>Read, saved, or favorited articles</li>
-                  <li>Your own blog posts and metadata (if you use the blogging feature)</li>
                 </ul>
                 <p>
                   This storage is technically necessary so you can access your personalized news feed from different devices. If you delete your account, all this data is permanently and irrevocably deleted from our database.

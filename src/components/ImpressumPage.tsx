@@ -42,11 +42,10 @@ export function ImpressumPage() {
               </p>
               <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-300">
                 Der Betreiber von RSSer (Hansjürg Wüthrich) ist <strong>ausschließlich für die technische Bereitstellung, Wartung und Funktionalität der Plattform verantwortlich</strong>. 
-                Er hat keinerlei Einfluss auf die Inhalte, die über RSS-Feeds, Podcasts, Radios, YouTube-Kanäle, Webcams oder sonstige externe Quellen geladen und dargestellt werden.
+                Er hat keinerlei Einfluss auf die Inhalte, die über RSS-Feeds, Podcasts, Radios, YouTube-Kanäle oder sonstige externe Quellen geladen und dargestellt werden.
               </p>
               <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-300">
-                Für alle Inhalte, Nachrichten, Texte, Bilder, Audio- und Videodateien sind <strong>ausschließlich die jeweiligen externen Herausgeber, Verfasser bzw. die ursprünglichen Quellen der abonnierten Feeds verantwortlich</strong>. 
-                Ebenso sind registrierte Nutzer für die von ihnen selbst im Rahmen der Blog-Funktion erstellten und veröffentlichten Inhalte (User-Generated Content) persönlich und rechtlich vollumfänglich selbst verantwortlich.
+                Für alle Inhalte, Nachrichten, Texte, Bilder, Audio- und Videodateien sind <strong>ausschließlich die jeweiligen externen Herausgeber, Verfasser bzw. die ursprünglichen Quellen der abonnierten Feeds verantwortlich</strong>.
               </p>
             </section>
 
@@ -115,11 +114,10 @@ export function ImpressumPage() {
               </p>
               <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-300">
                 L'exploitant de RSSer (Hansjürg Wüthrich) est <strong>exclusivement responsable de la mise à disposition technique, de la maintenance et des fonctionnalités de la plateforme</strong>. 
-                Il n'a aucun contrôle ni aucune influence sur les contenus chargés et affichés dynamiquement par le biais de flux RSS, de podcasts, de radios, de chaînes YouTube, de webcams ou d'autres sources originales tierces.
+                Il n'a aucun contrôle ni aucune influence sur les contenus chargés et affichés dynamiquement par le biais de flux RSS, de podcasts, de radios, de chaînes YouTube ou d'autres sources originales tierces.
               </p>
               <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-300">
-                Pour tous les articles, actualités, textes, images, fichiers audio et vidéo, <strong>seuls les éditeurs tiers respectifs, les auteurs ou les exploitants d'origine des flux sources sont responsables</strong>. 
-                De même, les utilisateurs enregistrés sont entièrement et exclusivement responsables des articles de blog et des métadonnées qu'ils rédigent et publient à l'aide de la fonctionnalité de blog (contenu généré par l'utilisateur).
+                Pour tous les articles, actualités, textes, images, fichiers audio et vidéo, <strong>seuls les éditeurs tiers respectifs, les auteurs ou les exploitants d'origine des flux sources sont responsables</strong>.
               </p>
             </section>
 
@@ -182,11 +180,10 @@ export function ImpressumPage() {
               </p>
               <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-300">
                 El operador de RSSer (Hansjürg Wüthrich) es <strong>exclusivamente responsable de la provisión técnica, mantenimiento y funcionalidad de la plataforma</strong>.
-                No tiene ninguna influencia ni control sobre los contenidos cargados y mostrados dinámicamente a través de canales RSS, podcasts, emisoras de radio, canales de YouTube, cámaras web u otras fuentes originales de terceros.
+                No tiene ninguna influencia ni control sobre los contenidos cargados y mostrados dinámicamente a través de canales RSS, podcasts, emisoras de radio, canales de YouTube u otras fuentes originales de terceros.
               </p>
               <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-300">
                 Para todos los artículos, noticias, textos, imágenes, archivos de audio o vídeo, <strong>los únicos responsables son los respectivos editores externos, autores o proveedores originales de los canales de origen</strong>.
-                Asimismo, los usuarios registrados son total y exclusivamente responsables de las entradas de blog y metadatos que redacten y publiquen utilizando la función de blog (contenido generado por el usuario).
               </p>
             </section>
 
@@ -250,11 +247,10 @@ export function ImpressumPage() {
               </p>
               <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-300">
                 The operator of RSSer (Hansjürg Wüthrich) is <strong>exclusively responsible for the technical deployment, maintenance, and features of the platform</strong>.
-                He has absolutely no control or influence over the content pulled and loaded dynamically via RSS feeds, podcasts, radios, YouTube channels, webcams, or other third-party original sources.
+                He has absolutely no control or influence over the content pulled and loaded dynamically via RSS feeds, podcasts, radios, YouTube channels, or other third-party original sources.
               </p>
               <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-300">
                 For all articles, news, text, graphics, audio, or video files, <strong>only the respective third-party publishers, authors, or original source feed operators are responsible</strong>.
-                Similarly, registered users are fully and solely liable for any blog posts and metadata they author and publish using the blogging feature (User-Generated Content).
               </p>
             </section>
 

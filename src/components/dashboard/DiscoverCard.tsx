@@ -64,12 +64,7 @@ export const DiscoverCard: React.FC<DiscoverCardProps> = ({
   // Compute image based on category
   let calculatedImage: string | null = item.imageUrl || item.faviconUrl || null;
 
-  if (category === 'webcams' && !calculatedImage && item.url) {
-    const match = item.url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?|live)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/);
-    if (match && match[1]) {
-      calculatedImage = `https://i.ytimg.com/vi/${match[1]}/hqdefault.jpg`;
-    }
-  }
+
 
   if (category === 'podcasts') {
     const lowerTitle = (item.title || '').toLowerCase();
@@ -133,22 +128,6 @@ export const DiscoverCard: React.FC<DiscoverCardProps> = ({
       pill: 'bg-blue-500/10 text-blue-600 dark:bg-blue-500/20 dark:text-blue-300',
       button: 'bg-blue-600 hover:bg-blue-700 text-white',
       hoverGlow: 'hover:border-blue-500/40 dark:hover:border-blue-400/30'
-    },
-    webcams: {
-      text: 'text-emerald-600 dark:text-emerald-400',
-      bgSubtle: 'bg-emerald-50 dark:bg-emerald-950/30',
-      borderSubtle: 'border-emerald-200/60 dark:border-emerald-900/40',
-      pill: 'bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-300',
-      button: 'bg-emerald-600 hover:bg-emerald-700 text-white',
-      hoverGlow: 'hover:border-emerald-500/40 dark:hover:border-emerald-400/30'
-    },
-    blogs: {
-      text: 'text-amber-600 dark:text-amber-400',
-      bgSubtle: 'bg-amber-50 dark:bg-amber-950/30',
-      borderSubtle: 'border-amber-200/60 dark:border-amber-900/40',
-      pill: 'bg-amber-500/10 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300',
-      button: 'bg-amber-500 hover:bg-amber-600 text-black font-semibold',
-      hoverGlow: 'hover:border-amber-500/40 dark:hover:border-amber-400/30'
     }
   }[category] || {
     text: 'text-orange-600 dark:text-orange-400',
@@ -159,140 +138,12 @@ export const DiscoverCard: React.FC<DiscoverCardProps> = ({
     hoverGlow: 'hover:border-orange-500/40 dark:hover:border-orange-400/30'
   };
 
-  // Special Card Layout for Blogs
-  if (category === 'blogs') {
-    const authorName = item.authorName || item.title || 'Autor';
-    const authorBio = item.authorBio || '';
-    const authorAvatar = item.authorAvatar;
-    const authorBanner = item.authorBanner;
-
-    return (
-      <div 
-        onClick={(e) => onCardClick(e, item, isAlreadyAdded)}
-        className={`group relative flex flex-col rounded-xl border transition-all duration-200 overflow-hidden ${
-          isDark 
-            ? 'border-white/10 bg-neutral-900/55 hover:bg-neutral-800/85 hover:border-white/25 dark:backdrop-blur-sm' 
-            : 'border-gray-200 bg-white/70 hover:bg-white/85 shadow-sm backdrop-blur-sm'
-        } ${isAlreadyAdded ? 'cursor-pointer' : ''}`}
-      >
-        {/* Banner Area */}
-        <div 
-          onClick={(e) => {
-            if (item.addedBy && onAuthorClick) {
-              e.preventDefault();
-              e.stopPropagation();
-              onAuthorClick(item.addedBy);
-            }
-          }}
-          className="relative h-14 w-full overflow-hidden bg-neutral-100 dark:bg-neutral-800 cursor-pointer"
-        >
-          {authorBanner ? (
-            <img 
-              loading="lazy" 
-              src={authorBanner} 
-              alt="" 
-              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
-              referrerPolicy="no-referrer"
-              style={{ objectPosition: `50% ${item.authorBannerOffset !== undefined ? item.authorBannerOffset : 50}%` }}
-            />
-          ) : (
-            <div className="w-full h-full bg-gradient-to-r from-amber-500/15 via-orange-500/10 to-yellow-500/15" />
-          )}
-
-          {/* Language Flag Badge */}
-          {item.language && (
-            <div className="absolute top-1.5 left-1.5 z-10 bg-white/90 dark:bg-black/60 backdrop-blur-xs px-1.5 py-0.5 rounded-full text-[11px] shadow-xs">
-              {getFlagEmoji(item.language)}
-            </div>
-          )}
-        </div>
-
-        {/* Content Body */}
-        <div className="p-2.5 pt-0 flex flex-col flex-1 relative">
-          {/* Avatar */}
-          <div 
-            onClick={(e) => {
-              if (item.addedBy && onAuthorClick) {
-                e.preventDefault();
-                e.stopPropagation();
-                onAuthorClick(item.addedBy);
-              }
-            }}
-            className="w-9 h-9 -mt-4.5 rounded-full border-2 border-white dark:border-neutral-900 bg-white dark:bg-neutral-800 overflow-hidden shadow-xs shrink-0 cursor-pointer transition-transform group-hover:scale-105"
-          >
-            {authorAvatar ? (
-              <img loading="lazy" src={authorAvatar} alt="" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center bg-amber-100 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 font-bold text-xs">
-                {authorName.charAt(0).toUpperCase()}
-              </div>
-            )}
-          </div>
-
-          <div className="mt-1 flex-1 min-w-0">
-            <h4 
-              onClick={(e) => {
-                if (item.addedBy && onAuthorClick) {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  onAuthorClick(item.addedBy);
-                }
-              }}
-              className={`font-semibold text-xs sm:text-sm truncate tracking-tight cursor-pointer hover:underline ${isDark ? 'text-neutral-100' : 'text-neutral-900'}`}
-              title={authorName}
-            >
-              {authorName}
-            </h4>
-            <p className={`text-[11px] mt-0.5 line-clamp-1 leading-snug ${isDark ? 'text-neutral-400' : 'text-neutral-600'}`}>
-              {authorBio || tr(settings.language, 'Community Blog', 'Community Blog')}
-            </p>
-          </div>
-
-          {/* Footer Action */}
-          <div className="mt-2 pt-1.5 border-t border-neutral-100 dark:border-neutral-800/80 flex items-center justify-between gap-1.5">
-            <span className="text-[10px] font-medium text-amber-600 dark:text-amber-400 truncate">
-              {tr(settings.language, 'Blog', 'Blog')}
-            </span>
-
-            {isAlreadyAdded ? (
-              <button 
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  if (matchingItem) onDeleteUserSource(matchingItem.id, false);
-                }}
-                className="inline-flex items-center justify-center w-7 h-7 rounded-md text-emerald-600 dark:text-emerald-400 hover:bg-red-500/10 hover:text-red-500 transition-colors"
-                title={tr(settings.language, "Unfollow", "Entfolgen")}
-              >
-                <Check className="w-4 h-4 hover:hidden" />
-                <Trash2 className="w-4 h-4 hidden hover:inline" />
-              </button>
-            ) : (
-              <button 
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  onAdd(item, calculatedImage);
-                }}
-                disabled={isAdding}
-                className="inline-flex items-center justify-center w-7 h-7 rounded-md bg-amber-500 hover:bg-amber-600 text-black font-semibold transition-all active:scale-95 disabled:opacity-50"
-                title={tr(settings.language, "Follow", "Folgen")}
-              >
-                {isAdding ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Plus className="w-4 h-4 stroke-[2.5]" />}
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Standard Clean Editorial Card Layout for Feeds, Podcasts, YouTube, Radio, Webcams
+  // Standard Clean Editorial Card Layout for Feeds, Podcasts, YouTube, Radio
   const categoryLabel = item.category ? t('cat-' + item.category, item.category) : t('cat-' + category, category);
   const displayTitle = item.title || 'Ohne Titel';
   const displaySubtitle = category === 'podcasts' 
     ? (item.author || domain || 'Podcast') 
-    : (domain || (category === 'webcams' ? 'WebCam Stream' : category === 'youtube' ? 'YouTube Kanal' : ''));
+    : (domain || (category === 'youtube' ? 'YouTube Kanal' : ''));
 
   return (
     <div 
@@ -316,7 +167,7 @@ export const DiscoverCard: React.FC<DiscoverCardProps> = ({
                   isPublic: true, 
                   isRadio: item.type === 'radio' || item.isRadio,
                   isPodcast: item.type === 'podcasts' || category === 'podcasts' || item.isPodcast,
-                  type: item.type || (category === 'podcasts' ? 'podcasts' : category === 'radio' ? 'radio' : category === 'youtube' ? 'youtube' : category === 'webcams' ? 'webcams' : 'feeds')
+                  type: item.type || (category === 'podcasts' ? 'podcasts' : category === 'radio' ? 'radio' : category === 'youtube' ? 'youtube' : 'feeds')
                 }); 
               }} 
               className="p-1 rounded-md hover:bg-white/20 text-white transition-colors" 

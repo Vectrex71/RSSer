@@ -15,9 +15,7 @@ export const PLAN_LIMITS = {
     rss: Infinity,
     radio: Infinity,
     podcast: Infinity,
-    youtube: Infinity,
-    webcam: Infinity,
-    blogs: Infinity
+    youtube: Infinity
   }
 };
 

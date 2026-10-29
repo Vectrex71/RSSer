@@ -182,29 +182,6 @@ export const DEFAULT_SOURCES: DefaultSource[] = [
   { type: 'youtube', title: 'Cleo Abram', url: 'https://www.youtube.com/@CleoAbram', category: 'Wissen', language: 'en' },
   { type: 'youtube', title: 'Hardware Unboxed', url: 'https://www.youtube.com/@Hardwareunboxed', category: 'Tech', language: 'en' },
   { type: 'youtube', title: 'Gamers Nexus', url: 'https://www.youtube.com/@GamersNexus', category: 'Tech', language: 'en' },
-
-  // ==========================================
-  // WEBCAMS
-  // ==========================================
-  { type: 'webcams', title: 'Times Square Live', url: 'https://www.youtube.com/watch?v=rnXIjl_Rzy4', category: 'City', language: 'en' },
-  { type: 'webcams', title: 'ISS Live HD', url: 'https://www.youtube.com/watch?v=fO9e9jnhYK8', category: 'Space', language: 'en' },
-  { type: 'webcams', title: 'Jackson Hole Town Square', url: 'https://www.youtube.com/watch?v=1EiC9bvVGnk', category: 'City', language: 'en' },
-  { type: 'webcams', title: 'African Waterhole', url: 'https://www.youtube.com/watch?v=QyOitP-wXfE', category: 'Nature', language: 'en' },
-  { type: 'webcams', title: 'Venice Beach Live', url: 'https://www.youtube.com/watch?v=EO_1LWqsCNE', category: 'City', language: 'en' },
-  { type: 'webcams', title: 'Shibuya Crossing', url: 'https://www.youtube.com/watch?v=dfVK7ld38Ys', category: 'City', language: 'en' },
-  { type: 'webcams', title: 'Kitten Academy Live', url: 'https://www.youtube.com/watch?v=t-XmGEa-Bqk', category: 'Nature', language: 'en' },
-  { type: 'webcams', title: 'Monterey Bay Aquarium', url: 'https://www.youtube.com/watch?v=abbR-Ttd-cA', category: 'Nature', language: 'en' },
-  { type: 'webcams', title: 'Grizzly Bears Catching Salmon', url: 'https://www.youtube.com/watch?v=pZMdje7kCWc', category: 'Nature', language: 'en' },
-  { type: 'webcams', title: 'Live Surf Cam Pipeline', url: 'https://www.youtube.com/watch?v=B6qPml6o37M', category: 'Nature', language: 'en' },
-  { type: 'webcams', title: 'Earth from Space (NASA)', url: 'https://www.youtube.com/watch?v=vytmBNhc9ig', category: 'Space', language: 'en' },
-  { type: 'webcams', title: 'Tokyo Shinjuku Live', url: 'https://www.youtube.com/watch?v=GLQhbRGv5qU', category: 'City', language: 'en' },
-  { type: 'webcams', title: 'Live from Miami Beach', url: 'https://www.youtube.com/watch?v=gT8B2h_bMxs', category: 'City', language: 'en' },
-  { type: 'webcams', title: 'Las Vegas Strip Live', url: 'https://www.youtube.com/watch?v=NnOtwzHw360', category: 'City', language: 'en' },
-  { type: 'webcams', title: 'Port of Hamburg', url: 'https://www.youtube.com/watch?v=OmyDLXvaus4', category: 'City', language: 'en' },
-  { type: 'webcams', title: 'African Safari', url: 'https://www.youtube.com/watch?v=ydYDqZQpim8', category: 'Nature', language: 'en' },
-  { type: 'webcams', title: 'Fuji-Q Highland Live', url: 'https://www.youtube.com/watch?v=vmNAFPfMK7A', category: 'Theme Park', language: 'en' },
-  { type: 'webcams', title: 'Panda Cam', url: 'https://www.youtube.com/watch?v=SUXPnIEpbn4', category: 'Nature', language: 'en' },
-  { type: 'webcams', title: 'Earth Cam: Key West', url: 'https://www.youtube.com/watch?v=Y5ypYTZs-7o', category: 'Beach', language: 'en' },
   
   // ==========================================
   // SPANISH SOURCES (feeds, podcasts, youtube)

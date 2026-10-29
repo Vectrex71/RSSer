@@ -15,12 +15,9 @@ export interface PlanStatus {
     radio: number;
     podcast: number;
     youtube: number;
-    webcam: number;
-    blogs: number;
   };
   isAtLimit: (type: keyof typeof PLAN_LIMITS.FREE) => boolean;
   hasExceeded: boolean;
-  canWriteBlog: boolean;
   loading: boolean;
   feedsList: any[];
   radiosList: any[];
@@ -38,9 +35,7 @@ export function PlanProvider({ children }: { children: React.ReactNode }) {
     rss: 0,
     radio: 0,
     podcast: 0,
-    youtube: 0,
-    webcam: 0,
-    blogs: 0
+    youtube: 0
   });
 
   useEffect(() => {
@@ -56,7 +51,7 @@ export function PlanProvider({ children }: { children: React.ReactNode }) {
       setPlan('FREE');
       setFeedsList([]);
       setRadiosList([]);
-      setCounts({ rss: 0, radio: 0, podcast: 0, youtube: 0, webcam: 0, blogs: 0 });
+      setCounts({ rss: 0, radio: 0, podcast: 0, youtube: 0 });
       return;
     }
 
@@ -116,7 +111,7 @@ export function PlanProvider({ children }: { children: React.ReactNode }) {
 
   // Compute precise combined counts
   useEffect(() => {
-    const newCounts = { rss: 0, radio: 0, podcast: 0, youtube: 0, webcam: 0, blogs: 0 };
+    const newCounts = { rss: 0, radio: 0, podcast: 0, youtube: 0 };
     feedsList.forEach(feed => {
       const type = (feed.type || '').split('/')[0] || '';
       if (type === 'rss' || type === 'article' || !type) {
@@ -125,10 +120,6 @@ export function PlanProvider({ children }: { children: React.ReactNode }) {
         newCounts.podcast++;
       } else if (type === 'youtube') {
         newCounts.youtube++;
-      } else if (type === 'webcam' || type === 'webcams') {
-        newCounts.webcam++;
-      } else if (type === 'blog') {
-        newCounts.blogs++;
       } else if (type === 'radio') {
         newCounts.radio++;
       }
@@ -145,10 +136,8 @@ export function PlanProvider({ children }: { children: React.ReactNode }) {
 
   const hasExceeded = false;
 
-  const canWriteBlog = true;
-
   return (
-    <PlanContext.Provider value={{ plan, counts, isAtLimit, hasExceeded, canWriteBlog, loading, feedsList, radiosList }}>
+    <PlanContext.Provider value={{ plan, counts, isAtLimit, hasExceeded, loading, feedsList, radiosList }}>
       {children}
     </PlanContext.Provider>
   );

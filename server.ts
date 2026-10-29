@@ -1688,20 +1688,6 @@ async function startServer() {
   }
 
   async function executeParseFeedWithLogic(url: string, maxDays: number = 30, shouldBypass: boolean = false): Promise<any> {
-    // Intercept internal/blog URLs and convert to standard RSS user feed URL
-    if (url && (url.includes('/blogs/user/') || url.includes('/blogs/author/') || url.includes('/api/rss/user/'))) {
-      let userId = '';
-      if (url.includes('/blogs/user/')) {
-        userId = url.split('/blogs/user/').pop()?.split('/')[0] || '';
-      } else if (url.includes('/blogs/author/')) {
-        userId = url.split('/blogs/author/').pop()?.split('/')[0] || '';
-      } else if (url.includes('/api/rss/user/')) {
-        userId = url.split('/api/rss/user/').pop()?.split('?')[0] || '';
-      }
-      if (userId) {
-        url = `http://127.0.0.1:3000/api/rss/user/${userId}`;
-      }
-    }
 
     const convertJinaMarkdownToRssXml = (feedTitle: string, feedDesc: string, feedUrl: string, content: string): string => {
       try {
@@ -3117,25 +3103,7 @@ async function startServer() {
         `);
       }
       
-      // Fetch blog details first to resolve dynamic targetUrl self-healingly on slug/title change
       let blogData: any = null;
-      if (usingAdmin && dbAdmin) {
-        try {
-          const blogDoc = await dbAdmin.collection('users').doc(data.userId).collection('blogs').doc(data.blogId).get();
-          if (blogDoc.exists) {
-            blogData = blogDoc.data();
-          }
-        } catch (e) {}
-      }
-      
-      if (!blogData && dbClient) {
-        try {
-          const blogSnap = await getDoc(doc(dbClient, 'users', data.userId, 'blogs', data.blogId));
-          if (blogSnap.exists()) {
-            blogData = blogSnap.data();
-          }
-        } catch (e) {}
-      }
 
       const getCanonicalOrigin = () => {
         const host = req.get('host') || '';
@@ -3145,23 +3113,7 @@ async function startServer() {
         return `${req.protocol}://${host}`;
       };
 
-      let targetUrl = data.originalUrl;
-      if (blogData) {
-        const latestSlug = blogData.slug || data.blogId;
-        const appUrl = getCanonicalOrigin();
-        const freshUrl = `${appUrl}/blogs/user/${data.userId}/p/${latestSlug}`;
-        if (targetUrl !== freshUrl) {
-          targetUrl = freshUrl;
-          console.log(`[Redirect] Self-healing old shortlink targetUrl to latest slug/url: ${targetUrl}`);
-          // Update database asynchronously
-          const updateUrlPayload = { originalUrl: targetUrl };
-          if (usingAdmin && dbAdmin) {
-            dbAdmin.collection('shortenedUrls').doc(cleanShortId).update(updateUrlPayload).catch(() => {});
-          } else if (dbClient) {
-            setDoc(doc(dbClient, 'shortenedUrls', cleanShortId), updateUrlPayload, { merge: true }).catch(() => {});
-          }
-        }
-      }
+      let targetUrl = data.originalUrl || '/';
       
       // Handle language redirection
       if (langCode) {
@@ -3200,40 +3152,10 @@ async function startServer() {
         await setDoc(doc(dbClient, 'shortenedUrls', cleanShortId), updatePayload, { merge: true }).catch(() => {});
       }
       
-      // Fetch blog details to include in dynamic HTML preview metadata
-      let title = "RSSer.news Blog";
+      // Include dynamic HTML preview metadata
+      let title = "RSSer News";
       let coverImage = "";
-      let description = "Ein interessanter Blogbeitrag auf RSSer.news - Dein Feed, deine Regeln.";
-      
-      if (blogData) {
-        const originalLang = blogData.language || 'de';
-        const activeLang = langCode || originalLang;
-        
-        let displayTitle = blogData.title || "";
-        let displayContent = blogData.content || "";
-        
-        // Check for translation
-        if (activeLang !== originalLang && blogData.translations && blogData.translations[activeLang]) {
-          displayTitle = blogData.translations[activeLang].title || displayTitle;
-          displayContent = blogData.translations[activeLang].content || displayContent;
-        }
-        
-        title = displayTitle || title;
-        coverImage = blogData.coverImage || "";
-        
-        if (displayContent) {
-          // Strip markdown
-          const plain = displayContent
-            .replace(/[#*`_\[\]\(\)-]/g, ' ')
-            .replace(/\s+/g, ' ')
-            .trim();
-          if (plain.length > 160) {
-            description = plain.substring(0, 160) + "...";
-          } else {
-            description = plain || description;
-          }
-        }
-      }
+      let description = "Deine Nachrichten, Podcasts & Videos an einem Ort.";
       
       const escapeHtml = (unsafe: string) => {
         if (!unsafe) return "";
@@ -3486,311 +3408,12 @@ function getMailTransporter() {
     res.json({ success: true });
   });
 
-  app.get("/api/rss/user/:userId", async (req, res) => {
-    const { userId } = req.params;
-    
-    // Canonical Origin Logic
-    const getCanonicalOrigin = () => {
-      const host = req.get('host') || '';
-      if (host.includes('run.app') || host.includes('localhost')) {
-        return 'https://rsser.news';
-      }
-      return `${req.protocol}://${host}`;
-    };
-
-    const appUrl = getCanonicalOrigin();
-    
-    try {
-      console.log(`Generating RSS feed for user: ${userId}`);
-      let db = getDbAdmin();
-      let userData: any = null;
-      let blogsSnap: any = null;
-      let usingFallback = false;
-
-      if (db) {
-        try {
-          const userDoc = await db.collection('users').doc(userId).get();
-          userData = userDoc.exists ? userDoc.data() : null;
-          
-          const blogsSnapShot = await db.collection('users').doc(userId).collection('blogs')
-            .where('published', '==', true)
-            .limit(100)
-            .get();
-          blogsSnap = blogsSnapShot;
-        } catch (adminErr: any) {
-          // If permission denied, use fallback without logging error stack
-          usingFallback = true;
-        }
-      } else {
-        usingFallback = true;
-      }
-
-      if (usingFallback) {
-        const clientDb = getDbClient();
-        if (clientDb) {
-          console.log(`Fetching user/blogs for: ${userId} using Client SDK (Fallback)...`);
-          const userDoc = await getDoc(doc(clientDb, 'users', userId));
-          userData = userDoc.exists() ? userDoc.data() : null;
-          
-          const q = query(
-            collection(clientDb, 'users', userId, 'blogs'),
-            where('published', '==', true),
-            limit(100)
-          );
-          blogsSnap = await getDocs(q);
-        }
-      }
-
-      if (!userData && !blogsSnap) {
-         throw new Error("Could not fetch data from Admin or Client SDK");
-      }
-      
-      const authorName = userData?.displayName || "RSSer News";
-      const authorBio = userData?.bio || "";
-      const authorLang = userData?.blogLanguage || "de";
-      const targetLang = (req.query.lang || '').toString().toLowerCase();
-
-      const docs = blogsSnap.docs || [];
-      console.log(`Found ${docs.length} total blogs.`);
-
-      const items = docs
-        .map((d: any) => ({ id: d.id, ...(d.data ? d.data() : d) }))
-        .filter((blog: any) => blog.coverImage && blog.coverImage.trim() !== "")
-        .sort((a: any, b: any) => {
-          const dateA = a.createdAt?.toDate ? a.createdAt.toDate() : new Date(a.createdAt || 0);
-          const dateB = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(b.createdAt || 0);
-          return dateB.getTime() - dateA.getTime();
-        })
-        .map((data: any) => {
-          const pubDate = data.createdAt ? (data.createdAt.toDate ? data.createdAt.toDate() : new Date(data.createdAt)) : new Date();
-          
-          let displayTitle = data.title || "Ohne Titel";
-          let displayContent = data.content || "";
-          
-          if (targetLang && targetLang !== (data.language || 'de').toLowerCase() && data.translations && data.translations[targetLang]) {
-            displayTitle = data.translations[targetLang].title || displayTitle;
-            displayContent = data.translations[targetLang].content || displayContent;
-          }
-          
-          // Use cheerio to get a plain text summary from HTML content
-          const $Content = cheerio.load(displayContent);
-          const summary = $Content.text().substring(0, 300) + "...";
-          
-          const articleSlug = data.slug || data.id;
-          const articleLink = data.slug 
-            ? `${appUrl}/blogs/user/${userId}/p/${data.slug}` 
-            : `${appUrl}/blogs/user/${userId}/article/${data.id}`;
-
-          // Detect MIME type from extension or default to image/jpeg
-          let mimeType = "image/jpeg";
-          if (data.coverImage) {
-            const ext = data.coverImage.split('?')[0].split('.').pop()?.toLowerCase();
-            if (ext === 'png') mimeType = "image/png";
-            else if (ext === 'webp') mimeType = "image/webp";
-            else if (ext === 'gif') mimeType = "image/gif";
-          }
-
-          return `
-    <item>
-      <title><![CDATA[${displayTitle}]]></title>
-      <link>${xmlEscape(articleLink)}</link>
-      <description><![CDATA[${summary}]]></description>
-      <content:encoded><![CDATA[${data.coverImage ? `<p><img src="${data.coverImage}" alt="${xmlEscape(displayTitle)}" style="max-width:100%;height:auto;display:block;margin-bottom:1rem;" /></p>` : ""}${displayContent}]]></content:encoded>
-      <pubDate>${pubDate.toUTCString()}</pubDate>
-      <guid isPermaLink="false">${data.id}</guid>
-      ${data.coverImage ? `<media:content url="${xmlEscape(data.coverImage)}" medium="image" type="${mimeType}" isDefault="true" />` : ""}
-      ${data.coverImage ? `<media:thumbnail url="${xmlEscape(data.coverImage)}" />` : ""}
-      ${data.coverImage ? `<enclosure url="${xmlEscape(data.coverImage)}" length="0" type="${mimeType}" />` : ""}
-    </item>`;
-        }).join("\n");
-
-      const rssXml = `<?xml version="1.0" encoding="UTF-8" ?>
-<rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:media="http://search.yahoo.com/mrss/">
-  <channel>
-    <title><![CDATA[${authorName}s Blog - RSSer]]></title>
-    <link>${xmlEscape(appUrl)}/blogs/user/${userId}</link>
-    <description><![CDATA[${authorBio}]]></description>
-    <language>${xmlEscape(authorLang)}</language>
-    <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
-    <generator>RSSer.app Blog Service</generator>
-    ${userData?.avatarUrl ? `<image><url>${xmlEscape(userData.avatarUrl)}</url><title><![CDATA[${authorName}]]></title><link>${xmlEscape(appUrl)}/blogs/user/${userId}</link></image>` : ""}
-    ${items}
-  </channel>
-</rss>`;
-
-      res.setHeader("Content-Type", "application/xml; charset=utf-8");
-      res.send(rssXml);
-    } catch (error: any) {
-      console.error("RSS User Feed Error:", error);
-      const host = req.get('host');
-      const env = process.env.NODE_ENV || 'development';
-      res.status(500).send(`Internal Server Error generating feed: ${error.message} (Host: ${host}, Env: ${env})`);
-    }
+  app.get("/api/rss/user/:userId", (req, res) => {
+    res.status(404).send('Not Found');
   });
 
-  app.get(['/blogs/user/:userId/p/:slug', '/blogs/user/:userId/article/:articleId', '/blogs/user/:userId'], async (req, res, next) => {
-    const { userId, slug, articleId } = req.params;
-    
-    // Serve HTML with injected tags for these specific routes
-    // We do this for everyone (not just bots) to support SEO and proper social sharing
-    const ua = (req.headers['user-agent'] || '').toLowerCase();
-    
-    // If it's a request for a sub-asset (contains a dot like .js, .png, .css), skip unless it's a known bot crawler
-    const knownBotRegex = /bot|facebook|twitter|linkedin|slack|whatsapp|telegram|discord|crawler|spider|bluesky|index|preview|social|external|link|card|embed|whatsapp|signal/i;
-    const isBot = knownBotRegex.test(ua);
-    
-    const isAsset = req.url.match(/\.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|json|map|txt|webmanifest)$|^\/assets\//i);
-    if (isAsset && !isBot) return next();
-
-    const host = req.get('host') || 'rsser.news';
-    const proto = req.get('x-forwarded-proto') || 'https';
-    const origin = `${proto}://${host}`;
-
-    console.log(`[OG] Request: ${req.url} | Bot: ${isBot} | UA: ${ua} | Origin: ${origin}`);
-
-    try {
-      let title = "RSSer News";
-      let description = "Deine Nachrichten, Podcasts & Videos an einem Ort.";
-      let imageUrl = "https://rsser.news/RSSerLogo.png";
-      const siteName = "RSSer News";
-      let blogDoc: any = null;
-      let userData: any = null;
-      let found = false;
-      const host = req.get('host') || 'rsser.news';
-      const pageUrl = `${origin}${req.url}`;
-
-      const db = getDbAdmin();
-      const clientDb = getDbClient();
-
-      if (slug || articleId) {
-        const articleIdOrSlug = slug || articleId || req.url.split('/').pop()?.split('?')[0];
-
-        // Try Admin SDK
-        if (db) {
-           try {
-              if (slug) {
-                const blogsRef = db.collection('users').doc(userId).collection('blogs');
-                const q = blogsRef.where('slug', '==', slug).limit(1);
-                const snap = await q.get();
-                if (!snap.empty) blogDoc = snap.docs[0];
-              } else if (articleIdOrSlug) {
-                blogDoc = await db.collection('users').doc(userId).collection('blogs').doc(articleIdOrSlug).get();
-              }
-              const userDoc = await db.collection('users').doc(userId).get();
-              userData = userDoc.exists ? userDoc.data() : null;
-           } catch (e) {
-              // Permission denied, will try client fallback
-           }
-        }
-
-        // Try Client SDK fallback
-        if (!blogDoc && clientDb) {
-           try {
-              if (slug) {
-                const blogsRef = collection(clientDb, 'users', userId, 'blogs');
-                const q = query(blogsRef, where('slug', '==', slug), limit(1));
-                const snap = await getDocs(q);
-                if (!snap.empty) blogDoc = snap.docs[0];
-              } else if (articleIdOrSlug) {
-                blogDoc = await getDoc(doc(clientDb, 'users', userId, articleIdOrSlug));
-              }
-              const userSnap = await getDoc(doc(clientDb, 'users', userId));
-              userData = userSnap.exists() ? userSnap.data() : null;
-           } catch (e) {}
-        }
-
-        const blogData = blogDoc && (typeof blogDoc.data === 'function' ? blogDoc.data() : blogDoc);
-        if (blogData) {
-          title = blogData.title || title;
-          const $content = cheerio.load(blogData.content || "");
-          const text = $content.text().trim();
-          // Get first 200 chars for meta description
-          description = text.length > 200 ? text.substring(0, 197) + "..." : text;
-          if (!description || description.trim().length < 5) {
-            description = "Lies diesen Blogbeitrag auf RSSer News.";
-          }
-          if (blogData.coverImage) imageUrl = blogData.coverImage;
-          found = true;
-        }
-      } else {
-        // User profile
-        if (!userData) {
-           if (db) {
-              try {
-                 const userDoc = await db.collection('users').doc(userId).get();
-                 userData = userDoc.exists ? userDoc.data() : null;
-              } catch (e) {}
-           }
-           if (!userData && clientDb) {
-              try {
-                 const userSnap = await getDoc(doc(clientDb, 'users', userId));
-                 userData = userSnap.exists() ? userSnap.data() : null;
-              } catch (e) {}
-           }
-        }
-        
-        if (userData) {
-          title = `${userData.displayName || "Autor"}'s Blog - RSSer`;
-          description = userData.bio || `Folge ${userData.displayName || "diesem Autor"} auf RSSer News.`;
-          if (userData.avatarUrl) imageUrl = userData.avatarUrl;
-          found = true;
-        }
-      }
-
-      // Ensure imageUrl is absolute and secure
-      if (imageUrl && !imageUrl.startsWith('http')) {
-        imageUrl = `${origin}${imageUrl.startsWith('/') ? '' : '/'}${imageUrl}`;
-      } else if (imageUrl && imageUrl.startsWith('http:')) {
-        imageUrl = imageUrl.replace('http:', 'https:');
-      }
-
-      // Read index.html template
-      let templatePath = path.join(process.cwd(), 'dist/index.html');
-      if (!existsSync(templatePath)) {
-        templatePath = path.join(process.cwd(), 'index.html');
-      }
-      
-      if (!existsSync(templatePath)) return next();
-
-      let template = readFileSync(templatePath, 'utf-8');
-      const $template = cheerio.load(template);
-
-      // Clean up existing OG/Twitter tags before injecting new ones
-      $template('title').text(title);
-      $template('meta[name="description"]').attr('content', description);
-      
-      // Inject/Update OG tags
-      const setMeta = (property: string, content: string, attr = 'property') => {
-        const selector = `meta[${attr}="${property}"]`;
-        if ($template(selector).length) {
-          $template(selector).attr('content', content);
-        } else {
-          $template('head').append(`<meta ${attr}="${property}" content="${content}">`);
-        }
-      };
-
-      setMeta('og:title', title);
-      setMeta('og:description', description);
-      setMeta('og:image', imageUrl);
-      setMeta('og:url', pageUrl);
-      setMeta('og:type', slug || articleId ? 'article' : 'profile');
-      setMeta('og:site_name', siteName);
-      
-      setMeta('twitter:card', 'summary_large_image', 'name');
-      setMeta('twitter:title', title, 'name');
-      setMeta('twitter:description', description, 'name');
-      setMeta('twitter:image', imageUrl, 'name');
-
-      res.setHeader("Content-Type", "text/html; charset=utf-8");
-      res.send($template.html());
-      return;
-
-    } catch (e: any) {
-      if (!e.message?.includes('PERMISSION_DENIED')) {
-        console.error("[OG] Error:", e.message);
-      }
-      next();
-    }
+  app.get(['/blogs/*', '/blog/*', '/blogs', '/blog'], (req, res) => {
+    res.redirect(301, '/');
   });
 
   // Intercept any unmatched /api routes so they return JSON 404 instead of reaching Vite/HTML

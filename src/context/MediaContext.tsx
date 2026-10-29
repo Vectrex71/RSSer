@@ -13,8 +13,6 @@ interface VideoState {
   id: string;
   title: string;
   url: string;
-  isWebcam?: boolean;
-  webcamId?: string;
 }
 
 interface ArticleState {

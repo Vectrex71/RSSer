@@ -7,7 +7,7 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { db, auth, storage } from '../../lib/firebase';
 import { collection, getDocs, getDoc, updateDoc, doc, deleteDoc, query, orderBy, addDoc, limit, where, setDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { Loader2, Edit3, X, Upload, Trash2, Search, Filter, Settings, Youtube, Podcast, Radio, Rss, Camera, FileText, AlertTriangle, RefreshCw, Play, Globe, CheckCheck, Megaphone, Send, Bold, Italic, List as ListIcon, ListOrdered, Heading1, Heading2, Quote, Underline as UnderlineIcon, Pilcrow, Calendar, Image as ImageIcon, Mail, Check, Sparkles, MessageSquare, Reply } from 'lucide-react';
+import { Loader2, Edit3, X, Upload, Trash2, Search, Filter, Settings, Youtube, Podcast, Radio, Rss, AlertTriangle, RefreshCw, Play, Globe, CheckCheck, Megaphone, Send, Bold, Italic, List as ListIcon, ListOrdered, Heading1, Heading2, Quote, Underline as UnderlineIcon, Pilcrow, Calendar, Image as ImageIcon, Mail, Check, Sparkles, MessageSquare, Reply } from 'lucide-react';
 import { useMedia } from '../../context/MediaContext';
 import { FEED_CATEGORIES } from '../../lib/constants';
 import { tr } from '../../lib/t';
@@ -86,8 +86,6 @@ export function AdminPage() {
   const [isPublishingAnnouncement, setIsPublishingAnnouncement] = useState(false);
   const [isTestingAI, setIsTestingAI] = useState(false);
   const [testResult, setTestResult] = useState<{success: boolean, message: string} | null>(null);
-  const [webcamReports, setWebcamReports] = useState<any[]>([]);
-  const [loadingReports, setLoadingReports] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
   const [isCleaning, setIsCleaning] = useState(false);
 
@@ -102,7 +100,6 @@ export function AdminPage() {
         // Trigger data fetches once we know we are admin
         fetchAlerts();
         loadAnnouncements();
-        fetchWebcamReports();
         fetchMessages();
       } else {
         setIsAdmin(false);
@@ -385,112 +382,6 @@ export function AdminPage() {
       setAlerts([]);
     } catch(e) {
       console.error('Failed to clear alerts', e);
-    }
-  };
-
-  const fetchWebcamReports = async () => {
-    try {
-      setLoadingReports(true);
-      const snaps = await getDocs(collection(db, 'webcamReports'));
-      const data = snaps.docs.map(d => ({ id: d.id, ...d.data() }));
-      setWebcamReports(data);
-    } catch (e) {
-      console.error('Failed to fetch webcam reports:', e);
-    } finally {
-      setLoadingReports(false);
-    }
-  };
-
-  const handleResolveReport = async (reportId: string, webcamId?: string) => {
-    try {
-      // 1. Delete this specific report
-      await deleteDoc(doc(db, 'webcamReports', reportId));
-      
-      // 2. Try resetting reportsCount in publicSources if available
-      if (webcamId) {
-        try {
-          await updateDoc(doc(db, 'publicSources', webcamId), {
-            reportsCount: 0
-          });
-        } catch (_) {}
-      }
-      
-      setWebcamReports(webcamReports.filter(r => r.id !== reportId));
-      await showAlert('Die Meldung wurde erfolgreich verworfen.', 'Meldung verworfen');
-    } catch (e) {
-      console.error(e);
-      await showAlert('Fehler beim Verwerfen der Meldung.', 'Fehler');
-    }
-  };
-
-  const handleDeleteWebcamFromReport = async (report: any) => {
-    const { id: reportId, webcamId, webcamUrl, webcamTitle, reportedByUserId } = report;
-    const confirmed = await showConfirm(
-      'Möchtest du diese gemeldete Webcam wirklich dauerhaft aus der globalen Datenbank und den Feeds entfernen?',
-      'Webcam entfernen',
-      'Dauerhaft entfernen'
-    );
-    if (!confirmed) return;
-    try {
-      // 1. Delete the public source
-      let sourceDocId = '';
-      
-      if (webcamUrl) {
-        const q = query(collection(db, 'publicSources'), where('url', '==', webcamUrl));
-        const snaps = await getDocs(q);
-        if (!snaps.empty) {
-          sourceDocId = snaps.docs[0].id;
-        }
-      }
-
-      if (!sourceDocId && webcamTitle) {
-        const q = query(collection(db, 'publicSources'), where('title', '==', webcamTitle));
-        const snaps = await getDocs(q);
-        if (!snaps.empty) {
-          sourceDocId = snaps.docs[0].id;
-        }
-      }
-
-      if (!sourceDocId) {
-        const qAll = query(collection(db, 'publicSources'), where('type', '==', 'webcams'));
-        const snapsAll = await getDocs(qAll);
-        const norm = (u: string) => u ? u.toLowerCase().replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '') : '';
-        const webcamUrlNorm = norm(webcamUrl);
-        const matchDoc = snapsAll.docs.find(d => {
-          const dUrl = d.data().url;
-          return dUrl && norm(dUrl) === webcamUrlNorm;
-        });
-        if (matchDoc) {
-          sourceDocId = matchDoc.id;
-        }
-      }
-      
-      if (sourceDocId) {
-        await deleteDoc(doc(db, 'publicSources', sourceDocId));
-        setSources(prev => prev.filter(s => s.id !== sourceDocId));
-      }
-
-      // 2. Delete from the reporter's private feeds
-      if (reportedByUserId && webcamId) {
-        try {
-          await deleteDoc(doc(db, 'users', reportedByUserId, 'feeds', webcamId));
-        } catch (feedErr) {
-          console.error('Failed to delete private feed document:', feedErr);
-        }
-      } else if (webcamId) {
-        try {
-          await deleteDoc(doc(db, 'users', auth.currentUser?.uid || '', 'feeds', webcamId));
-        } catch (_) {}
-      }
-
-      // 3. Delete the report document
-      await deleteDoc(doc(db, 'webcamReports', reportId));
-      setWebcamReports(prev => prev.filter(r => r.id !== reportId));
-      
-      await showAlert('Webcam erfolgreich aus der globalen Datenbank und den Feeds gelöscht.', 'Erfolg');
-    } catch (e) {
-      console.error(e);
-      await showAlert('Fehler beim Löschen der Webcam.', 'Fehler');
     }
   };
 
@@ -806,79 +697,6 @@ export function AdminPage() {
                     </span>
                   </div>
                   <p className={isDark ? 'text-white/80' : 'text-gray-700'}>{alert.message}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Webcam Reports Section */}
-        {webcamReports.length > 0 && (
-          <div className="mb-8 p-6 rounded-3xl bg-amber-500/10 border border-amber-500/20">
-            <div className="flex items-start justify-between mb-4">
-              <div className="flex items-center gap-3 text-amber-500 font-bold text-lg">
-                <Camera className="w-6 h-6" />
-                <h2>Gemeldete Webcams ({webcamReports.length})</h2>
-              </div>
-              <button 
-                onClick={async () => {
-                  const confirmed = await showConfirm(
-                    'Möchtest du alle eingegangenen Webcam-Meldungen verwerfen und zurücksetzen?',
-                    'Alle Webcam-Meldungen verwerfen',
-                    'Alle verwerfen'
-                  );
-                  if (confirmed) {
-                    try {
-                      for (const r of webcamReports) {
-                        await deleteDoc(doc(db, 'webcamReports', r.id));
-                      }
-                      setWebcamReports([]);
-                      await showAlert('Alle Meldungen wurden erfolgreich verworfen.', 'Erfolg');
-                    } catch (e) {
-                      console.error(e);
-                    }
-                  }
-                }}
-                className="text-sm bg-amber-500/20 text-amber-600 dark:text-amber-400 font-bold px-3 py-1.5 rounded-lg hover:bg-amber-500/30 transition-colors"
-              >
-                Alle verwerfen
-              </button>
-            </div>
-            
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {webcamReports.map(report => (
-                <div key={report.id} className={`p-4 rounded-2xl text-sm border flex flex-col justify-between gap-3 ${isDark ? 'bg-black/25 border-amber-500/10' : 'bg-amber-50/20 border-amber-200'}`}>
-                  <div>
-                    <div className="flex justify-between items-start gap-4 mb-2">
-                      <span className="font-extrabold text-amber-600 dark:text-amber-400 capitalize truncate" style={{ maxWidth: '70%' }}>
-                        {report.webcamTitle}
-                      </span>
-                      <span className={`text-[10px] font-mono shrink-0 ${isDark ? 'text-white/40' : 'text-gray-400'}`}>
-                        {new Date(report.reportedAt).toLocaleDateString()}
-                      </span>
-                    </div>
-                    <p className={`text-xs select-all truncate ${isDark ? 'text-white/60' : 'text-gray-600'}`} title={report.webcamUrl}>
-                      {report.webcamUrl}
-                    </p>
-                    <p className="text-[10px] opacity-40 mt-1">
-                      Gemeldet von: {report.reportedBy}
-                    </p>
-                  </div>
-                  
-                  <div className="flex gap-2 mt-2">
-                    <button 
-                      onClick={() => handleResolveReport(report.id, report.webcamId)}
-                      className="flex-1 py-1.5 px-3 rounded-xl text-xs font-bold bg-green-600 hover:bg-green-700 text-white transition-colors"
-                    >
-                      Meldung verwerfen
-                    </button>
-                    <button 
-                      onClick={() => handleDeleteWebcamFromReport(report)}
-                      className="py-1.5 px-3 rounded-xl text-xs font-bold bg-red-600 hover:bg-red-700 text-white transition-colors animate-pulse hover:animate-none"
-                    >
-                      Cam entfernen
-                    </button>
-                  </div>
                 </div>
               ))}
             </div>
@@ -1432,7 +1250,7 @@ export function AdminPage() {
                     ) : null}
                     {(!source.imageUrl && !ytThumbnail && !fallbackImage) ? (
                       <div className="w-12 h-12 rounded-lg bg-black/5 dark:bg-white/5 flex items-center justify-center shrink-0">
-                        {source.type === 'youtube' ? <Youtube className="w-6 h-6 text-red-500" /> : source.type === 'podcasts' ? <Podcast className="w-6 h-6 text-purple-500" /> : source.type === 'radio' ? <Radio className="w-6 h-6 text-blue-500" /> : source.type === 'webcams' ? <Camera className="w-6 h-6 text-emerald-500" /> : source.type === 'blogs' ? <FileText className="w-6 h-6 text-yellow-500" /> : <Rss className="w-6 h-6 text-orange-500" />}
+                        {source.type === 'youtube' ? <Youtube className="w-6 h-6 text-red-500" /> : source.type === 'podcasts' ? <Podcast className="w-6 h-6 text-purple-500" /> : source.type === 'radio' ? <Radio className="w-6 h-6 text-blue-500" /> : <Rss className="w-6 h-6 text-orange-500" />}
                       </div>
                     ) : (
                       <div className="w-12 h-12 rounded-lg bg-black/5 dark:bg-white/5 flex items-center justify-center font-bold text-lg uppercase shrink-0 text-orange-500" style={{ display: 'none' }}>
@@ -1628,8 +1446,6 @@ export function AdminPage() {
                           <option value="feeds">RSS Feeds</option>
                           <option value="youtube">YouTube</option>
                           <option value="podcasts">Podcasts</option>
-                          <option value="webcams">Webcams</option>
-                          <option value="blogs">Blogs</option>
                         </select>
                         <Settings className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 opacity-30 pointer-events-none" />
                       </div>
@@ -1704,17 +1520,6 @@ export function AdminPage() {
                             {['Pop', '60s', '70s', '80s', '90s', 'Game Music', 'Black', 'Rock', 'Heavy Metal', 'Relax', 'KPop', 'Nachrichten', 'Klassik', 'Dance / Electronic', 'Hip Hop', 'Jazz', 'Country', 'Volksmusik', 'Rap', 'Schlager', 'Techno'].map(g => (
                               <option key={g} value={g}>{g === 'Nachrichten' ? t('cat-Nachrichten', 'Nachrichten') : g === 'Klassik' ? t('cat-Klassik', 'Klassik') : g === 'Volksmusik' ? t('cat-Volksmusik', 'Volksmusik') : g === 'Schlager' ? t('cat-Schlager', 'Schlager') : g}</option>
                             ))}
-                          </select>
-                        ) : editingSource.type === 'webcams' ? (
-                          <select
-                            value={editingSource.category || ''}
-                            onChange={e => setEditingSource({...editingSource, category: e.target.value})}
-                            className={`w-full p-4 rounded-2xl border appearance-none font-bold ${isDark ? 'bg-neutral-800 border-white/10 focus:border-orange-500' : 'bg-gray-50 border-gray-200 focus:border-orange-500'} transition-all outline-none`}
-                          >
-                            <option value="WebCam">Allgemein</option>
-                            <option value="Tiere">Tiere</option>
-                            <option value="Reisen">Reisen</option>
-                            <option value="Stadt">Stadt</option>
                           </select>
                         ) : (
                           <select 

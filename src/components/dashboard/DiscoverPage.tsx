@@ -332,47 +332,6 @@ export function DiscoverPage() {
         }
 
         showToast(`"${title}" wurde erfolgreich hinzugefügt!`);
-      } else if (type === 'webcams') {
-        if (!title) {
-          showToast('Titel ist für WebCams erforderlich.');
-          setLoading(false);
-          return;
-        }
-
-        let ytThumbnail = icon || null;
-        if (!ytThumbnail && url) {
-          const match = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?|live)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/);
-          if (match && match[1]) ytThumbnail = `https://i.ytimg.com/vi/${match[1]}/hqdefault.jpg`;
-        }
-
-        await addDoc(collection(db, 'users', auth.currentUser.uid, 'feeds'), {
-          userId: auth.currentUser.uid,
-          title,
-          url,
-          category: 'WebCam',
-          language: sourceLanguage,
-          type: 'webcams',
-          imageUrl: ytThumbnail,
-          addedAt: Date.now()
-        });
-
-        if (sharePublicly) {
-          try {
-            await addDoc(collection(db, 'publicSources'), {
-              title,
-              url,
-              category: 'WebCam',
-              language: sourceLanguage,
-              type: 'webcams',
-              imageUrl: ytThumbnail,
-              addedBy: auth.currentUser.uid,
-              addedAt: new Date().toISOString()
-            });
-          } catch (e) {
-            console.error("error adding to public sources", e);
-          }
-        }
-        showToast(`"${title}" wurde erfolgreich hinzugefügt!`);
       } else {
         const res = await fetch('/api/rss', {
           method: 'POST',
@@ -564,7 +523,7 @@ export function DiscoverPage() {
     if (confirmed) {
       const targetFeed = userFeeds.find(f => f.id === id);
       await deleteDoc(doc(db, 'users', auth.currentUser.uid, isRadio ? 'radioStations' : 'feeds', id));
-      ['podcasts', 'youtube', 'rss', 'feeds', 'webcams', 'blogs', 'all'].forEach(t => {
+      ['podcasts', 'youtube', 'rss', 'feeds', 'all'].forEach(t => {
         try {
           const raw = localStorage.getItem(`cached_feeds_${t}`);
           if (raw) {
@@ -624,14 +583,12 @@ export function DiscoverPage() {
   const handleOpenFeedChannel = (feed: any) => {
     if (!feed) return;
     const isYouTube = feed.url?.includes('youtube.com') || feed.url?.includes('youtu.be') || feed.category === 'YouTube' || feed.type === 'youtube';
-    const isWebCam = feed.category === 'WebCam' || feed.type === 'webcams';
-    const isPodcast = feed.category === 'Podcast' || feed.isPodcast || feed.type === 'podcasts';
+        const isPodcast = feed.category === 'Podcast' || feed.isPodcast || feed.type === 'podcasts';
     const isRadio = feed.category === 'Radio' || feed.type === 'radio' || feed.isRadio;
 
     let targetPath = '/rss-feeds';
     if (isYouTube) targetPath = '/youtube';
     else if (isPodcast) targetPath = '/podcasts';
-    else if (isWebCam) targetPath = '/webcam';
     else if (isRadio) targetPath = '/radio';
 
     navigate(`${targetPath}?channel=${feed.id}`, { state: { selectedChannelId: feed.id } });
@@ -670,17 +627,11 @@ export function DiscoverPage() {
       let bannerUrl = authorInfo?.banner || authorInfo?.avatar || null;
 
       if (!imageUrl && !authorInfo) {
-        if (itemType === 'webcams') {
-          const match = itemUrl.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?|live)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/);
-          if (match && match[1]) {
-            imageUrl = `https://i.ytimg.com/vi/${match[1]}/hqdefault.jpg`;
-          }
-        } else {
-          const res = await fetch('/api/rss', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ url: itemUrl })
-          });
+        const res = await fetch('/api/rss', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url: itemUrl })
+        });
           
           if (res.ok) {
             const data = await res.json();
@@ -745,9 +696,8 @@ export function DiscoverPage() {
     }
   };
 
-  const isWebCamItem = (p: any) => p.type === 'webcams' || p.category === 'WebCam' || (p.url && (p.url.includes('/watch') || p.url.includes('youtu.be/')));
-  const isYouTubeItem = (p: any) => (p.type === 'youtube' || p.category === 'YouTube' || (p.url && (p.url.includes('/@') || p.url.includes('/channel/') || p.url.includes('/c/') || p.url.includes('feeds/videos.xml')))) && !isWebCamItem(p);
-  const isFeedItem = (p: any) => p.type === 'feeds' || (!p.type && !p.isPodcast && p.category !== 'YouTube' && p.category !== 'Podcast' && p.category !== 'Radio' && !isYouTubeItem(p) && !isWebCamItem(p));
+    const isYouTubeItem = (p: any) => (p.type === 'youtube' || p.category === 'YouTube' || (p.url && (p.url.includes('/@') || p.url.includes('/channel/') || p.url.includes('/c/') || p.url.includes('feeds/videos.xml'))));
+  const isFeedItem = (p: any) => p.type === 'feeds' || (!p.type && !p.isPodcast && p.category !== 'YouTube' && p.category !== 'Podcast' && p.category !== 'Radio' && !isYouTubeItem(p));
 
   // Filtered & Sorted items computation
   const currentCategoryData = useMemo(() => {
@@ -761,14 +711,6 @@ export function DiscoverPage() {
       rawList = publicFeeds.filter(isYouTubeItem);
     } else if (category === 'radio') {
       rawList = publicFeeds.filter(p => p.type === 'radio' || p.category === 'Radio');
-    } else if (category === 'webcams') {
-      rawList = publicFeeds.filter(isWebCamItem);
-    } else if (category === 'blogs') {
-      rawList = publicFeeds.filter(item => item.type === 'blogs' && item.addedBy)
-        .filter((item, index, self) => {
-          if (!item.addedBy) return true;
-          return index === self.findIndex((t) => t.addedBy === item.addedBy);
-        });
     }
 
     // Extract unique categories
@@ -908,7 +850,6 @@ export function DiscoverPage() {
                       placeholder={
                         type === 'radio' ? 'http://stream.example.com/live.mp3' :
                         type === 'youtube' ? 'https://www.youtube.com/@channel' :
-                        type === 'webcams' ? 'https://www.youtube.com/watch?v=...' :
                         'https://example.com/rss.xml'
                       } 
                       value={url} 
@@ -954,18 +895,6 @@ export function DiscoverPage() {
                       >
                         {['Pop', '60s', '70s', '80s', '90s', 'Game Music', 'Black', 'Rock', 'Heavy Metal', 'Relax', 'KPop', 'Nachrichten', 'Klassik', 'Dance / Electronic', 'Hip Hop', 'Jazz', 'Country', 'Volksmusik', 'Rap', 'Schlager', 'Techno'].map(g => (
                           <option key={g} value={g}>{g}</option>
-                        ))}
-                      </select>
-                    ) : type === 'webcams' ? (
-                      <select 
-                        value={feedCategory} 
-                        onChange={e => setFeedCategory(e.target.value)} 
-                        className={`px-3 py-2 text-sm rounded-lg border outline-none ${
-                          isDark ? 'bg-neutral-850 border-neutral-700 text-white' : 'bg-slate-50 border-slate-300 text-neutral-900'
-                        }`}
-                      >
-                        {['WebCam', 'Tiere', 'Reisen', 'Weltraum', 'Natur', 'Stadt'].map(c => (
-                          <option key={c} value={c}>{t('cat-' + c, c)}</option>
                         ))}
                       </select>
                     ) : (
@@ -1075,7 +1004,7 @@ export function DiscoverPage() {
           onSelectSort={setSortBy}
           colorTheme={activeThemeColor}
           totalCount={currentCategoryData.totalCount}
-          hideLanguage={category === 'webcams'}
+          hideLanguage={false}
         />
 
         {/* Card Grid */}
@@ -1109,14 +1038,6 @@ export function DiscoverPage() {
                   onAdd={(targetItem, fallbackImg) => {
                     if (category === 'radio') {
                       handleAddRadio(targetItem.title, targetItem.url, targetItem.imageUrl || fallbackImg, targetItem.category);
-                    } else if (category === 'blogs') {
-                      handleAddFeed(targetItem.title, targetItem.url, 'Blogs', 'blogs', targetItem.imageUrl, {
-                        name: targetItem.authorName || 'Unknown',
-                        bio: targetItem.authorBio,
-                        avatar: targetItem.authorAvatar,
-                        banner: targetItem.authorBanner,
-                        bannerOffset: targetItem.authorBannerOffset
-                      });
                     } else {
                       handleAddFeed(targetItem.title, targetItem.url, targetItem.category || 'Allgemein', category, fallbackImg);
                     }
@@ -1126,8 +1047,7 @@ export function DiscoverPage() {
                   onEdit={(targetItem) => setEditingSource(targetItem)}
                   onDeletePublic={(id) => handleDeletePublicFeed(id, item.url)}
                   onPreviewPodcast={handlePreviewPodcast}
-                  onPreviewRadio={handlePreviewRadio}
-                  onAuthorClick={(authorId) => navigate(`/blogs/author/${authorId}`, { state: { internal: true } })}
+                  onPreviewRadio={handlePreviewRadio}`, { state: { internal: true } })}
                 />
               );
             })}
@@ -1192,17 +1112,7 @@ export function DiscoverPage() {
                       <option key={g} value={g}>{g}</option>
                     ))}
                   </select>
-                ) : editingSource.type === 'webcams' ? (
-                  <select
-                    value={editingSource.category || ''}
-                    onChange={e => setEditingSource({...editingSource, category: e.target.value})}
-                    className={`w-full px-3 py-2 text-sm rounded-lg border ${isDark ? 'bg-neutral-800 border-neutral-700' : 'bg-gray-50 border-gray-200'} outline-none`}
-                  >
-                    {['WebCam', 'Tiere', 'Reisen', 'Weltraum', 'Natur', 'Stadt'].map(c => (
-                      <option key={c} value={c}>{t('cat-' + c, c)}</option>
-                    ))}
-                  </select>
-                ) : (editingSource.isPodcast || editingSource.type === 'podcasts') ? (
+                    ) : (editingSource.isPodcast || editingSource.type === 'podcasts') ? (
                   <select 
                     value={editingSource.category || ''} 
                     onChange={e => setEditingSource({...editingSource, category: e.target.value})}

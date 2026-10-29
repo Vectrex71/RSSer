@@ -6,7 +6,7 @@ import { useSettings } from '../../context/SettingsContext';
 import { useMedia } from '../../context/MediaContext';
 import { useTranslation } from '../../hooks/useTranslation';
 import { HeroBanner } from './HeroBanner';
-import { FileText, Loader2, Bookmark, Star, LayoutDashboard, X, ArrowLeft, Headphones, Youtube, Rss, Play, Pause, ChevronLeft, ChevronRight, Maximize, Minimize, Camera, CheckCheck, AlertTriangle, Square, Video, Radio, Trash2, Sparkles, Compass, Plus, Check } from 'lucide-react';
+import { FileText, Loader2, Bookmark, Star, LayoutDashboard, X, ArrowLeft, Headphones, Youtube, Rss, Play, Pause, ChevronLeft, ChevronRight, Maximize, Minimize, CheckCheck, AlertTriangle, Square, Video, Radio, Trash2, Sparkles, Compass, Plus, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth, db, OperationType, handleFirestoreError } from '../../lib/firebase';
@@ -758,7 +758,7 @@ function FadeInImage({
   );
 }
 
-export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' | 'podcasts' | 'webcams' | 'all' | 'blogs' | 'radio' }) {
+export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' | 'podcasts' | 'all' | 'radio' }) {
   const { settings, setViewMode, searchQuery, setShowTopAktuell, showHeader2 } = useSettings();
   const { showConfirm } = useCustomModal();
   const { playingAudio, setPlayingAudio, playingVideo, setPlayingVideo, readingArticle, setReadingArticle } = useMedia();
@@ -769,8 +769,6 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
     let pageTitle = 'RSS Feeds';
     if (type === 'podcasts') pageTitle = tr(settings.language, 'Podcasts', 'Podcasts');
     else if (type === 'youtube') pageTitle = tr(settings.language, 'YouTube', 'YouTube');
-    else if (type === 'webcams') pageTitle = tr(settings.language, 'WebCams', 'WebCams');
-    else if (type === 'blogs') pageTitle = tr(settings.language, 'Blogs', 'Blogs');
     else if (type === 'rss') pageTitle = tr(settings.language, 'RSS Feeds', 'RSS-Feeds');
     
     document.title = `${pageTitle} | RSSer News`;
@@ -816,7 +814,7 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
       const parsed = cached ? JSON.parse(cached) : [];
       if (cached && parsed && Array.isArray(parsed) && parsed.length === 0) return false;
       const alreadySynced = sessionStorage.getItem(`rsser_session_synced_${type}`) === 'true';
-      const isOnyTheFlyMode = type === 'podcasts' || type === 'youtube' || type === 'webcams' || type === 'radio';
+      const isOnyTheFlyMode = type === 'podcasts' || type === 'youtube' || type === 'radio';
       return !alreadySynced && !isOnyTheFlyMode;
     } catch (e) {
       return false;
@@ -890,15 +888,11 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
   interface InterspersePool {
     podcasts: RssItem[];
     youtube: RssItem[];
-    webcams: any[];
-    blogs: RssItem[];
   }
 
   const [interspersePool, setInterspersePool] = useState<InterspersePool>({
     podcasts: [],
-    youtube: [],
-    webcams: [],
-    blogs: []
+    youtube: []
   });
 
   const formatColors = (() => {
@@ -944,48 +938,6 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
           groupHoverText: 'group-hover:text-red-600 dark:group-hover:text-red-400',
           hoverBgSolid: 'hover:bg-red-500',
           bgSolid: 'bg-red-600',
-        };
-      case 'webcams':
-        return {
-          text: 'text-green-600 dark:text-green-400',
-          hoverText: 'hover:text-green-600 dark:hover:text-green-400',
-          activeBg: 'bg-green-500/10 dark:bg-green-500/20',
-          activeText: 'text-green-600 dark:text-green-400 font-black',
-          badgeBg: 'bg-green-500/10 dark:bg-green-500/20',
-          badgeText: 'text-green-600 dark:text-green-400',
-          hoverBg: 'hover:bg-green-500/5 dark:hover:bg-green-500/10',
-          hashColor: 'text-green-600 dark:text-green-400',
-          rankBg: 'bg-green-600',
-          gradientFrom: 'from-green-500/5 dark:from-green-500/10',
-          fallbackBg: 'bg-green-500/5',
-          liveBadgeBg: 'bg-green-500/10',
-          liveBadgeText: 'text-green-600 dark:text-green-400',
-          tabActiveBgLight: 'bg-green-100 text-green-700 border-green-200',
-          tabActiveBgDark: 'bg-green-500/20 text-green-400 border-green-500/30',
-          groupHoverText: 'group-hover:text-green-600 dark:group-hover:text-green-400',
-          hoverBgSolid: 'hover:bg-green-500',
-          bgSolid: 'bg-green-600',
-        };
-      case 'blogs':
-        return {
-          text: 'text-yellow-600 dark:text-yellow-400',
-          hoverText: 'hover:text-yellow-700 dark:hover:text-yellow-300',
-          activeBg: 'bg-yellow-100 dark:bg-yellow-500/20',
-          activeText: 'text-yellow-800 dark:text-yellow-400 font-black',
-          badgeBg: 'bg-yellow-100/70 dark:bg-yellow-500/10',
-          badgeText: 'text-yellow-700 dark:text-yellow-400',
-          hoverBg: 'hover:bg-yellow-50 dark:hover:bg-yellow-500/5',
-          hashColor: 'text-yellow-500 dark:text-yellow-400',
-          rankBg: 'bg-yellow-500',
-          gradientFrom: 'from-yellow-500/5 dark:from-yellow-500/10',
-          fallbackBg: 'bg-yellow-500/5',
-          liveBadgeBg: 'bg-yellow-100 dark:bg-yellow-500/20',
-          liveBadgeText: 'text-yellow-700 dark:text-yellow-400',
-          tabActiveBgLight: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-          tabActiveBgDark: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
-          groupHoverText: 'group-hover:text-yellow-600 dark:group-hover:text-yellow-400',
-          hoverBgSolid: 'hover:bg-yellow-600',
-          bgSolid: 'bg-yellow-500',
         };
       case 'radio':
         return {
@@ -1317,11 +1269,10 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
       type === 'podcasts' ? "Später hören" : type === 'youtube' ? "Später sehen" : "Später lesen", 
       "Favoriten"
     ];
-    if (type === 'blogs') return base;
     
     const cats = new Set<string>();
     feeds.forEach(f => {
-      if (f.category && f.category !== 'WebCam' && f.category !== 'Radio') {
+      if (f.category && f.category !== 'Radio') {
         cats.add(f.category);
       }
     });
@@ -1344,7 +1295,7 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
     }
   }, [location.pathname, location.search, location.state, type]);
   
-  const viewMode = (type === 'youtube' || type === 'podcasts' || type === 'webcams') 
+  const viewMode = (type === 'youtube' || type === 'podcasts') 
     ? 'grid' 
     : (settings.viewMode === 'magazine' && type !== 'rss' && type !== 'feeds' && type !== 'all')
       ? 'grid'
@@ -1383,13 +1334,6 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
     let timer: any = null;
 
     const loadPool = async () => {
-      const pool: InterspersePool = { podcasts: [], youtube: [], webcams: [], blogs: [] };
-
-      // Webcams: select from publicSources
-      const webcamSources = publicSources.filter(s => s.type === 'webcams');
-      
-      pool.webcams = [...webcamSources].sort(() => 0.5 - Math.random()).slice(0, 5);
-
       const getFeedsOfType = (t: string): any[] => {
         const subscribed = feeds.filter(f => f.type === t);
         if (subscribed.length > 0) {
@@ -1418,13 +1362,11 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
 
       const podcastFeeds = getFeedsOfType('podcasts');
       const youtubeFeeds = getFeedsOfType('youtube');
-      const blogFeeds = getFeedsOfType('blogs');
 
       const fetchFeedsItems = async (feedsList: any[], maxCount: number) => {
         const selected = [...feedsList].sort(() => 0.5 - Math.random()).slice(0, 3);
         
         const itemPromises = selected.map(async (f) => {
-          // Check local storage cache first - using identical cacheId generation!
           try {
             const cacheId = encodeURIComponent(f.url).replace(/[.#$/\[\]]/g, '_').substring(0, 500);
             const cached = localStorage.getItem('rss_v5_' + cacheId);
@@ -1444,7 +1386,6 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
             }
           } catch (e) {}
 
-          // Fallback: quick fetch via API (only if needed and not cached)
           try {
             const res = await fetch('/api/rss', {
               method: 'POST',
@@ -1472,18 +1413,15 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
         return results.flat();
       };
 
-      const [pItems, yItems, bItems] = await Promise.all([
+      const [pItems, yItems] = await Promise.all([
         fetchFeedsItems(podcastFeeds, 3),
-        fetchFeedsItems(youtubeFeeds, 3),
-        fetchFeedsItems(blogFeeds, 3)
+        fetchFeedsItems(youtubeFeeds, 3)
       ]);
 
       if (!isCancelled) {
         setInterspersePool({
           podcasts: pItems.sort(() => 0.5 - Math.random()),
-          youtube: yItems.sort(() => 0.5 - Math.random()),
-          webcams: pool.webcams,
-          blogs: bItems.sort(() => 0.5 - Math.random())
+          youtube: yItems.sort(() => 0.5 - Math.random())
         });
       }
     };
@@ -1559,7 +1497,7 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
       alreadySynced = sessionStorage.getItem(`rsser_session_synced_${type}`) === 'true';
     } catch (e) {}
 
-    const isOnyTheFlyMode = type === 'podcasts' || type === 'youtube' || type === 'webcams' || type === 'radio';
+    const isOnyTheFlyMode = type === 'podcasts' || type === 'youtube' || type === 'radio';
     if (!alreadySynced && !isOnyTheFlyMode) {
       setIsSyncing(true);
       setSyncProgress(0);
@@ -1592,15 +1530,11 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
           });
           
           if (type === 'youtube') {
-            loadedFeeds = loadedFeeds.filter(f => (f.category === 'YouTube' || f.type === 'youtube' || (f.url && (f.url.includes('youtube.com') || f.url.includes('youtu.be')))) && f.category !== 'WebCam' && f.type !== 'webcams' && !f.url?.includes('/live/'));
-          } else if (type === 'webcams') {
-            loadedFeeds = loadedFeeds.filter(f => f.category === 'WebCam' || f.type === 'webcams' || (f.url && (f.url.includes('/watch') || f.url.includes('youtu.be/') || f.url.includes('/live/'))));
+            loadedFeeds = loadedFeeds.filter(f => (f.category === 'YouTube' || f.type === 'youtube' || (f.url && (f.url.includes('youtube.com') || f.url.includes('youtu.be')))));
           } else if (type === 'podcasts') {
             loadedFeeds = loadedFeeds.filter(f => f.isPodcast === true || f.category === 'Podcast' || f.type === 'podcasts');
-          } else if (type === 'blogs') {
-            loadedFeeds = loadedFeeds.filter(f => f.type === 'blogs' || f.category === 'Blogs' || (f.url && (f.url.includes('rsser.news') || f.url.includes('run.app') || f.url.includes('localhost') || f.url.includes('127.0.0.1') || f.url.includes(window.location.hostname))));
           } else if (type === 'rss' || type === 'feeds') {
-            loadedFeeds = loadedFeeds.filter(f => f.category !== 'WebCam' && f.type !== 'webcams' && f.type !== 'blogs' && f.category !== 'Blogs' && (!f.url || (!f.url.includes('youtube.com') && !f.url.includes('youtu.be') && !f.url.includes('rsser.news') && !f.url.includes('run.app') && !f.url.includes('localhost') && !f.url.includes('127.0.0.1') && !f.url.includes(window.location.hostname))) && !f.isPodcast);
+            loadedFeeds = loadedFeeds.filter(f => (!f.url || (!f.url.includes('youtube.com') && !f.url.includes('youtu.be'))) && !f.isPodcast && f.type !== 'podcasts');
           }
           
           setFeeds(loadedFeeds);
@@ -1764,7 +1698,7 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
         alreadySyncedInSession = sessionStorage.getItem(`rsser_session_synced_${type}`) === 'true';
       } catch (e) {}
 
-      const isOnyTheFlyMode = type === 'podcasts' || type === 'youtube' || type === 'webcams' || type === 'radio';
+      const isOnyTheFlyMode = type === 'podcasts' || type === 'youtube' || type === 'radio';
 
       setLoadingItems(true);
       if (!alreadySyncedInSession && !isOnyTheFlyMode) {
@@ -1851,132 +1785,3910 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
         running++;
 
         try {
-          if (!feed.url && feed.type !== 'blogs') {
+          if (!feed.url) {
              // Skip
-          } else if (type === 'webcams' || feed.type === 'webcams' || (feed.category === 'WebCam') || (feed.url && feed.url.includes('/live/'))) {
-             // For webcams, create a direct item
-             const isYoutube = feed.url?.includes('youtube.com') || feed.url?.includes('youtu.be');
-             let ytThumbnail = feed.imageUrl;
-             if (isYoutube && !ytThumbnail) {
-                const videoId = getOutputVideoId(feed.url);
-                if (videoId) ytThumbnail = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
-             }
-
-             const webcamItem: RssItem = {
-                id: feed.id || feed.url || Math.random().toString(),
-                title: feed.title || 'WebCam',
-                link: feed.url || '',
-                pubDate: new Date().toISOString(),
-                contentSnippet: feed.title || 'WebCam Stream',
-                feedTitle: feed.title || 'WebCam',
-                feedId: feed.id,
-                feedUrl: feed.url,
-                feedImageUrl: feed.imageUrl,
-                timestamp: Date.now(),
-                imageUrl: ytThumbnail || feed.imageUrl,
-                faviconUrl: getFavicon(feed.url),
-                category: 'WebCam'
-             };
-
-             if (!isCancelled) {
-               itemBuffer.push(webcamItem);
-               requestFlush();
-             }
           } else {
-             // Internal or External Blog/RSS
-             const isInternalBlog = feed.url && (feed.url.includes('rsser.news') || feed.url.includes('run.app') || feed.url.includes('localhost') || feed.url.includes('127.0.0.1') || feed.url.includes(window.location.hostname)) && (feed.url.includes('/blog/') || feed.url.includes('/article/') || feed.url.includes('/blogs/user/') || feed.url.includes('/blogs/author/') || feed.url.includes('/p/') || feed.url.includes('/api/rss/user/'));
-             
-              if (isInternalBlog) {
-                 // Fetch internal blogs
-                 let userId = '';
-                 let pSourceInternal = null;
-                 const currentPublicSources = publicSourcesRef.current;
+             // External RSS
+             const cacheId = encodeURIComponent(feed.url).replace(/[.#$/\[\]]/g, '_').substring(0, 500);
+        try {
+          localStorage.removeItem('rss_v5_' + cacheId);
+        } catch (e) {}
+      }
+    });
+    
+    // Reset fetch blocks
+    lastFetchedUrlsRef.current = "";
+    forceBypassRef.current = true;
+    setFailedImages({});
+    imageFetchAttemptsRef.current.clear();
+    
+    // Clear the session synced flag on manual sync to allow hard sync
+    try {
+      sessionStorage.removeItem(`rsser_session_synced_${type}`);
+    } catch (e) {}
+    
+    // Clear feed items & trigger fetch effect
+    setFeedItems([]);
+    setRefreshTick(prev => prev + 1);
+  };
+  
+  // Keep the ref up to date without triggering the fetch effect
+  useEffect(() => {
+    publicSourcesRef.current = publicSources;
+  }, [publicSources]);
 
-                 if (feed.url.includes('/api/rss/user/')) {
-                     userId = feed.url.split('/api/rss/user/').pop()?.split('?')[0] || '';
-                     pSourceInternal = currentPublicSources.find(p => p.addedBy === userId);
-                 } else if (feed.url.includes('/blogs/user/')) {
-                     userId = feed.url.split('/blogs/user/').pop()?.split('/')[0] || '';
-                     pSourceInternal = currentPublicSources.find(p => p.addedBy === userId);
-                 } else if (feed.url.includes('/blogs/author/')) {
-                     userId = feed.url.split('/blogs/author/').pop()?.split('/')[0] || '';
-                     pSourceInternal = currentPublicSources.find(p => p.addedBy === userId);
-                 } else {
-                     const blogId = feed.url.split('/article/').pop()?.split('/blog/').pop()?.split('?')[0];
-                     pSourceInternal = currentPublicSources.find(p => p.blogId === blogId || p.id === blogId || p.url === feed.url);
-                     if (pSourceInternal) userId = pSourceInternal.addedBy;
-                 }
-                
-                if (userId) {
-                   try {
-                     // Fetch actual user profile information for the blog author
-                     let authorName = '';
-                     let authorAvatar = '';
-                     try {
-                       const userDoc = await getDoc(doc(db, 'users', userId));
-                       if (userDoc.exists()) {
-                         const userData = userDoc.data();
-                         authorName = userData.displayName || userData.name || '';
-                         authorAvatar = userData.avatarUrl || userData.avatar || '';
-                       }
-                     } catch (err) {
-                       console.error("Error fetching author user doc:", err);
-                     }
+  // Memoize feed URLs to prevent effect re-triggering when metadata changes
+  const feedUrlsKey = useMemo(() => feeds.map(f => f.url || f.id).sort().join('|'), [feeds]);
+  
+  const categories = useMemo(() => {
+    const base = [
+      "Alle", 
+      type === 'podcasts' ? "Später hören" : type === 'youtube' ? "Später sehen" : "Später lesen", 
+      "Favoriten"
+    ];
+    
+    const cats = new Set<string>();
+    feeds.forEach(f => {
+      if (f.category && f.category !== 'Radio') {
+        cats.add(f.category);
+      }
+    });
+    
+    // Sort the user categories but keep base categories at start
+    return [...base, ...Array.from(cats).sort()];
+  }, [feeds, type]);
 
-                     const blogsRef = collection(db, 'users', userId, 'blogs');
-                     const q = query(blogsRef, where('published', '==', true), orderBy('createdAt', 'desc'));
-                     const blogSnap = await getDocs(q);
-                     
-                     const items: RssItem[] = blogSnap.docs.map(doc => {
-                       const blogData = doc.data();
-                       const itemLink = blogData.slug 
-                         ? `${getCanonicalOrigin()}/blogs/user/${userId}/p/${blogData.slug}`
-                         : `${getCanonicalOrigin()}/blogs/user/${userId}/article/${doc.id}`;
-                       
-                       const userLang = (settings.language || 'de').toLowerCase();
-                       const originalLang = (blogData.language || 'de').toLowerCase();
-                       
-                       let displayTitle = blogData.title;
-                       let displayContent = blogData.content || '';
-                       let displayLanguage = blogData.language || 'de';
-                       
-                       if (userLang !== originalLang && blogData.translations && blogData.translations[userLang]) {
-                         displayTitle = blogData.translations[userLang].title || blogData.title;
-                         displayContent = blogData.translations[userLang].content || blogData.content || '';
-                         displayLanguage = userLang;
-                       }
-                       
-                       return {
-                         id: doc.id,
-                         title: displayTitle,
-                         link: itemLink,
-                         authorId: userId,
-                         pubDate: blogData.createdAt?.toDate ? blogData.createdAt.toDate().toISOString() : new Date().toISOString(),
-                         content: displayContent,
-                         contentSnippet: displayContent?.replace(/<[^>]*>?/gm, ' ').substring(0, 200),
-                         feedTitle: authorName || pSourceInternal?.authorName || feed.title,
-                         feedId: feed.id,
-                         feedUrl: feed.url,
-                         feedImageUrl: authorAvatar || pSourceInternal?.authorAvatar || feed.imageUrl,
-                         timestamp: blogData.createdAt?.toDate ? blogData.createdAt.toDate().getTime() : Date.now(),
-                         imageUrl: blogData.coverImage || feed.imageUrl,
-                         faviconUrl: authorAvatar || pSourceInternal?.authorAvatar || getFavicon(feed.url),
-                         category: feed.category || 'Blogs',
-                         language: displayLanguage
-                       };
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const channelParam = params.get('channel');
+    const stateChannel = location.state?.selectedChannelId;
+    
+    if (channelParam) {
+      setSelectedChannelId(channelParam);
+    } else if (stateChannel) {
+      setSelectedChannelId(stateChannel);
+    } else {
+      setSelectedChannelId(null);
+    }
+  }, [location.pathname, location.search, location.state, type]);
+  
+  const viewMode = (type === 'youtube' || type === 'podcasts') 
+    ? 'grid' 
+    : (settings.viewMode === 'magazine' && type !== 'rss' && type !== 'feeds' && type !== 'all')
+      ? 'grid'
+      : (settings.viewMode || 'list');
+
+  // extract video ID simply
+  const getOutputVideoId = (url: string) => {
+    if (!url) return null;
+    const match = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?|live)\/|.*[?&]v=|shorts\/)|youtu\.be\/)([^"&?\/\s]{11})/i);
+    return match ? match[1] : null;
+  };
+
+  useEffect(() => {
+    // Fetch public sources from server API instead of direct Firestore to save reads
+    const fetchSources = async () => {
+      try {
+        const res = await fetch('/api/public-sources');
+        const contentType = res.headers.get('content-type') || '';
+        if (res.ok && contentType.includes('application/json')) {
+          const data = await res.json();
+          if (Array.isArray(data) && data.length > 0) {
+            setPublicSources(data);
+          }
+        }
+      } catch (e) {
+        // Silently continue with local defaults
+      }
+    };
+    fetchSources();
+  }, []);
+
+  useEffect(() => {
+    if (viewMode !== 'magazine') return;
+    
+    let isCancelled = false;
+    let timer: any = null;
+
+    const loadPool = async () => {
+      const getFeedsOfType = (t: string): any[] => {
+        const subscribed = feeds.filter(f => f.type === t);
+        if (subscribed.length > 0) {
+          return subscribed;
+        }
+
+        const discovery: any[] = publicSources.filter(s => s.type === t);
+
+        const userLang = (settings.language || 'de').toLowerCase();
+        const filteredDiscovery = discovery.filter(s => {
+          const feedLang = (s.language || '').toLowerCase();
+          if (!feedLang || feedLang === 'none') {
+            return true;
+          }
+          const cleanUserLang = userLang.split('-')[0];
+          const cleanFeedLang = feedLang.split('-')[0];
+          return cleanUserLang === cleanFeedLang;
+        });
+
+        if (filteredDiscovery.length === 0) {
+          return discovery;
+        }
+
+        return filteredDiscovery;
+      };
+
+      const podcastFeeds = getFeedsOfType('podcasts');
+      const youtubeFeeds = getFeedsOfType('youtube');
+
+      const fetchFeedsItems = async (feedsList: any[], maxCount: number) => {
+        const selected = [...feedsList].sort(() => 0.5 - Math.random()).slice(0, 3);
+        
+        const itemPromises = selected.map(async (f) => {
+          try {
+            const cacheId = encodeURIComponent(f.url).replace(/[.#$/\[\]]/g, '_').substring(0, 500);
+            const cached = localStorage.getItem('rss_v5_' + cacheId);
+            if (cached) {
+              const parsedLocal = JSON.parse(cached);
+              const responseData = parsedLocal.data || parsedLocal;
+              if (responseData && responseData.items && responseData.items.length > 0) {
+                return responseData.items.slice(0, 3).map((item: any) => ({
+                  ...item,
+                  feedTitle: f.title || responseData.title || f.url,
+                  feedId: f.id || '',
+                  feedUrl: f.url,
+                  category: f.category || '',
+                  timestamp: new Date(item.pubDate).getTime() || Date.now()
+                }));
+              }
+            }
+          } catch (e) {}
+
+          try {
+            const res = await fetch('/api/rss', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ url: f.url, maxDays: 14 })
+            });
+            if (res.ok) {
+              const freshData = await res.json();
+              if (freshData && freshData.items) {
+                return freshData.items.slice(0, 3).map((item: any) => ({
+                  ...item,
+                  feedTitle: f.title || freshData.title || f.url,
+                  feedId: f.id || '',
+                  feedUrl: f.url,
+                  category: f.category || '',
+                  timestamp: new Date(item.pubDate).getTime() || Date.now()
+                }));
+              }
+            }
+          } catch (e) {}
+          return [];
+        });
+
+        const results = await Promise.all(itemPromises);
+        return results.flat();
+      };
+
+      const [pItems, yItems] = await Promise.all([
+        fetchFeedsItems(podcastFeeds, 3),
+        fetchFeedsItems(youtubeFeeds, 3)
+      ]);
+
+      if (!isCancelled) {
+        setInterspersePool({
+          podcasts: pItems.sort(() => 0.5 - Math.random()),
+          youtube: yItems.sort(() => 0.5 - Math.random())
+        });
+      }
+    };
+
+    // Delay pool loading slightly to allow main thread and main feed requests to execute first
+    timer = setTimeout(() => {
+      loadPool();
+    }, 450);
+
+    return () => {
+      isCancelled = true;
+      if (timer) clearTimeout(timer);
+    };
+  }, [viewMode, feeds, publicSources, settings.language]);
+
+  useEffect(() => {
+    let hasLoadedCachedFeeds = false;
+    let hasCachedItems = false;
+    try {
+      const cachedFeeds = localStorage.getItem(`cached_feeds_${type}`);
+      const cachedItems = localStorage.getItem(`cached_items_${type}`);
+      if (cachedFeeds) {
+        setFeeds(JSON.parse(cachedFeeds));
+        hasLoadedCachedFeeds = true;
+      } else {
+        setFeeds([]);
+      }
+      if (cachedItems) {
+        const parsed = JSON.parse(cachedItems);
+        const cleaned = Array.isArray(parsed) ? parsed.map((item: any) => ({
+          ...item,
+          imageUrl: proxyImageUrl(item.imageUrl)
+        })) : [];
+        setFeedItems(cleaned);
+        if (cleaned && cleaned.length > 0) {
+          hasCachedItems = true;
+        }
+      } else {
+        setFeedItems([]);
+      }
+    } catch (e) {
+      setFeeds([]);
+      setFeedItems([]);
+    }
+
+    // Hydrate richer caches asynchronously from IndexedDB
+    getCachedCategoryItems(type).then((idbItems) => {
+      if (idbItems && idbItems.length > 0) {
+        const cleanedIdb = idbItems.map((item: any) => ({
+          ...item,
+          imageUrl: proxyImageUrl(item.imageUrl)
+        }));
+        setFeedItems(prev => {
+          if (!prev || prev.length === 0) return cleanedIdb;
+          return prev;
+        });
+      }
+    }).catch(() => {});
+
+    getCachedCategoryFeeds(type).then((idbFeeds) => {
+      if (idbFeeds && idbFeeds.length > 0) {
+        setFeeds(prev => {
+          if (!prev || prev.length === 0) return idbFeeds;
+          return prev;
+        });
+        setLoadingFeeds(false);
+      }
+    }).catch(() => {});
+
+    setLoadingFeeds(!hasLoadedCachedFeeds);
+    let alreadySynced = false;
+    try {
+      alreadySynced = sessionStorage.getItem(`rsser_session_synced_${type}`) === 'true';
+    } catch (e) {}
+
+    const isOnyTheFlyMode = type === 'podcasts' || type === 'youtube' || type === 'radio';
+    if (!alreadySynced && !isOnyTheFlyMode) {
+      setIsSyncing(true);
+      setSyncProgress(0);
+    } else {
+      setIsSyncing(false);
+    }
+    let unsubscribeFeeds: (() => void) | undefined;
+    let unsubscribeSaved: (() => void) | undefined;
+    let unsubscribeRead: (() => void) | undefined;
+    
+    const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
+      // First clean up any existing listeners if auth state changes
+      if (unsubscribeFeeds) unsubscribeFeeds();
+      if (unsubscribeSaved) unsubscribeSaved();
+      if (unsubscribeRead) unsubscribeRead();
+
+      if (user) {
+        const feedsRef = collection(db, 'users', user.uid, 'feeds');
+        const q = query(feedsRef);
+        
+        unsubscribeFeeds = onSnapshot(q, (snapshot) => {
+          let loadedFeeds = snapshot.docs.map(d => {
+            const data = d.data();
+            const mappedCat = data.category === 'Technik' ? 'Tech' : data.category;
+            return {
+              id: d.id,
+              ...data,
+              category: mappedCat
+            } as Feed;
+          });
+          
+          if (type === 'youtube') {
+            loadedFeeds = loadedFeeds.filter(f => (f.category === 'YouTube' || f.type === 'youtube' || (f.url && (f.url.includes('youtube.com') || f.url.includes('youtu.be')))));
+          } else if (type === 'podcasts') {
+            loadedFeeds = loadedFeeds.filter(f => f.isPodcast === true || f.category === 'Podcast' || f.type === 'podcasts');
+          } else if (type === 'rss' || type === 'feeds') {
+            loadedFeeds = loadedFeeds.filter(f => (!f.url || (!f.url.includes('youtube.com') && !f.url.includes('youtu.be'))) && !f.isPodcast && f.type !== 'podcasts');
+          }
+          
+          setFeeds(loadedFeeds);
+          try {
+            safeLocalStorageSetItem(`cached_feeds_${type}`, JSON.stringify(loadedFeeds));
+          } catch (err) {}
+          setLoadingFeeds(false);
+          setLoadingItems(false);
+          if (loadedFeeds.length === 0) {
+            setIsSyncing(false);
+            setSyncProgress(100);
+            try {
+              sessionStorage.setItem(`rsser_session_synced_${type}`, 'true');
+            } catch (e) {}
+          }
+        }, (error) => {
+          setLoadingFeeds(false);
+          setLoadingItems(false);
+          if (!error.message?.includes('CANCELLED')) {
+             handleFirestoreError(error, OperationType.LIST, `users/${user.uid}/feeds`);
+          }
+        });
+
+        const savedRef = collection(db, 'users', user.uid, 'savedItems');
+        unsubscribeSaved = onSnapshot(savedRef, (snapshot) => {
+          const dict: any = {};
+          snapshot.docs.forEach(d => {
+            dict[d.id] = d.data();
+          });
+          setSavedItemsDb(dict);
+        }, (error) => {
+          if (!error.message?.includes('CANCELLED')) {
+             handleFirestoreError(error, OperationType.LIST, `users/${user.uid}/savedItems`);
+          }
+        });
+
+        const readRef = collection(db, 'users', user.uid, 'readItems');
+        unsubscribeRead = onSnapshot(readRef, (snapshot) => {
+          const dict: { [key: string]: boolean } = {};
+          snapshot.docs.forEach(d => {
+            const data = d.data();
+            if (data.itemId) {
+              dict[data.itemId] = true;
+            }
+          });
+          setReadItemsDb(dict);
+        }, (error) => {
+          if (!error.message?.includes('CANCELLED')) {
+             handleFirestoreError(error, OperationType.LIST, `users/${user.uid}/readItems`);
+          }
+        });
+      } else {
+        setFeeds([]);
+        setFeedItems([]);
+        setSavedItemsDb({});
+        setReadItemsDb({});
+        setLoadingFeeds(false);
+        setLoadingItems(false);
+        setIsSyncing(false);
+        setSyncProgress(100);
+      }
+    });
+
+    return () => {
+      unsubscribeAuth();
+      if (unsubscribeFeeds) unsubscribeFeeds();
+      if (unsubscribeSaved) unsubscribeSaved();
+      if (unsubscribeRead) unsubscribeRead();
+    };
+  }, [type]);
+
+  useEffect(() => {
+    let isCancelled = false;
+
+    const fetchAllFeedItems = async () => {
+      if (feeds.length === 0) {
+        if (!isCancelled) {
+          setFeedItems([]);
+          setIsSyncing(false);
+          setLoadingItems(false);
+          setSyncProgress(100);
+          try {
+            sessionStorage.setItem(`rsser_session_synced_${type}`, 'true');
+          } catch (e) {}
+        }
+        isFetchingRef.current = false;
+        return;
+      }
+      
+      // Prevent re-fetching if URLs haven't changed
+      if (lastFetchedUrlsRef.current === feedUrlsKey && feedItems.length > 0) {
+        return;
+      }
+      
+      const urlsChanged = lastFetchedUrlsRef.current !== feedUrlsKey;
+      
+      if (isFetchingRef.current) return;
+      isFetchingRef.current = true;
+      lastFetchedUrlsRef.current = feedUrlsKey;
+      
+      // 1. Instantly load cache in one synchronous swoop!
+      const initialCachedItems: RssItem[] = [];
+      const currentPublicSources = publicSourcesRef.current;
+      
+      feeds.forEach(feed => {
+        if (feed.url) {
+          const cacheId = encodeURIComponent(feed.url).replace(/[.#$/\[\]]/g, '_').substring(0, 500);
+          try {
+             const localKey = 'rss_v5_' + cacheId;
+             const localData = localStorage.getItem(localKey);
+             if (localData) {
+                const parsedLocal = JSON.parse(localData);
+                const responseData = parsedLocal.data;
+                if (responseData) {
+                  const pSource = currentPublicSources.find(p => p.url === feed.url || p.blogId === feed.id);
+                  const faviconUrl = pSource?.imageUrl || pSource?.authorAvatar || feed.imageUrl || getFavicon(feed.url) || getFavicon(responseData.link || '');
+                  
+                  const items = (responseData.items || [])
+                     .filter((item: any) => item && item.title && typeof item.title === 'string' && item.title.trim() !== '' && item.title.trim().toLowerCase() !== 'ohne titel')
+                     .map((item: any) => {
+                        const isYoutubeItem = item.link?.includes('youtube.com') || item.link?.includes('youtu.be');
+                        let ytThumbnail = null;
+                        if (isYoutubeItem) {
+                            const videoId = getOutputVideoId(item.link);
+                            if (videoId) ytThumbnail = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+                        }
+                        let parsedImageUrl = item.imageUrl || item.image?.url;
+                        if (isYoutubeItem && ytThumbnail && !parsedImageUrl) parsedImageUrl = ytThumbnail;
+                        if (!parsedImageUrl && !isYoutubeItem && !feed.isPodcast) {
+                            const htmlContent = item.content || item['content:encoded'] || item.contentEncoded || item.description || item.summary || '';
+                            parsedImageUrl = extractHtmlImage(htmlContent);
+                        }
+
+                        return {
+                            id: item.guid || item.link || Math.random().toString(),
+                            title: item.title,
+                            link: item.link,
+                            pubDate: item.pubDate,
+                            contentSnippet: item.contentSnippet,
+                            feedTitle: feed.title || responseData.title || feed.url,
+                            feedId: feed.id,
+                            feedUrl: feed.url,
+                            feedImageUrl: feed.imageUrl && feed.imageUrl.startsWith('http://') ? feed.imageUrl.replace('http://', 'https://') : feed.imageUrl,
+                            timestamp: (!isNaN(new Date(item.pubDate).getTime())) ? new Date(item.pubDate).getTime() : Date.now(),
+                            imageUrl: parsedImageUrl ? (parsedImageUrl.startsWith('http://') ? parsedImageUrl.replace('http://', 'https://') : parsedImageUrl) : null,
+                            faviconUrl: faviconUrl && faviconUrl.startsWith('http://') ? faviconUrl.replace('http://', 'https://') : faviconUrl,
+                            category: feed.category || FEED_CATEGORIES[0],
+                            enclosure: item.enclosure
+                        };
                      });
-                     
-                     if (!isCancelled && items.length > 0) {
-                        itemBuffer.push(...items);
-                        requestFlush();
-                     }
-                   } catch (e) {
-                     console.error("Failed to fetch internal Blogs", e);
-                   }
+                  initialCachedItems.push(...items);
                 }
-             } else {
-                // External RSS
-                const cacheId = encodeURIComponent(feed.url).replace(/[.#$/\[\]]/g, '_').substring(0, 500);
+             }
+          } catch(e) {}
+        }
+      });
+
+      // ONLY show fullscreen syncing indicator if we haven't synced in this session, and are not in an on-the-fly background sync mode
+      let alreadySyncedInSession = false;
+      try {
+        alreadySyncedInSession = sessionStorage.getItem(`rsser_session_synced_${type}`) === 'true';
+      } catch (e) {}
+
+      const isOnyTheFlyMode = type === 'podcasts' || type === 'youtube' || type === 'radio';
+
+      setLoadingItems(true);
+      if (!alreadySyncedInSession && !isOnyTheFlyMode) {
+         setIsSyncing(true);
+         setSyncProgress(0);
+      } else {
+         setIsSyncing(false);
+      }
+
+      if (!isCancelled) {
+        if (initialCachedItems.length > 0) {
+           const seen = new Set<string>();
+           const uniqueItems = initialCachedItems.filter(item => {
+             const key = item.id || item.link;
+             if (key && !seen.has(key)) {
+               seen.add(key);
+               return true;
+             }
+             return false;
+           }).sort((a, b) => b.timestamp - a.timestamp);
+           setFeedItems(uniqueItems);
+        } else {
+           // Only clear if empty
+           if (feedItems.length === 0) {
+              setFeedItems([]);
+           }
+        }
+      }
+      
+      // Use a buffer to batch updates to feedItems to prevent excessive re-renders
+      let itemBuffer: RssItem[] = [];
+      let flushTimeout: any = null;
+      
+      const flushBuffer = () => {
+        if (isCancelled || itemBuffer.length === 0) return;
+        
+        const itemsToProcess = [...itemBuffer];
+        itemBuffer = [];
+        
+        setFeedItems(prev => {
+          const incomingFeedIds = new Set(itemsToProcess.map(i => i.feedId));
+          const filtered = prev.filter(i => !incomingFeedIds.has(i.feedId));
+          const merged = [...filtered, ...itemsToProcess];
+          
+          const seen = new Set<string>();
+          const deduped = merged.filter(item => {
+            const key = item.id || item.link;
+            if (key && !seen.has(key)) {
+              seen.add(key);
+              return true;
+            }
+            return false;
+          }).sort((a, b) => b.timestamp - a.timestamp);
+          
+          if (deduped.length >= 10) {
+            setIsSyncing(false);
+          }
+          
+          return deduped;
+        });
+      };
+
+      const requestFlush = () => {
+        if (flushTimeout) return;
+        flushTimeout = setTimeout(() => {
+          flushTimeout = null;
+          flushBuffer();
+        }, 120); // Flush every 120ms for much snappier updates
+      };
+
+      let activeCount = feeds.length;
+      let finishedCount = 0;
+      
+      // Concurrency limit for background fetching (increased for faster startup)
+      const CONCURRENCY_LIMIT = 24;
+      const feedsToProcess = [...feeds];
+      let running = 0;
+      let index = 0;
+
+      const processNext = async () => {
+        if (isCancelled || index >= feedsToProcess.length) return;
+        
+        const feed = feedsToProcess[index++];
+        running++;
+
+        try {
+          if (!feed.url) {
+             // Skip
+          } else {
+             // External RSS
+             const cacheId = encodeURIComponent(feed.url).replace(/[.#$/\[\]]/g, '_').substring(0, 500);
+        try {
+          localStorage.removeItem('rss_v5_' + cacheId);
+        } catch (e) {}
+      }
+    });
+    
+    // Reset fetch blocks
+    lastFetchedUrlsRef.current = "";
+    forceBypassRef.current = true;
+    setFailedImages({});
+    imageFetchAttemptsRef.current.clear();
+    
+    // Clear the session synced flag on manual sync to allow hard sync
+    try {
+      sessionStorage.removeItem(`rsser_session_synced_${type}`);
+    } catch (e) {}
+    
+    // Clear feed items & trigger fetch effect
+    setFeedItems([]);
+    setRefreshTick(prev => prev + 1);
+  };
+  
+  // Keep the ref up to date without triggering the fetch effect
+  useEffect(() => {
+    publicSourcesRef.current = publicSources;
+  }, [publicSources]);
+
+  // Memoize feed URLs to prevent effect re-triggering when metadata changes
+  const feedUrlsKey = useMemo(() => feeds.map(f => f.url || f.id).sort().join('|'), [feeds]);
+  
+  const categories = useMemo(() => {
+    const base = [
+      "Alle", 
+      type === 'podcasts' ? "Später hören" : type === 'youtube' ? "Später sehen" : "Später lesen", 
+      "Favoriten"
+    ];
+    
+    const cats = new Set<string>();
+    feeds.forEach(f => {
+      if (f.category && f.category !== 'Radio') {
+        cats.add(f.category);
+      }
+    });
+    
+    // Sort the user categories but keep base categories at start
+    return [...base, ...Array.from(cats).sort()];
+  }, [feeds, type]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const channelParam = params.get('channel');
+    const stateChannel = location.state?.selectedChannelId;
+    
+    if (channelParam) {
+      setSelectedChannelId(channelParam);
+    } else if (stateChannel) {
+      setSelectedChannelId(stateChannel);
+    } else {
+      setSelectedChannelId(null);
+    }
+  }, [location.pathname, location.search, location.state, type]);
+  
+  const viewMode = (type === 'youtube' || type === 'podcasts') 
+    ? 'grid' 
+    : (settings.viewMode === 'magazine' && type !== 'rss' && type !== 'feeds' && type !== 'all')
+      ? 'grid'
+      : (settings.viewMode || 'list');
+
+  // extract video ID simply
+  const getOutputVideoId = (url: string) => {
+    if (!url) return null;
+    const match = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?|live)\/|.*[?&]v=|shorts\/)|youtu\.be\/)([^"&?\/\s]{11})/i);
+    return match ? match[1] : null;
+  };
+
+  useEffect(() => {
+    // Fetch public sources from server API instead of direct Firestore to save reads
+    const fetchSources = async () => {
+      try {
+        const res = await fetch('/api/public-sources');
+        const contentType = res.headers.get('content-type') || '';
+        if (res.ok && contentType.includes('application/json')) {
+          const data = await res.json();
+          if (Array.isArray(data) && data.length > 0) {
+            setPublicSources(data);
+          }
+        }
+      } catch (e) {
+        // Silently continue with local defaults
+      }
+    };
+    fetchSources();
+  }, []);
+
+  useEffect(() => {
+    if (viewMode !== 'magazine') return;
+    
+    let isCancelled = false;
+    let timer: any = null;
+
+    const loadPool = async () => {
+      const getFeedsOfType = (t: string): any[] => {
+        const subscribed = feeds.filter(f => f.type === t);
+        if (subscribed.length > 0) {
+          return subscribed;
+        }
+
+        const discovery: any[] = publicSources.filter(s => s.type === t);
+
+        const userLang = (settings.language || 'de').toLowerCase();
+        const filteredDiscovery = discovery.filter(s => {
+          const feedLang = (s.language || '').toLowerCase();
+          if (!feedLang || feedLang === 'none') {
+            return true;
+          }
+          const cleanUserLang = userLang.split('-')[0];
+          const cleanFeedLang = feedLang.split('-')[0];
+          return cleanUserLang === cleanFeedLang;
+        });
+
+        if (filteredDiscovery.length === 0) {
+          return discovery;
+        }
+
+        return filteredDiscovery;
+      };
+
+      const podcastFeeds = getFeedsOfType('podcasts');
+      const youtubeFeeds = getFeedsOfType('youtube');
+
+      const fetchFeedsItems = async (feedsList: any[], maxCount: number) => {
+        const selected = [...feedsList].sort(() => 0.5 - Math.random()).slice(0, 3);
+        
+        const itemPromises = selected.map(async (f) => {
+          try {
+            const cacheId = encodeURIComponent(f.url).replace(/[.#$/\[\]]/g, '_').substring(0, 500);
+            const cached = localStorage.getItem('rss_v5_' + cacheId);
+            if (cached) {
+              const parsedLocal = JSON.parse(cached);
+              const responseData = parsedLocal.data || parsedLocal;
+              if (responseData && responseData.items && responseData.items.length > 0) {
+                return responseData.items.slice(0, 3).map((item: any) => ({
+                  ...item,
+                  feedTitle: f.title || responseData.title || f.url,
+                  feedId: f.id || '',
+                  feedUrl: f.url,
+                  category: f.category || '',
+                  timestamp: new Date(item.pubDate).getTime() || Date.now()
+                }));
+              }
+            }
+          } catch (e) {}
+
+          try {
+            const res = await fetch('/api/rss', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ url: f.url, maxDays: 14 })
+            });
+            if (res.ok) {
+              const freshData = await res.json();
+              if (freshData && freshData.items) {
+                return freshData.items.slice(0, 3).map((item: any) => ({
+                  ...item,
+                  feedTitle: f.title || freshData.title || f.url,
+                  feedId: f.id || '',
+                  feedUrl: f.url,
+                  category: f.category || '',
+                  timestamp: new Date(item.pubDate).getTime() || Date.now()
+                }));
+              }
+            }
+          } catch (e) {}
+          return [];
+        });
+
+        const results = await Promise.all(itemPromises);
+        return results.flat();
+      };
+
+      const [pItems, yItems] = await Promise.all([
+        fetchFeedsItems(podcastFeeds, 3),
+        fetchFeedsItems(youtubeFeeds, 3)
+      ]);
+
+      if (!isCancelled) {
+        setInterspersePool({
+          podcasts: pItems.sort(() => 0.5 - Math.random()),
+          youtube: yItems.sort(() => 0.5 - Math.random())
+        });
+      }
+    };
+
+    // Delay pool loading slightly to allow main thread and main feed requests to execute first
+    timer = setTimeout(() => {
+      loadPool();
+    }, 450);
+
+    return () => {
+      isCancelled = true;
+      if (timer) clearTimeout(timer);
+    };
+  }, [viewMode, feeds, publicSources, settings.language]);
+
+  useEffect(() => {
+    let hasLoadedCachedFeeds = false;
+    let hasCachedItems = false;
+    try {
+      const cachedFeeds = localStorage.getItem(`cached_feeds_${type}`);
+      const cachedItems = localStorage.getItem(`cached_items_${type}`);
+      if (cachedFeeds) {
+        setFeeds(JSON.parse(cachedFeeds));
+        hasLoadedCachedFeeds = true;
+      } else {
+        setFeeds([]);
+      }
+      if (cachedItems) {
+        const parsed = JSON.parse(cachedItems);
+        const cleaned = Array.isArray(parsed) ? parsed.map((item: any) => ({
+          ...item,
+          imageUrl: proxyImageUrl(item.imageUrl)
+        })) : [];
+        setFeedItems(cleaned);
+        if (cleaned && cleaned.length > 0) {
+          hasCachedItems = true;
+        }
+      } else {
+        setFeedItems([]);
+      }
+    } catch (e) {
+      setFeeds([]);
+      setFeedItems([]);
+    }
+
+    // Hydrate richer caches asynchronously from IndexedDB
+    getCachedCategoryItems(type).then((idbItems) => {
+      if (idbItems && idbItems.length > 0) {
+        const cleanedIdb = idbItems.map((item: any) => ({
+          ...item,
+          imageUrl: proxyImageUrl(item.imageUrl)
+        }));
+        setFeedItems(prev => {
+          if (!prev || prev.length === 0) return cleanedIdb;
+          return prev;
+        });
+      }
+    }).catch(() => {});
+
+    getCachedCategoryFeeds(type).then((idbFeeds) => {
+      if (idbFeeds && idbFeeds.length > 0) {
+        setFeeds(prev => {
+          if (!prev || prev.length === 0) return idbFeeds;
+          return prev;
+        });
+        setLoadingFeeds(false);
+      }
+    }).catch(() => {});
+
+    setLoadingFeeds(!hasLoadedCachedFeeds);
+    let alreadySynced = false;
+    try {
+      alreadySynced = sessionStorage.getItem(`rsser_session_synced_${type}`) === 'true';
+    } catch (e) {}
+
+    const isOnyTheFlyMode = type === 'podcasts' || type === 'youtube' || type === 'radio';
+    if (!alreadySynced && !isOnyTheFlyMode) {
+      setIsSyncing(true);
+      setSyncProgress(0);
+    } else {
+      setIsSyncing(false);
+    }
+    let unsubscribeFeeds: (() => void) | undefined;
+    let unsubscribeSaved: (() => void) | undefined;
+    let unsubscribeRead: (() => void) | undefined;
+    
+    const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
+      // First clean up any existing listeners if auth state changes
+      if (unsubscribeFeeds) unsubscribeFeeds();
+      if (unsubscribeSaved) unsubscribeSaved();
+      if (unsubscribeRead) unsubscribeRead();
+
+      if (user) {
+        const feedsRef = collection(db, 'users', user.uid, 'feeds');
+        const q = query(feedsRef);
+        
+        unsubscribeFeeds = onSnapshot(q, (snapshot) => {
+          let loadedFeeds = snapshot.docs.map(d => {
+            const data = d.data();
+            const mappedCat = data.category === 'Technik' ? 'Tech' : data.category;
+            return {
+              id: d.id,
+              ...data,
+              category: mappedCat
+            } as Feed;
+          });
+          
+          if (type === 'youtube') {
+            loadedFeeds = loadedFeeds.filter(f => (f.category === 'YouTube' || f.type === 'youtube' || (f.url && (f.url.includes('youtube.com') || f.url.includes('youtu.be')))));
+          } else if (type === 'podcasts') {
+            loadedFeeds = loadedFeeds.filter(f => f.isPodcast === true || f.category === 'Podcast' || f.type === 'podcasts');
+          } else if (type === 'rss' || type === 'feeds') {
+            loadedFeeds = loadedFeeds.filter(f => (!f.url || (!f.url.includes('youtube.com') && !f.url.includes('youtu.be'))) && !f.isPodcast && f.type !== 'podcasts');
+          }
+          
+          setFeeds(loadedFeeds);
+          try {
+            safeLocalStorageSetItem(`cached_feeds_${type}`, JSON.stringify(loadedFeeds));
+          } catch (err) {}
+          setLoadingFeeds(false);
+          setLoadingItems(false);
+          if (loadedFeeds.length === 0) {
+            setIsSyncing(false);
+            setSyncProgress(100);
+            try {
+              sessionStorage.setItem(`rsser_session_synced_${type}`, 'true');
+            } catch (e) {}
+          }
+        }, (error) => {
+          setLoadingFeeds(false);
+          setLoadingItems(false);
+          if (!error.message?.includes('CANCELLED')) {
+             handleFirestoreError(error, OperationType.LIST, `users/${user.uid}/feeds`);
+          }
+        });
+
+        const savedRef = collection(db, 'users', user.uid, 'savedItems');
+        unsubscribeSaved = onSnapshot(savedRef, (snapshot) => {
+          const dict: any = {};
+          snapshot.docs.forEach(d => {
+            dict[d.id] = d.data();
+          });
+          setSavedItemsDb(dict);
+        }, (error) => {
+          if (!error.message?.includes('CANCELLED')) {
+             handleFirestoreError(error, OperationType.LIST, `users/${user.uid}/savedItems`);
+          }
+        });
+
+        const readRef = collection(db, 'users', user.uid, 'readItems');
+        unsubscribeRead = onSnapshot(readRef, (snapshot) => {
+          const dict: { [key: string]: boolean } = {};
+          snapshot.docs.forEach(d => {
+            const data = d.data();
+            if (data.itemId) {
+              dict[data.itemId] = true;
+            }
+          });
+          setReadItemsDb(dict);
+        }, (error) => {
+          if (!error.message?.includes('CANCELLED')) {
+             handleFirestoreError(error, OperationType.LIST, `users/${user.uid}/readItems`);
+          }
+        });
+      } else {
+        setFeeds([]);
+        setFeedItems([]);
+        setSavedItemsDb({});
+        setReadItemsDb({});
+        setLoadingFeeds(false);
+        setLoadingItems(false);
+        setIsSyncing(false);
+        setSyncProgress(100);
+      }
+    });
+
+    return () => {
+      unsubscribeAuth();
+      if (unsubscribeFeeds) unsubscribeFeeds();
+      if (unsubscribeSaved) unsubscribeSaved();
+      if (unsubscribeRead) unsubscribeRead();
+    };
+  }, [type]);
+
+  useEffect(() => {
+    let isCancelled = false;
+
+    const fetchAllFeedItems = async () => {
+      if (feeds.length === 0) {
+        if (!isCancelled) {
+          setFeedItems([]);
+          setIsSyncing(false);
+          setLoadingItems(false);
+          setSyncProgress(100);
+          try {
+            sessionStorage.setItem(`rsser_session_synced_${type}`, 'true');
+          } catch (e) {}
+        }
+        isFetchingRef.current = false;
+        return;
+      }
+      
+      // Prevent re-fetching if URLs haven't changed
+      if (lastFetchedUrlsRef.current === feedUrlsKey && feedItems.length > 0) {
+        return;
+      }
+      
+      const urlsChanged = lastFetchedUrlsRef.current !== feedUrlsKey;
+      
+      if (isFetchingRef.current) return;
+      isFetchingRef.current = true;
+      lastFetchedUrlsRef.current = feedUrlsKey;
+      
+      // 1. Instantly load cache in one synchronous swoop!
+      const initialCachedItems: RssItem[] = [];
+      const currentPublicSources = publicSourcesRef.current;
+      
+      feeds.forEach(feed => {
+        if (feed.url) {
+          const cacheId = encodeURIComponent(feed.url).replace(/[.#$/\[\]]/g, '_').substring(0, 500);
+          try {
+             const localKey = 'rss_v5_' + cacheId;
+             const localData = localStorage.getItem(localKey);
+             if (localData) {
+                const parsedLocal = JSON.parse(localData);
+                const responseData = parsedLocal.data;
+                if (responseData) {
+                  const pSource = currentPublicSources.find(p => p.url === feed.url || p.blogId === feed.id);
+                  const faviconUrl = pSource?.imageUrl || pSource?.authorAvatar || feed.imageUrl || getFavicon(feed.url) || getFavicon(responseData.link || '');
+                  
+                  const items = (responseData.items || [])
+                     .filter((item: any) => item && item.title && typeof item.title === 'string' && item.title.trim() !== '' && item.title.trim().toLowerCase() !== 'ohne titel')
+                     .map((item: any) => {
+                        const isYoutubeItem = item.link?.includes('youtube.com') || item.link?.includes('youtu.be');
+                        let ytThumbnail = null;
+                        if (isYoutubeItem) {
+                            const videoId = getOutputVideoId(item.link);
+                            if (videoId) ytThumbnail = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+                        }
+                        let parsedImageUrl = item.imageUrl || item.image?.url;
+                        if (isYoutubeItem && ytThumbnail && !parsedImageUrl) parsedImageUrl = ytThumbnail;
+                        if (!parsedImageUrl && !isYoutubeItem && !feed.isPodcast) {
+                            const htmlContent = item.content || item['content:encoded'] || item.contentEncoded || item.description || item.summary || '';
+                            parsedImageUrl = extractHtmlImage(htmlContent);
+                        }
+
+                        return {
+                            id: item.guid || item.link || Math.random().toString(),
+                            title: item.title,
+                            link: item.link,
+                            pubDate: item.pubDate,
+                            contentSnippet: item.contentSnippet,
+                            feedTitle: feed.title || responseData.title || feed.url,
+                            feedId: feed.id,
+                            feedUrl: feed.url,
+                            feedImageUrl: feed.imageUrl && feed.imageUrl.startsWith('http://') ? feed.imageUrl.replace('http://', 'https://') : feed.imageUrl,
+                            timestamp: (!isNaN(new Date(item.pubDate).getTime())) ? new Date(item.pubDate).getTime() : Date.now(),
+                            imageUrl: parsedImageUrl ? (parsedImageUrl.startsWith('http://') ? parsedImageUrl.replace('http://', 'https://') : parsedImageUrl) : null,
+                            faviconUrl: faviconUrl && faviconUrl.startsWith('http://') ? faviconUrl.replace('http://', 'https://') : faviconUrl,
+                            category: feed.category || FEED_CATEGORIES[0],
+                            enclosure: item.enclosure
+                        };
+                     });
+                  initialCachedItems.push(...items);
+                }
+             }
+          } catch(e) {}
+        }
+      });
+
+      // ONLY show fullscreen syncing indicator if we haven't synced in this session, and are not in an on-the-fly background sync mode
+      let alreadySyncedInSession = false;
+      try {
+        alreadySyncedInSession = sessionStorage.getItem(`rsser_session_synced_${type}`) === 'true';
+      } catch (e) {}
+
+      const isOnyTheFlyMode = type === 'podcasts' || type === 'youtube' || type === 'radio';
+
+      setLoadingItems(true);
+      if (!alreadySyncedInSession && !isOnyTheFlyMode) {
+         setIsSyncing(true);
+         setSyncProgress(0);
+      } else {
+         setIsSyncing(false);
+      }
+
+      if (!isCancelled) {
+        if (initialCachedItems.length > 0) {
+           const seen = new Set<string>();
+           const uniqueItems = initialCachedItems.filter(item => {
+             const key = item.id || item.link;
+             if (key && !seen.has(key)) {
+               seen.add(key);
+               return true;
+             }
+             return false;
+           }).sort((a, b) => b.timestamp - a.timestamp);
+           setFeedItems(uniqueItems);
+        } else {
+           // Only clear if empty
+           if (feedItems.length === 0) {
+              setFeedItems([]);
+           }
+        }
+      }
+      
+      // Use a buffer to batch updates to feedItems to prevent excessive re-renders
+      let itemBuffer: RssItem[] = [];
+      let flushTimeout: any = null;
+      
+      const flushBuffer = () => {
+        if (isCancelled || itemBuffer.length === 0) return;
+        
+        const itemsToProcess = [...itemBuffer];
+        itemBuffer = [];
+        
+        setFeedItems(prev => {
+          const incomingFeedIds = new Set(itemsToProcess.map(i => i.feedId));
+          const filtered = prev.filter(i => !incomingFeedIds.has(i.feedId));
+          const merged = [...filtered, ...itemsToProcess];
+          
+          const seen = new Set<string>();
+          const deduped = merged.filter(item => {
+            const key = item.id || item.link;
+            if (key && !seen.has(key)) {
+              seen.add(key);
+              return true;
+            }
+            return false;
+          }).sort((a, b) => b.timestamp - a.timestamp);
+          
+          if (deduped.length >= 10) {
+            setIsSyncing(false);
+          }
+          
+          return deduped;
+        });
+      };
+
+      const requestFlush = () => {
+        if (flushTimeout) return;
+        flushTimeout = setTimeout(() => {
+          flushTimeout = null;
+          flushBuffer();
+        }, 120); // Flush every 120ms for much snappier updates
+      };
+
+      let activeCount = feeds.length;
+      let finishedCount = 0;
+      
+      // Concurrency limit for background fetching (increased for faster startup)
+      const CONCURRENCY_LIMIT = 24;
+      const feedsToProcess = [...feeds];
+      let running = 0;
+      let index = 0;
+
+      const processNext = async () => {
+        if (isCancelled || index >= feedsToProcess.length) return;
+        
+        const feed = feedsToProcess[index++];
+        running++;
+
+        try {
+          if (!feed.url) {
+             // Skip
+          } else {
+             // External RSS
+             const cacheId = encodeURIComponent(feed.url).replace(/[.#$/\[\]]/g, '_').substring(0, 500);
+        try {
+          localStorage.removeItem('rss_v5_' + cacheId);
+        } catch (e) {}
+      }
+    });
+    
+    // Reset fetch blocks
+    lastFetchedUrlsRef.current = "";
+    forceBypassRef.current = true;
+    setFailedImages({});
+    imageFetchAttemptsRef.current.clear();
+    
+    // Clear the session synced flag on manual sync to allow hard sync
+    try {
+      sessionStorage.removeItem(`rsser_session_synced_${type}`);
+    } catch (e) {}
+    
+    // Clear feed items & trigger fetch effect
+    setFeedItems([]);
+    setRefreshTick(prev => prev + 1);
+  };
+  
+  // Keep the ref up to date without triggering the fetch effect
+  useEffect(() => {
+    publicSourcesRef.current = publicSources;
+  }, [publicSources]);
+
+  // Memoize feed URLs to prevent effect re-triggering when metadata changes
+  const feedUrlsKey = useMemo(() => feeds.map(f => f.url || f.id).sort().join('|'), [feeds]);
+  
+  const categories = useMemo(() => {
+    const base = [
+      "Alle", 
+      type === 'podcasts' ? "Später hören" : type === 'youtube' ? "Später sehen" : "Später lesen", 
+      "Favoriten"
+    ];
+    
+    const cats = new Set<string>();
+    feeds.forEach(f => {
+      if (f.category && f.category !== 'Radio') {
+        cats.add(f.category);
+      }
+    });
+    
+    // Sort the user categories but keep base categories at start
+    return [...base, ...Array.from(cats).sort()];
+  }, [feeds, type]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const channelParam = params.get('channel');
+    const stateChannel = location.state?.selectedChannelId;
+    
+    if (channelParam) {
+      setSelectedChannelId(channelParam);
+    } else if (stateChannel) {
+      setSelectedChannelId(stateChannel);
+    } else {
+      setSelectedChannelId(null);
+    }
+  }, [location.pathname, location.search, location.state, type]);
+  
+  const viewMode = (type === 'youtube' || type === 'podcasts') 
+    ? 'grid' 
+    : (settings.viewMode === 'magazine' && type !== 'rss' && type !== 'feeds' && type !== 'all')
+      ? 'grid'
+      : (settings.viewMode || 'list');
+
+  // extract video ID simply
+  const getOutputVideoId = (url: string) => {
+    if (!url) return null;
+    const match = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?|live)\/|.*[?&]v=|shorts\/)|youtu\.be\/)([^"&?\/\s]{11})/i);
+    return match ? match[1] : null;
+  };
+
+  useEffect(() => {
+    // Fetch public sources from server API instead of direct Firestore to save reads
+    const fetchSources = async () => {
+      try {
+        const res = await fetch('/api/public-sources');
+        const contentType = res.headers.get('content-type') || '';
+        if (res.ok && contentType.includes('application/json')) {
+          const data = await res.json();
+          if (Array.isArray(data) && data.length > 0) {
+            setPublicSources(data);
+          }
+        }
+      } catch (e) {
+        // Silently continue with local defaults
+      }
+    };
+    fetchSources();
+  }, []);
+
+  useEffect(() => {
+    if (viewMode !== 'magazine') return;
+    
+    let isCancelled = false;
+    let timer: any = null;
+
+    const loadPool = async () => {
+      const getFeedsOfType = (t: string): any[] => {
+        const subscribed = feeds.filter(f => f.type === t);
+        if (subscribed.length > 0) {
+          return subscribed;
+        }
+
+        const discovery: any[] = publicSources.filter(s => s.type === t);
+
+        const userLang = (settings.language || 'de').toLowerCase();
+        const filteredDiscovery = discovery.filter(s => {
+          const feedLang = (s.language || '').toLowerCase();
+          if (!feedLang || feedLang === 'none') {
+            return true;
+          }
+          const cleanUserLang = userLang.split('-')[0];
+          const cleanFeedLang = feedLang.split('-')[0];
+          return cleanUserLang === cleanFeedLang;
+        });
+
+        if (filteredDiscovery.length === 0) {
+          return discovery;
+        }
+
+        return filteredDiscovery;
+      };
+
+      const podcastFeeds = getFeedsOfType('podcasts');
+      const youtubeFeeds = getFeedsOfType('youtube');
+
+      const fetchFeedsItems = async (feedsList: any[], maxCount: number) => {
+        const selected = [...feedsList].sort(() => 0.5 - Math.random()).slice(0, 3);
+        
+        const itemPromises = selected.map(async (f) => {
+          try {
+            const cacheId = encodeURIComponent(f.url).replace(/[.#$/\[\]]/g, '_').substring(0, 500);
+            const cached = localStorage.getItem('rss_v5_' + cacheId);
+            if (cached) {
+              const parsedLocal = JSON.parse(cached);
+              const responseData = parsedLocal.data || parsedLocal;
+              if (responseData && responseData.items && responseData.items.length > 0) {
+                return responseData.items.slice(0, 3).map((item: any) => ({
+                  ...item,
+                  feedTitle: f.title || responseData.title || f.url,
+                  feedId: f.id || '',
+                  feedUrl: f.url,
+                  category: f.category || '',
+                  timestamp: new Date(item.pubDate).getTime() || Date.now()
+                }));
+              }
+            }
+          } catch (e) {}
+
+          try {
+            const res = await fetch('/api/rss', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ url: f.url, maxDays: 14 })
+            });
+            if (res.ok) {
+              const freshData = await res.json();
+              if (freshData && freshData.items) {
+                return freshData.items.slice(0, 3).map((item: any) => ({
+                  ...item,
+                  feedTitle: f.title || freshData.title || f.url,
+                  feedId: f.id || '',
+                  feedUrl: f.url,
+                  category: f.category || '',
+                  timestamp: new Date(item.pubDate).getTime() || Date.now()
+                }));
+              }
+            }
+          } catch (e) {}
+          return [];
+        });
+
+        const results = await Promise.all(itemPromises);
+        return results.flat();
+      };
+
+      const [pItems, yItems] = await Promise.all([
+        fetchFeedsItems(podcastFeeds, 3),
+        fetchFeedsItems(youtubeFeeds, 3)
+      ]);
+
+      if (!isCancelled) {
+        setInterspersePool({
+          podcasts: pItems.sort(() => 0.5 - Math.random()),
+          youtube: yItems.sort(() => 0.5 - Math.random())
+        });
+      }
+    };
+
+    // Delay pool loading slightly to allow main thread and main feed requests to execute first
+    timer = setTimeout(() => {
+      loadPool();
+    }, 450);
+
+    return () => {
+      isCancelled = true;
+      if (timer) clearTimeout(timer);
+    };
+  }, [viewMode, feeds, publicSources, settings.language]);
+
+  useEffect(() => {
+    let hasLoadedCachedFeeds = false;
+    let hasCachedItems = false;
+    try {
+      const cachedFeeds = localStorage.getItem(`cached_feeds_${type}`);
+      const cachedItems = localStorage.getItem(`cached_items_${type}`);
+      if (cachedFeeds) {
+        setFeeds(JSON.parse(cachedFeeds));
+        hasLoadedCachedFeeds = true;
+      } else {
+        setFeeds([]);
+      }
+      if (cachedItems) {
+        const parsed = JSON.parse(cachedItems);
+        const cleaned = Array.isArray(parsed) ? parsed.map((item: any) => ({
+          ...item,
+          imageUrl: proxyImageUrl(item.imageUrl)
+        })) : [];
+        setFeedItems(cleaned);
+        if (cleaned && cleaned.length > 0) {
+          hasCachedItems = true;
+        }
+      } else {
+        setFeedItems([]);
+      }
+    } catch (e) {
+      setFeeds([]);
+      setFeedItems([]);
+    }
+
+    // Hydrate richer caches asynchronously from IndexedDB
+    getCachedCategoryItems(type).then((idbItems) => {
+      if (idbItems && idbItems.length > 0) {
+        const cleanedIdb = idbItems.map((item: any) => ({
+          ...item,
+          imageUrl: proxyImageUrl(item.imageUrl)
+        }));
+        setFeedItems(prev => {
+          if (!prev || prev.length === 0) return cleanedIdb;
+          return prev;
+        });
+      }
+    }).catch(() => {});
+
+    getCachedCategoryFeeds(type).then((idbFeeds) => {
+      if (idbFeeds && idbFeeds.length > 0) {
+        setFeeds(prev => {
+          if (!prev || prev.length === 0) return idbFeeds;
+          return prev;
+        });
+        setLoadingFeeds(false);
+      }
+    }).catch(() => {});
+
+    setLoadingFeeds(!hasLoadedCachedFeeds);
+    let alreadySynced = false;
+    try {
+      alreadySynced = sessionStorage.getItem(`rsser_session_synced_${type}`) === 'true';
+    } catch (e) {}
+
+    const isOnyTheFlyMode = type === 'podcasts' || type === 'youtube' || type === 'radio';
+    if (!alreadySynced && !isOnyTheFlyMode) {
+      setIsSyncing(true);
+      setSyncProgress(0);
+    } else {
+      setIsSyncing(false);
+    }
+    let unsubscribeFeeds: (() => void) | undefined;
+    let unsubscribeSaved: (() => void) | undefined;
+    let unsubscribeRead: (() => void) | undefined;
+    
+    const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
+      // First clean up any existing listeners if auth state changes
+      if (unsubscribeFeeds) unsubscribeFeeds();
+      if (unsubscribeSaved) unsubscribeSaved();
+      if (unsubscribeRead) unsubscribeRead();
+
+      if (user) {
+        const feedsRef = collection(db, 'users', user.uid, 'feeds');
+        const q = query(feedsRef);
+        
+        unsubscribeFeeds = onSnapshot(q, (snapshot) => {
+          let loadedFeeds = snapshot.docs.map(d => {
+            const data = d.data();
+            const mappedCat = data.category === 'Technik' ? 'Tech' : data.category;
+            return {
+              id: d.id,
+              ...data,
+              category: mappedCat
+            } as Feed;
+          });
+          
+          if (type === 'youtube') {
+            loadedFeeds = loadedFeeds.filter(f => (f.category === 'YouTube' || f.type === 'youtube' || (f.url && (f.url.includes('youtube.com') || f.url.includes('youtu.be')))));
+          } else if (type === 'podcasts') {
+            loadedFeeds = loadedFeeds.filter(f => f.isPodcast === true || f.category === 'Podcast' || f.type === 'podcasts');
+          } else if (type === 'rss' || type === 'feeds') {
+            loadedFeeds = loadedFeeds.filter(f => (!f.url || (!f.url.includes('youtube.com') && !f.url.includes('youtu.be'))) && !f.isPodcast && f.type !== 'podcasts');
+          }
+          
+          setFeeds(loadedFeeds);
+          try {
+            safeLocalStorageSetItem(`cached_feeds_${type}`, JSON.stringify(loadedFeeds));
+          } catch (err) {}
+          setLoadingFeeds(false);
+          setLoadingItems(false);
+          if (loadedFeeds.length === 0) {
+            setIsSyncing(false);
+            setSyncProgress(100);
+            try {
+              sessionStorage.setItem(`rsser_session_synced_${type}`, 'true');
+            } catch (e) {}
+          }
+        }, (error) => {
+          setLoadingFeeds(false);
+          setLoadingItems(false);
+          if (!error.message?.includes('CANCELLED')) {
+             handleFirestoreError(error, OperationType.LIST, `users/${user.uid}/feeds`);
+          }
+        });
+
+        const savedRef = collection(db, 'users', user.uid, 'savedItems');
+        unsubscribeSaved = onSnapshot(savedRef, (snapshot) => {
+          const dict: any = {};
+          snapshot.docs.forEach(d => {
+            dict[d.id] = d.data();
+          });
+          setSavedItemsDb(dict);
+        }, (error) => {
+          if (!error.message?.includes('CANCELLED')) {
+             handleFirestoreError(error, OperationType.LIST, `users/${user.uid}/savedItems`);
+          }
+        });
+
+        const readRef = collection(db, 'users', user.uid, 'readItems');
+        unsubscribeRead = onSnapshot(readRef, (snapshot) => {
+          const dict: { [key: string]: boolean } = {};
+          snapshot.docs.forEach(d => {
+            const data = d.data();
+            if (data.itemId) {
+              dict[data.itemId] = true;
+            }
+          });
+          setReadItemsDb(dict);
+        }, (error) => {
+          if (!error.message?.includes('CANCELLED')) {
+             handleFirestoreError(error, OperationType.LIST, `users/${user.uid}/readItems`);
+          }
+        });
+      } else {
+        setFeeds([]);
+        setFeedItems([]);
+        setSavedItemsDb({});
+        setReadItemsDb({});
+        setLoadingFeeds(false);
+        setLoadingItems(false);
+        setIsSyncing(false);
+        setSyncProgress(100);
+      }
+    });
+
+    return () => {
+      unsubscribeAuth();
+      if (unsubscribeFeeds) unsubscribeFeeds();
+      if (unsubscribeSaved) unsubscribeSaved();
+      if (unsubscribeRead) unsubscribeRead();
+    };
+  }, [type]);
+
+  useEffect(() => {
+    let isCancelled = false;
+
+    const fetchAllFeedItems = async () => {
+      if (feeds.length === 0) {
+        if (!isCancelled) {
+          setFeedItems([]);
+          setIsSyncing(false);
+          setLoadingItems(false);
+          setSyncProgress(100);
+          try {
+            sessionStorage.setItem(`rsser_session_synced_${type}`, 'true');
+          } catch (e) {}
+        }
+        isFetchingRef.current = false;
+        return;
+      }
+      
+      // Prevent re-fetching if URLs haven't changed
+      if (lastFetchedUrlsRef.current === feedUrlsKey && feedItems.length > 0) {
+        return;
+      }
+      
+      const urlsChanged = lastFetchedUrlsRef.current !== feedUrlsKey;
+      
+      if (isFetchingRef.current) return;
+      isFetchingRef.current = true;
+      lastFetchedUrlsRef.current = feedUrlsKey;
+      
+      // 1. Instantly load cache in one synchronous swoop!
+      const initialCachedItems: RssItem[] = [];
+      const currentPublicSources = publicSourcesRef.current;
+      
+      feeds.forEach(feed => {
+        if (feed.url) {
+          const cacheId = encodeURIComponent(feed.url).replace(/[.#$/\[\]]/g, '_').substring(0, 500);
+          try {
+             const localKey = 'rss_v5_' + cacheId;
+             const localData = localStorage.getItem(localKey);
+             if (localData) {
+                const parsedLocal = JSON.parse(localData);
+                const responseData = parsedLocal.data;
+                if (responseData) {
+                  const pSource = currentPublicSources.find(p => p.url === feed.url || p.blogId === feed.id);
+                  const faviconUrl = pSource?.imageUrl || pSource?.authorAvatar || feed.imageUrl || getFavicon(feed.url) || getFavicon(responseData.link || '');
+                  
+                  const items = (responseData.items || [])
+                     .filter((item: any) => item && item.title && typeof item.title === 'string' && item.title.trim() !== '' && item.title.trim().toLowerCase() !== 'ohne titel')
+                     .map((item: any) => {
+                        const isYoutubeItem = item.link?.includes('youtube.com') || item.link?.includes('youtu.be');
+                        let ytThumbnail = null;
+                        if (isYoutubeItem) {
+                            const videoId = getOutputVideoId(item.link);
+                            if (videoId) ytThumbnail = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+                        }
+                        let parsedImageUrl = item.imageUrl || item.image?.url;
+                        if (isYoutubeItem && ytThumbnail && !parsedImageUrl) parsedImageUrl = ytThumbnail;
+                        if (!parsedImageUrl && !isYoutubeItem && !feed.isPodcast) {
+                            const htmlContent = item.content || item['content:encoded'] || item.contentEncoded || item.description || item.summary || '';
+                            parsedImageUrl = extractHtmlImage(htmlContent);
+                        }
+
+                        return {
+                            id: item.guid || item.link || Math.random().toString(),
+                            title: item.title,
+                            link: item.link,
+                            pubDate: item.pubDate,
+                            contentSnippet: item.contentSnippet,
+                            feedTitle: feed.title || responseData.title || feed.url,
+                            feedId: feed.id,
+                            feedUrl: feed.url,
+                            feedImageUrl: feed.imageUrl && feed.imageUrl.startsWith('http://') ? feed.imageUrl.replace('http://', 'https://') : feed.imageUrl,
+                            timestamp: (!isNaN(new Date(item.pubDate).getTime())) ? new Date(item.pubDate).getTime() : Date.now(),
+                            imageUrl: parsedImageUrl ? (parsedImageUrl.startsWith('http://') ? parsedImageUrl.replace('http://', 'https://') : parsedImageUrl) : null,
+                            faviconUrl: faviconUrl && faviconUrl.startsWith('http://') ? faviconUrl.replace('http://', 'https://') : faviconUrl,
+                            category: feed.category || FEED_CATEGORIES[0],
+                            enclosure: item.enclosure
+                        };
+                     });
+                  initialCachedItems.push(...items);
+                }
+             }
+          } catch(e) {}
+        }
+      });
+
+      // ONLY show fullscreen syncing indicator if we haven't synced in this session, and are not in an on-the-fly background sync mode
+      let alreadySyncedInSession = false;
+      try {
+        alreadySyncedInSession = sessionStorage.getItem(`rsser_session_synced_${type}`) === 'true';
+      } catch (e) {}
+
+      const isOnyTheFlyMode = type === 'podcasts' || type === 'youtube' || type === 'radio';
+
+      setLoadingItems(true);
+      if (!alreadySyncedInSession && !isOnyTheFlyMode) {
+         setIsSyncing(true);
+         setSyncProgress(0);
+      } else {
+         setIsSyncing(false);
+      }
+
+      if (!isCancelled) {
+        if (initialCachedItems.length > 0) {
+           const seen = new Set<string>();
+           const uniqueItems = initialCachedItems.filter(item => {
+             const key = item.id || item.link;
+             if (key && !seen.has(key)) {
+               seen.add(key);
+               return true;
+             }
+             return false;
+           }).sort((a, b) => b.timestamp - a.timestamp);
+           setFeedItems(uniqueItems);
+        } else {
+           // Only clear if empty
+           if (feedItems.length === 0) {
+              setFeedItems([]);
+           }
+        }
+      }
+      
+      // Use a buffer to batch updates to feedItems to prevent excessive re-renders
+      let itemBuffer: RssItem[] = [];
+      let flushTimeout: any = null;
+      
+      const flushBuffer = () => {
+        if (isCancelled || itemBuffer.length === 0) return;
+        
+        const itemsToProcess = [...itemBuffer];
+        itemBuffer = [];
+        
+        setFeedItems(prev => {
+          const incomingFeedIds = new Set(itemsToProcess.map(i => i.feedId));
+          const filtered = prev.filter(i => !incomingFeedIds.has(i.feedId));
+          const merged = [...filtered, ...itemsToProcess];
+          
+          const seen = new Set<string>();
+          const deduped = merged.filter(item => {
+            const key = item.id || item.link;
+            if (key && !seen.has(key)) {
+              seen.add(key);
+              return true;
+            }
+            return false;
+          }).sort((a, b) => b.timestamp - a.timestamp);
+          
+          if (deduped.length >= 10) {
+            setIsSyncing(false);
+          }
+          
+          return deduped;
+        });
+      };
+
+      const requestFlush = () => {
+        if (flushTimeout) return;
+        flushTimeout = setTimeout(() => {
+          flushTimeout = null;
+          flushBuffer();
+        }, 120); // Flush every 120ms for much snappier updates
+      };
+
+      let activeCount = feeds.length;
+      let finishedCount = 0;
+      
+      // Concurrency limit for background fetching (increased for faster startup)
+      const CONCURRENCY_LIMIT = 24;
+      const feedsToProcess = [...feeds];
+      let running = 0;
+      let index = 0;
+
+      const processNext = async () => {
+        if (isCancelled || index >= feedsToProcess.length) return;
+        
+        const feed = feedsToProcess[index++];
+        running++;
+
+        try {
+          if (!feed.url) {
+             // Skip
+          } else {
+             // External RSS
+             const cacheId = encodeURIComponent(feed.url).replace(/[.#$/\[\]]/g, '_').substring(0, 500);
+        try {
+          localStorage.removeItem('rss_v5_' + cacheId);
+        } catch (e) {}
+      }
+    });
+    
+    // Reset fetch blocks
+    lastFetchedUrlsRef.current = "";
+    forceBypassRef.current = true;
+    setFailedImages({});
+    imageFetchAttemptsRef.current.clear();
+    
+    // Clear the session synced flag on manual sync to allow hard sync
+    try {
+      sessionStorage.removeItem(`rsser_session_synced_${type}`);
+    } catch (e) {}
+    
+    // Clear feed items & trigger fetch effect
+    setFeedItems([]);
+    setRefreshTick(prev => prev + 1);
+  };
+  
+  // Keep the ref up to date without triggering the fetch effect
+  useEffect(() => {
+    publicSourcesRef.current = publicSources;
+  }, [publicSources]);
+
+  // Memoize feed URLs to prevent effect re-triggering when metadata changes
+  const feedUrlsKey = useMemo(() => feeds.map(f => f.url || f.id).sort().join('|'), [feeds]);
+  
+  const categories = useMemo(() => {
+    const base = [
+      "Alle", 
+      type === 'podcasts' ? "Später hören" : type === 'youtube' ? "Später sehen" : "Später lesen", 
+      "Favoriten"
+    ];
+    
+    const cats = new Set<string>();
+    feeds.forEach(f => {
+      if (f.category && f.category !== 'Radio') {
+        cats.add(f.category);
+      }
+    });
+    
+    // Sort the user categories but keep base categories at start
+    return [...base, ...Array.from(cats).sort()];
+  }, [feeds, type]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const channelParam = params.get('channel');
+    const stateChannel = location.state?.selectedChannelId;
+    
+    if (channelParam) {
+      setSelectedChannelId(channelParam);
+    } else if (stateChannel) {
+      setSelectedChannelId(stateChannel);
+    } else {
+      setSelectedChannelId(null);
+    }
+  }, [location.pathname, location.search, location.state, type]);
+  
+  const viewMode = (type === 'youtube' || type === 'podcasts') 
+    ? 'grid' 
+    : (settings.viewMode === 'magazine' && type !== 'rss' && type !== 'feeds' && type !== 'all')
+      ? 'grid'
+      : (settings.viewMode || 'list');
+
+  // extract video ID simply
+  const getOutputVideoId = (url: string) => {
+    if (!url) return null;
+    const match = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?|live)\/|.*[?&]v=|shorts\/)|youtu\.be\/)([^"&?\/\s]{11})/i);
+    return match ? match[1] : null;
+  };
+
+  useEffect(() => {
+    // Fetch public sources from server API instead of direct Firestore to save reads
+    const fetchSources = async () => {
+      try {
+        const res = await fetch('/api/public-sources');
+        const contentType = res.headers.get('content-type') || '';
+        if (res.ok && contentType.includes('application/json')) {
+          const data = await res.json();
+          if (Array.isArray(data) && data.length > 0) {
+            setPublicSources(data);
+          }
+        }
+      } catch (e) {
+        // Silently continue with local defaults
+      }
+    };
+    fetchSources();
+  }, []);
+
+  useEffect(() => {
+    if (viewMode !== 'magazine') return;
+    
+    let isCancelled = false;
+    let timer: any = null;
+
+    const loadPool = async () => {
+      const getFeedsOfType = (t: string): any[] => {
+        const subscribed = feeds.filter(f => f.type === t);
+        if (subscribed.length > 0) {
+          return subscribed;
+        }
+
+        const discovery: any[] = publicSources.filter(s => s.type === t);
+
+        const userLang = (settings.language || 'de').toLowerCase();
+        const filteredDiscovery = discovery.filter(s => {
+          const feedLang = (s.language || '').toLowerCase();
+          if (!feedLang || feedLang === 'none') {
+            return true;
+          }
+          const cleanUserLang = userLang.split('-')[0];
+          const cleanFeedLang = feedLang.split('-')[0];
+          return cleanUserLang === cleanFeedLang;
+        });
+
+        if (filteredDiscovery.length === 0) {
+          return discovery;
+        }
+
+        return filteredDiscovery;
+      };
+
+      const podcastFeeds = getFeedsOfType('podcasts');
+      const youtubeFeeds = getFeedsOfType('youtube');
+
+      const fetchFeedsItems = async (feedsList: any[], maxCount: number) => {
+        const selected = [...feedsList].sort(() => 0.5 - Math.random()).slice(0, 3);
+        
+        const itemPromises = selected.map(async (f) => {
+          try {
+            const cacheId = encodeURIComponent(f.url).replace(/[.#$/\[\]]/g, '_').substring(0, 500);
+            const cached = localStorage.getItem('rss_v5_' + cacheId);
+            if (cached) {
+              const parsedLocal = JSON.parse(cached);
+              const responseData = parsedLocal.data || parsedLocal;
+              if (responseData && responseData.items && responseData.items.length > 0) {
+                return responseData.items.slice(0, 3).map((item: any) => ({
+                  ...item,
+                  feedTitle: f.title || responseData.title || f.url,
+                  feedId: f.id || '',
+                  feedUrl: f.url,
+                  category: f.category || '',
+                  timestamp: new Date(item.pubDate).getTime() || Date.now()
+                }));
+              }
+            }
+          } catch (e) {}
+
+          try {
+            const res = await fetch('/api/rss', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ url: f.url, maxDays: 14 })
+            });
+            if (res.ok) {
+              const freshData = await res.json();
+              if (freshData && freshData.items) {
+                return freshData.items.slice(0, 3).map((item: any) => ({
+                  ...item,
+                  feedTitle: f.title || freshData.title || f.url,
+                  feedId: f.id || '',
+                  feedUrl: f.url,
+                  category: f.category || '',
+                  timestamp: new Date(item.pubDate).getTime() || Date.now()
+                }));
+              }
+            }
+          } catch (e) {}
+          return [];
+        });
+
+        const results = await Promise.all(itemPromises);
+        return results.flat();
+      };
+
+      const [pItems, yItems] = await Promise.all([
+        fetchFeedsItems(podcastFeeds, 3),
+        fetchFeedsItems(youtubeFeeds, 3)
+      ]);
+
+      if (!isCancelled) {
+        setInterspersePool({
+          podcasts: pItems.sort(() => 0.5 - Math.random()),
+          youtube: yItems.sort(() => 0.5 - Math.random())
+        });
+      }
+    };
+
+    // Delay pool loading slightly to allow main thread and main feed requests to execute first
+    timer = setTimeout(() => {
+      loadPool();
+    }, 450);
+
+    return () => {
+      isCancelled = true;
+      if (timer) clearTimeout(timer);
+    };
+  }, [viewMode, feeds, publicSources, settings.language]);
+
+  useEffect(() => {
+    let hasLoadedCachedFeeds = false;
+    let hasCachedItems = false;
+    try {
+      const cachedFeeds = localStorage.getItem(`cached_feeds_${type}`);
+      const cachedItems = localStorage.getItem(`cached_items_${type}`);
+      if (cachedFeeds) {
+        setFeeds(JSON.parse(cachedFeeds));
+        hasLoadedCachedFeeds = true;
+      } else {
+        setFeeds([]);
+      }
+      if (cachedItems) {
+        const parsed = JSON.parse(cachedItems);
+        const cleaned = Array.isArray(parsed) ? parsed.map((item: any) => ({
+          ...item,
+          imageUrl: proxyImageUrl(item.imageUrl)
+        })) : [];
+        setFeedItems(cleaned);
+        if (cleaned && cleaned.length > 0) {
+          hasCachedItems = true;
+        }
+      } else {
+        setFeedItems([]);
+      }
+    } catch (e) {
+      setFeeds([]);
+      setFeedItems([]);
+    }
+
+    // Hydrate richer caches asynchronously from IndexedDB
+    getCachedCategoryItems(type).then((idbItems) => {
+      if (idbItems && idbItems.length > 0) {
+        const cleanedIdb = idbItems.map((item: any) => ({
+          ...item,
+          imageUrl: proxyImageUrl(item.imageUrl)
+        }));
+        setFeedItems(prev => {
+          if (!prev || prev.length === 0) return cleanedIdb;
+          return prev;
+        });
+      }
+    }).catch(() => {});
+
+    getCachedCategoryFeeds(type).then((idbFeeds) => {
+      if (idbFeeds && idbFeeds.length > 0) {
+        setFeeds(prev => {
+          if (!prev || prev.length === 0) return idbFeeds;
+          return prev;
+        });
+        setLoadingFeeds(false);
+      }
+    }).catch(() => {});
+
+    setLoadingFeeds(!hasLoadedCachedFeeds);
+    let alreadySynced = false;
+    try {
+      alreadySynced = sessionStorage.getItem(`rsser_session_synced_${type}`) === 'true';
+    } catch (e) {}
+
+    const isOnyTheFlyMode = type === 'podcasts' || type === 'youtube' || type === 'radio';
+    if (!alreadySynced && !isOnyTheFlyMode) {
+      setIsSyncing(true);
+      setSyncProgress(0);
+    } else {
+      setIsSyncing(false);
+    }
+    let unsubscribeFeeds: (() => void) | undefined;
+    let unsubscribeSaved: (() => void) | undefined;
+    let unsubscribeRead: (() => void) | undefined;
+    
+    const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
+      // First clean up any existing listeners if auth state changes
+      if (unsubscribeFeeds) unsubscribeFeeds();
+      if (unsubscribeSaved) unsubscribeSaved();
+      if (unsubscribeRead) unsubscribeRead();
+
+      if (user) {
+        const feedsRef = collection(db, 'users', user.uid, 'feeds');
+        const q = query(feedsRef);
+        
+        unsubscribeFeeds = onSnapshot(q, (snapshot) => {
+          let loadedFeeds = snapshot.docs.map(d => {
+            const data = d.data();
+            const mappedCat = data.category === 'Technik' ? 'Tech' : data.category;
+            return {
+              id: d.id,
+              ...data,
+              category: mappedCat
+            } as Feed;
+          });
+          
+          if (type === 'youtube') {
+            loadedFeeds = loadedFeeds.filter(f => (f.category === 'YouTube' || f.type === 'youtube' || (f.url && (f.url.includes('youtube.com') || f.url.includes('youtu.be')))));
+          } else if (type === 'podcasts') {
+            loadedFeeds = loadedFeeds.filter(f => f.isPodcast === true || f.category === 'Podcast' || f.type === 'podcasts');
+          } else if (type === 'rss' || type === 'feeds') {
+            loadedFeeds = loadedFeeds.filter(f => (!f.url || (!f.url.includes('youtube.com') && !f.url.includes('youtu.be'))) && !f.isPodcast && f.type !== 'podcasts');
+          }
+          
+          setFeeds(loadedFeeds);
+          try {
+            safeLocalStorageSetItem(`cached_feeds_${type}`, JSON.stringify(loadedFeeds));
+          } catch (err) {}
+          setLoadingFeeds(false);
+          setLoadingItems(false);
+          if (loadedFeeds.length === 0) {
+            setIsSyncing(false);
+            setSyncProgress(100);
+            try {
+              sessionStorage.setItem(`rsser_session_synced_${type}`, 'true');
+            } catch (e) {}
+          }
+        }, (error) => {
+          setLoadingFeeds(false);
+          setLoadingItems(false);
+          if (!error.message?.includes('CANCELLED')) {
+             handleFirestoreError(error, OperationType.LIST, `users/${user.uid}/feeds`);
+          }
+        });
+
+        const savedRef = collection(db, 'users', user.uid, 'savedItems');
+        unsubscribeSaved = onSnapshot(savedRef, (snapshot) => {
+          const dict: any = {};
+          snapshot.docs.forEach(d => {
+            dict[d.id] = d.data();
+          });
+          setSavedItemsDb(dict);
+        }, (error) => {
+          if (!error.message?.includes('CANCELLED')) {
+             handleFirestoreError(error, OperationType.LIST, `users/${user.uid}/savedItems`);
+          }
+        });
+
+        const readRef = collection(db, 'users', user.uid, 'readItems');
+        unsubscribeRead = onSnapshot(readRef, (snapshot) => {
+          const dict: { [key: string]: boolean } = {};
+          snapshot.docs.forEach(d => {
+            const data = d.data();
+            if (data.itemId) {
+              dict[data.itemId] = true;
+            }
+          });
+          setReadItemsDb(dict);
+        }, (error) => {
+          if (!error.message?.includes('CANCELLED')) {
+             handleFirestoreError(error, OperationType.LIST, `users/${user.uid}/readItems`);
+          }
+        });
+      } else {
+        setFeeds([]);
+        setFeedItems([]);
+        setSavedItemsDb({});
+        setReadItemsDb({});
+        setLoadingFeeds(false);
+        setLoadingItems(false);
+        setIsSyncing(false);
+        setSyncProgress(100);
+      }
+    });
+
+    return () => {
+      unsubscribeAuth();
+      if (unsubscribeFeeds) unsubscribeFeeds();
+      if (unsubscribeSaved) unsubscribeSaved();
+      if (unsubscribeRead) unsubscribeRead();
+    };
+  }, [type]);
+
+  useEffect(() => {
+    let isCancelled = false;
+
+    const fetchAllFeedItems = async () => {
+      if (feeds.length === 0) {
+        if (!isCancelled) {
+          setFeedItems([]);
+          setIsSyncing(false);
+          setLoadingItems(false);
+          setSyncProgress(100);
+          try {
+            sessionStorage.setItem(`rsser_session_synced_${type}`, 'true');
+          } catch (e) {}
+        }
+        isFetchingRef.current = false;
+        return;
+      }
+      
+      // Prevent re-fetching if URLs haven't changed
+      if (lastFetchedUrlsRef.current === feedUrlsKey && feedItems.length > 0) {
+        return;
+      }
+      
+      const urlsChanged = lastFetchedUrlsRef.current !== feedUrlsKey;
+      
+      if (isFetchingRef.current) return;
+      isFetchingRef.current = true;
+      lastFetchedUrlsRef.current = feedUrlsKey;
+      
+      // 1. Instantly load cache in one synchronous swoop!
+      const initialCachedItems: RssItem[] = [];
+      const currentPublicSources = publicSourcesRef.current;
+      
+      feeds.forEach(feed => {
+        if (feed.url) {
+          const cacheId = encodeURIComponent(feed.url).replace(/[.#$/\[\]]/g, '_').substring(0, 500);
+          try {
+             const localKey = 'rss_v5_' + cacheId;
+             const localData = localStorage.getItem(localKey);
+             if (localData) {
+                const parsedLocal = JSON.parse(localData);
+                const responseData = parsedLocal.data;
+                if (responseData) {
+                  const pSource = currentPublicSources.find(p => p.url === feed.url || p.blogId === feed.id);
+                  const faviconUrl = pSource?.imageUrl || pSource?.authorAvatar || feed.imageUrl || getFavicon(feed.url) || getFavicon(responseData.link || '');
+                  
+                  const items = (responseData.items || [])
+                     .filter((item: any) => item && item.title && typeof item.title === 'string' && item.title.trim() !== '' && item.title.trim().toLowerCase() !== 'ohne titel')
+                     .map((item: any) => {
+                        const isYoutubeItem = item.link?.includes('youtube.com') || item.link?.includes('youtu.be');
+                        let ytThumbnail = null;
+                        if (isYoutubeItem) {
+                            const videoId = getOutputVideoId(item.link);
+                            if (videoId) ytThumbnail = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+                        }
+                        let parsedImageUrl = item.imageUrl || item.image?.url;
+                        if (isYoutubeItem && ytThumbnail && !parsedImageUrl) parsedImageUrl = ytThumbnail;
+                        if (!parsedImageUrl && !isYoutubeItem && !feed.isPodcast) {
+                            const htmlContent = item.content || item['content:encoded'] || item.contentEncoded || item.description || item.summary || '';
+                            parsedImageUrl = extractHtmlImage(htmlContent);
+                        }
+
+                        return {
+                            id: item.guid || item.link || Math.random().toString(),
+                            title: item.title,
+                            link: item.link,
+                            pubDate: item.pubDate,
+                            contentSnippet: item.contentSnippet,
+                            feedTitle: feed.title || responseData.title || feed.url,
+                            feedId: feed.id,
+                            feedUrl: feed.url,
+                            feedImageUrl: feed.imageUrl && feed.imageUrl.startsWith('http://') ? feed.imageUrl.replace('http://', 'https://') : feed.imageUrl,
+                            timestamp: (!isNaN(new Date(item.pubDate).getTime())) ? new Date(item.pubDate).getTime() : Date.now(),
+                            imageUrl: parsedImageUrl ? (parsedImageUrl.startsWith('http://') ? parsedImageUrl.replace('http://', 'https://') : parsedImageUrl) : null,
+                            faviconUrl: faviconUrl && faviconUrl.startsWith('http://') ? faviconUrl.replace('http://', 'https://') : faviconUrl,
+                            category: feed.category || FEED_CATEGORIES[0],
+                            enclosure: item.enclosure
+                        };
+                     });
+                  initialCachedItems.push(...items);
+                }
+             }
+          } catch(e) {}
+        }
+      });
+
+      // ONLY show fullscreen syncing indicator if we haven't synced in this session, and are not in an on-the-fly background sync mode
+      let alreadySyncedInSession = false;
+      try {
+        alreadySyncedInSession = sessionStorage.getItem(`rsser_session_synced_${type}`) === 'true';
+      } catch (e) {}
+
+      const isOnyTheFlyMode = type === 'podcasts' || type === 'youtube' || type === 'radio';
+
+      setLoadingItems(true);
+      if (!alreadySyncedInSession && !isOnyTheFlyMode) {
+         setIsSyncing(true);
+         setSyncProgress(0);
+      } else {
+         setIsSyncing(false);
+      }
+
+      if (!isCancelled) {
+        if (initialCachedItems.length > 0) {
+           const seen = new Set<string>();
+           const uniqueItems = initialCachedItems.filter(item => {
+             const key = item.id || item.link;
+             if (key && !seen.has(key)) {
+               seen.add(key);
+               return true;
+             }
+             return false;
+           }).sort((a, b) => b.timestamp - a.timestamp);
+           setFeedItems(uniqueItems);
+        } else {
+           // Only clear if empty
+           if (feedItems.length === 0) {
+              setFeedItems([]);
+           }
+        }
+      }
+      
+      // Use a buffer to batch updates to feedItems to prevent excessive re-renders
+      let itemBuffer: RssItem[] = [];
+      let flushTimeout: any = null;
+      
+      const flushBuffer = () => {
+        if (isCancelled || itemBuffer.length === 0) return;
+        
+        const itemsToProcess = [...itemBuffer];
+        itemBuffer = [];
+        
+        setFeedItems(prev => {
+          const incomingFeedIds = new Set(itemsToProcess.map(i => i.feedId));
+          const filtered = prev.filter(i => !incomingFeedIds.has(i.feedId));
+          const merged = [...filtered, ...itemsToProcess];
+          
+          const seen = new Set<string>();
+          const deduped = merged.filter(item => {
+            const key = item.id || item.link;
+            if (key && !seen.has(key)) {
+              seen.add(key);
+              return true;
+            }
+            return false;
+          }).sort((a, b) => b.timestamp - a.timestamp);
+          
+          if (deduped.length >= 10) {
+            setIsSyncing(false);
+          }
+          
+          return deduped;
+        });
+      };
+
+      const requestFlush = () => {
+        if (flushTimeout) return;
+        flushTimeout = setTimeout(() => {
+          flushTimeout = null;
+          flushBuffer();
+        }, 120); // Flush every 120ms for much snappier updates
+      };
+
+      let activeCount = feeds.length;
+      let finishedCount = 0;
+      
+      // Concurrency limit for background fetching (increased for faster startup)
+      const CONCURRENCY_LIMIT = 24;
+      const feedsToProcess = [...feeds];
+      let running = 0;
+      let index = 0;
+
+      const processNext = async () => {
+        if (isCancelled || index >= feedsToProcess.length) return;
+        
+        const feed = feedsToProcess[index++];
+        running++;
+
+        try {
+          if (!feed.url) {
+             // Skip
+          } else {
+             // External RSS
+             const cacheId = encodeURIComponent(feed.url).replace(/[.#$/\[\]]/g, '_').substring(0, 500);
+        try {
+          localStorage.removeItem('rss_v5_' + cacheId);
+        } catch (e) {}
+      }
+    });
+    
+    // Reset fetch blocks
+    lastFetchedUrlsRef.current = "";
+    forceBypassRef.current = true;
+    setFailedImages({});
+    imageFetchAttemptsRef.current.clear();
+    
+    // Clear the session synced flag on manual sync to allow hard sync
+    try {
+      sessionStorage.removeItem(`rsser_session_synced_${type}`);
+    } catch (e) {}
+    
+    // Clear feed items & trigger fetch effect
+    setFeedItems([]);
+    setRefreshTick(prev => prev + 1);
+  };
+  
+  // Keep the ref up to date without triggering the fetch effect
+  useEffect(() => {
+    publicSourcesRef.current = publicSources;
+  }, [publicSources]);
+
+  // Memoize feed URLs to prevent effect re-triggering when metadata changes
+  const feedUrlsKey = useMemo(() => feeds.map(f => f.url || f.id).sort().join('|'), [feeds]);
+  
+  const categories = useMemo(() => {
+    const base = [
+      "Alle", 
+      type === 'podcasts' ? "Später hören" : type === 'youtube' ? "Später sehen" : "Später lesen", 
+      "Favoriten"
+    ];
+    
+    const cats = new Set<string>();
+    feeds.forEach(f => {
+      if (f.category && f.category !== 'Radio') {
+        cats.add(f.category);
+      }
+    });
+    
+    // Sort the user categories but keep base categories at start
+    return [...base, ...Array.from(cats).sort()];
+  }, [feeds, type]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const channelParam = params.get('channel');
+    const stateChannel = location.state?.selectedChannelId;
+    
+    if (channelParam) {
+      setSelectedChannelId(channelParam);
+    } else if (stateChannel) {
+      setSelectedChannelId(stateChannel);
+    } else {
+      setSelectedChannelId(null);
+    }
+  }, [location.pathname, location.search, location.state, type]);
+  
+  const viewMode = (type === 'youtube' || type === 'podcasts') 
+    ? 'grid' 
+    : (settings.viewMode === 'magazine' && type !== 'rss' && type !== 'feeds' && type !== 'all')
+      ? 'grid'
+      : (settings.viewMode || 'list');
+
+  // extract video ID simply
+  const getOutputVideoId = (url: string) => {
+    if (!url) return null;
+    const match = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?|live)\/|.*[?&]v=|shorts\/)|youtu\.be\/)([^"&?\/\s]{11})/i);
+    return match ? match[1] : null;
+  };
+
+  useEffect(() => {
+    // Fetch public sources from server API instead of direct Firestore to save reads
+    const fetchSources = async () => {
+      try {
+        const res = await fetch('/api/public-sources');
+        const contentType = res.headers.get('content-type') || '';
+        if (res.ok && contentType.includes('application/json')) {
+          const data = await res.json();
+          if (Array.isArray(data) && data.length > 0) {
+            setPublicSources(data);
+          }
+        }
+      } catch (e) {
+        // Silently continue with local defaults
+      }
+    };
+    fetchSources();
+  }, []);
+
+  useEffect(() => {
+    if (viewMode !== 'magazine') return;
+    
+    let isCancelled = false;
+    let timer: any = null;
+
+    const loadPool = async () => {
+      const getFeedsOfType = (t: string): any[] => {
+        const subscribed = feeds.filter(f => f.type === t);
+        if (subscribed.length > 0) {
+          return subscribed;
+        }
+
+        const discovery: any[] = publicSources.filter(s => s.type === t);
+
+        const userLang = (settings.language || 'de').toLowerCase();
+        const filteredDiscovery = discovery.filter(s => {
+          const feedLang = (s.language || '').toLowerCase();
+          if (!feedLang || feedLang === 'none') {
+            return true;
+          }
+          const cleanUserLang = userLang.split('-')[0];
+          const cleanFeedLang = feedLang.split('-')[0];
+          return cleanUserLang === cleanFeedLang;
+        });
+
+        if (filteredDiscovery.length === 0) {
+          return discovery;
+        }
+
+        return filteredDiscovery;
+      };
+
+      const podcastFeeds = getFeedsOfType('podcasts');
+      const youtubeFeeds = getFeedsOfType('youtube');
+
+      const fetchFeedsItems = async (feedsList: any[], maxCount: number) => {
+        const selected = [...feedsList].sort(() => 0.5 - Math.random()).slice(0, 3);
+        
+        const itemPromises = selected.map(async (f) => {
+          try {
+            const cacheId = encodeURIComponent(f.url).replace(/[.#$/\[\]]/g, '_').substring(0, 500);
+            const cached = localStorage.getItem('rss_v5_' + cacheId);
+            if (cached) {
+              const parsedLocal = JSON.parse(cached);
+              const responseData = parsedLocal.data || parsedLocal;
+              if (responseData && responseData.items && responseData.items.length > 0) {
+                return responseData.items.slice(0, 3).map((item: any) => ({
+                  ...item,
+                  feedTitle: f.title || responseData.title || f.url,
+                  feedId: f.id || '',
+                  feedUrl: f.url,
+                  category: f.category || '',
+                  timestamp: new Date(item.pubDate).getTime() || Date.now()
+                }));
+              }
+            }
+          } catch (e) {}
+
+          try {
+            const res = await fetch('/api/rss', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ url: f.url, maxDays: 14 })
+            });
+            if (res.ok) {
+              const freshData = await res.json();
+              if (freshData && freshData.items) {
+                return freshData.items.slice(0, 3).map((item: any) => ({
+                  ...item,
+                  feedTitle: f.title || freshData.title || f.url,
+                  feedId: f.id || '',
+                  feedUrl: f.url,
+                  category: f.category || '',
+                  timestamp: new Date(item.pubDate).getTime() || Date.now()
+                }));
+              }
+            }
+          } catch (e) {}
+          return [];
+        });
+
+        const results = await Promise.all(itemPromises);
+        return results.flat();
+      };
+
+      const [pItems, yItems] = await Promise.all([
+        fetchFeedsItems(podcastFeeds, 3),
+        fetchFeedsItems(youtubeFeeds, 3)
+      ]);
+
+      if (!isCancelled) {
+        setInterspersePool({
+          podcasts: pItems.sort(() => 0.5 - Math.random()),
+          youtube: yItems.sort(() => 0.5 - Math.random())
+        });
+      }
+    };
+
+    // Delay pool loading slightly to allow main thread and main feed requests to execute first
+    timer = setTimeout(() => {
+      loadPool();
+    }, 450);
+
+    return () => {
+      isCancelled = true;
+      if (timer) clearTimeout(timer);
+    };
+  }, [viewMode, feeds, publicSources, settings.language]);
+
+  useEffect(() => {
+    let hasLoadedCachedFeeds = false;
+    let hasCachedItems = false;
+    try {
+      const cachedFeeds = localStorage.getItem(`cached_feeds_${type}`);
+      const cachedItems = localStorage.getItem(`cached_items_${type}`);
+      if (cachedFeeds) {
+        setFeeds(JSON.parse(cachedFeeds));
+        hasLoadedCachedFeeds = true;
+      } else {
+        setFeeds([]);
+      }
+      if (cachedItems) {
+        const parsed = JSON.parse(cachedItems);
+        const cleaned = Array.isArray(parsed) ? parsed.map((item: any) => ({
+          ...item,
+          imageUrl: proxyImageUrl(item.imageUrl)
+        })) : [];
+        setFeedItems(cleaned);
+        if (cleaned && cleaned.length > 0) {
+          hasCachedItems = true;
+        }
+      } else {
+        setFeedItems([]);
+      }
+    } catch (e) {
+      setFeeds([]);
+      setFeedItems([]);
+    }
+
+    // Hydrate richer caches asynchronously from IndexedDB
+    getCachedCategoryItems(type).then((idbItems) => {
+      if (idbItems && idbItems.length > 0) {
+        const cleanedIdb = idbItems.map((item: any) => ({
+          ...item,
+          imageUrl: proxyImageUrl(item.imageUrl)
+        }));
+        setFeedItems(prev => {
+          if (!prev || prev.length === 0) return cleanedIdb;
+          return prev;
+        });
+      }
+    }).catch(() => {});
+
+    getCachedCategoryFeeds(type).then((idbFeeds) => {
+      if (idbFeeds && idbFeeds.length > 0) {
+        setFeeds(prev => {
+          if (!prev || prev.length === 0) return idbFeeds;
+          return prev;
+        });
+        setLoadingFeeds(false);
+      }
+    }).catch(() => {});
+
+    setLoadingFeeds(!hasLoadedCachedFeeds);
+    let alreadySynced = false;
+    try {
+      alreadySynced = sessionStorage.getItem(`rsser_session_synced_${type}`) === 'true';
+    } catch (e) {}
+
+    const isOnyTheFlyMode = type === 'podcasts' || type === 'youtube' || type === 'radio';
+    if (!alreadySynced && !isOnyTheFlyMode) {
+      setIsSyncing(true);
+      setSyncProgress(0);
+    } else {
+      setIsSyncing(false);
+    }
+    let unsubscribeFeeds: (() => void) | undefined;
+    let unsubscribeSaved: (() => void) | undefined;
+    let unsubscribeRead: (() => void) | undefined;
+    
+    const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
+      // First clean up any existing listeners if auth state changes
+      if (unsubscribeFeeds) unsubscribeFeeds();
+      if (unsubscribeSaved) unsubscribeSaved();
+      if (unsubscribeRead) unsubscribeRead();
+
+      if (user) {
+        const feedsRef = collection(db, 'users', user.uid, 'feeds');
+        const q = query(feedsRef);
+        
+        unsubscribeFeeds = onSnapshot(q, (snapshot) => {
+          let loadedFeeds = snapshot.docs.map(d => {
+            const data = d.data();
+            const mappedCat = data.category === 'Technik' ? 'Tech' : data.category;
+            return {
+              id: d.id,
+              ...data,
+              category: mappedCat
+            } as Feed;
+          });
+          
+          if (type === 'youtube') {
+            loadedFeeds = loadedFeeds.filter(f => (f.category === 'YouTube' || f.type === 'youtube' || (f.url && (f.url.includes('youtube.com') || f.url.includes('youtu.be')))));
+          } else if (type === 'podcasts') {
+            loadedFeeds = loadedFeeds.filter(f => f.isPodcast === true || f.category === 'Podcast' || f.type === 'podcasts');
+          } else if (type === 'rss' || type === 'feeds') {
+            loadedFeeds = loadedFeeds.filter(f => (!f.url || (!f.url.includes('youtube.com') && !f.url.includes('youtu.be'))) && !f.isPodcast && f.type !== 'podcasts');
+          }
+          
+          setFeeds(loadedFeeds);
+          try {
+            safeLocalStorageSetItem(`cached_feeds_${type}`, JSON.stringify(loadedFeeds));
+          } catch (err) {}
+          setLoadingFeeds(false);
+          setLoadingItems(false);
+          if (loadedFeeds.length === 0) {
+            setIsSyncing(false);
+            setSyncProgress(100);
+            try {
+              sessionStorage.setItem(`rsser_session_synced_${type}`, 'true');
+            } catch (e) {}
+          }
+        }, (error) => {
+          setLoadingFeeds(false);
+          setLoadingItems(false);
+          if (!error.message?.includes('CANCELLED')) {
+             handleFirestoreError(error, OperationType.LIST, `users/${user.uid}/feeds`);
+          }
+        });
+
+        const savedRef = collection(db, 'users', user.uid, 'savedItems');
+        unsubscribeSaved = onSnapshot(savedRef, (snapshot) => {
+          const dict: any = {};
+          snapshot.docs.forEach(d => {
+            dict[d.id] = d.data();
+          });
+          setSavedItemsDb(dict);
+        }, (error) => {
+          if (!error.message?.includes('CANCELLED')) {
+             handleFirestoreError(error, OperationType.LIST, `users/${user.uid}/savedItems`);
+          }
+        });
+
+        const readRef = collection(db, 'users', user.uid, 'readItems');
+        unsubscribeRead = onSnapshot(readRef, (snapshot) => {
+          const dict: { [key: string]: boolean } = {};
+          snapshot.docs.forEach(d => {
+            const data = d.data();
+            if (data.itemId) {
+              dict[data.itemId] = true;
+            }
+          });
+          setReadItemsDb(dict);
+        }, (error) => {
+          if (!error.message?.includes('CANCELLED')) {
+             handleFirestoreError(error, OperationType.LIST, `users/${user.uid}/readItems`);
+          }
+        });
+      } else {
+        setFeeds([]);
+        setFeedItems([]);
+        setSavedItemsDb({});
+        setReadItemsDb({});
+        setLoadingFeeds(false);
+        setLoadingItems(false);
+        setIsSyncing(false);
+        setSyncProgress(100);
+      }
+    });
+
+    return () => {
+      unsubscribeAuth();
+      if (unsubscribeFeeds) unsubscribeFeeds();
+      if (unsubscribeSaved) unsubscribeSaved();
+      if (unsubscribeRead) unsubscribeRead();
+    };
+  }, [type]);
+
+  useEffect(() => {
+    let isCancelled = false;
+
+    const fetchAllFeedItems = async () => {
+      if (feeds.length === 0) {
+        if (!isCancelled) {
+          setFeedItems([]);
+          setIsSyncing(false);
+          setLoadingItems(false);
+          setSyncProgress(100);
+          try {
+            sessionStorage.setItem(`rsser_session_synced_${type}`, 'true');
+          } catch (e) {}
+        }
+        isFetchingRef.current = false;
+        return;
+      }
+      
+      // Prevent re-fetching if URLs haven't changed
+      if (lastFetchedUrlsRef.current === feedUrlsKey && feedItems.length > 0) {
+        return;
+      }
+      
+      const urlsChanged = lastFetchedUrlsRef.current !== feedUrlsKey;
+      
+      if (isFetchingRef.current) return;
+      isFetchingRef.current = true;
+      lastFetchedUrlsRef.current = feedUrlsKey;
+      
+      // 1. Instantly load cache in one synchronous swoop!
+      const initialCachedItems: RssItem[] = [];
+      const currentPublicSources = publicSourcesRef.current;
+      
+      feeds.forEach(feed => {
+        if (feed.url) {
+          const cacheId = encodeURIComponent(feed.url).replace(/[.#$/\[\]]/g, '_').substring(0, 500);
+          try {
+             const localKey = 'rss_v5_' + cacheId;
+             const localData = localStorage.getItem(localKey);
+             if (localData) {
+                const parsedLocal = JSON.parse(localData);
+                const responseData = parsedLocal.data;
+                if (responseData) {
+                  const pSource = currentPublicSources.find(p => p.url === feed.url || p.blogId === feed.id);
+                  const faviconUrl = pSource?.imageUrl || pSource?.authorAvatar || feed.imageUrl || getFavicon(feed.url) || getFavicon(responseData.link || '');
+                  
+                  const items = (responseData.items || [])
+                     .filter((item: any) => item && item.title && typeof item.title === 'string' && item.title.trim() !== '' && item.title.trim().toLowerCase() !== 'ohne titel')
+                     .map((item: any) => {
+                        const isYoutubeItem = item.link?.includes('youtube.com') || item.link?.includes('youtu.be');
+                        let ytThumbnail = null;
+                        if (isYoutubeItem) {
+                            const videoId = getOutputVideoId(item.link);
+                            if (videoId) ytThumbnail = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+                        }
+                        let parsedImageUrl = item.imageUrl || item.image?.url;
+                        if (isYoutubeItem && ytThumbnail && !parsedImageUrl) parsedImageUrl = ytThumbnail;
+                        if (!parsedImageUrl && !isYoutubeItem && !feed.isPodcast) {
+                            const htmlContent = item.content || item['content:encoded'] || item.contentEncoded || item.description || item.summary || '';
+                            parsedImageUrl = extractHtmlImage(htmlContent);
+                        }
+
+                        return {
+                            id: item.guid || item.link || Math.random().toString(),
+                            title: item.title,
+                            link: item.link,
+                            pubDate: item.pubDate,
+                            contentSnippet: item.contentSnippet,
+                            feedTitle: feed.title || responseData.title || feed.url,
+                            feedId: feed.id,
+                            feedUrl: feed.url,
+                            feedImageUrl: feed.imageUrl && feed.imageUrl.startsWith('http://') ? feed.imageUrl.replace('http://', 'https://') : feed.imageUrl,
+                            timestamp: (!isNaN(new Date(item.pubDate).getTime())) ? new Date(item.pubDate).getTime() : Date.now(),
+                            imageUrl: parsedImageUrl ? (parsedImageUrl.startsWith('http://') ? parsedImageUrl.replace('http://', 'https://') : parsedImageUrl) : null,
+                            faviconUrl: faviconUrl && faviconUrl.startsWith('http://') ? faviconUrl.replace('http://', 'https://') : faviconUrl,
+                            category: feed.category || FEED_CATEGORIES[0],
+                            enclosure: item.enclosure
+                        };
+                     });
+                  initialCachedItems.push(...items);
+                }
+             }
+          } catch(e) {}
+        }
+      });
+
+      // ONLY show fullscreen syncing indicator if we haven't synced in this session, and are not in an on-the-fly background sync mode
+      let alreadySyncedInSession = false;
+      try {
+        alreadySyncedInSession = sessionStorage.getItem(`rsser_session_synced_${type}`) === 'true';
+      } catch (e) {}
+
+      const isOnyTheFlyMode = type === 'podcasts' || type === 'youtube' || type === 'radio';
+
+      setLoadingItems(true);
+      if (!alreadySyncedInSession && !isOnyTheFlyMode) {
+         setIsSyncing(true);
+         setSyncProgress(0);
+      } else {
+         setIsSyncing(false);
+      }
+
+      if (!isCancelled) {
+        if (initialCachedItems.length > 0) {
+           const seen = new Set<string>();
+           const uniqueItems = initialCachedItems.filter(item => {
+             const key = item.id || item.link;
+             if (key && !seen.has(key)) {
+               seen.add(key);
+               return true;
+             }
+             return false;
+           }).sort((a, b) => b.timestamp - a.timestamp);
+           setFeedItems(uniqueItems);
+        } else {
+           // Only clear if empty
+           if (feedItems.length === 0) {
+              setFeedItems([]);
+           }
+        }
+      }
+      
+      // Use a buffer to batch updates to feedItems to prevent excessive re-renders
+      let itemBuffer: RssItem[] = [];
+      let flushTimeout: any = null;
+      
+      const flushBuffer = () => {
+        if (isCancelled || itemBuffer.length === 0) return;
+        
+        const itemsToProcess = [...itemBuffer];
+        itemBuffer = [];
+        
+        setFeedItems(prev => {
+          const incomingFeedIds = new Set(itemsToProcess.map(i => i.feedId));
+          const filtered = prev.filter(i => !incomingFeedIds.has(i.feedId));
+          const merged = [...filtered, ...itemsToProcess];
+          
+          const seen = new Set<string>();
+          const deduped = merged.filter(item => {
+            const key = item.id || item.link;
+            if (key && !seen.has(key)) {
+              seen.add(key);
+              return true;
+            }
+            return false;
+          }).sort((a, b) => b.timestamp - a.timestamp);
+          
+          if (deduped.length >= 10) {
+            setIsSyncing(false);
+          }
+          
+          return deduped;
+        });
+      };
+
+      const requestFlush = () => {
+        if (flushTimeout) return;
+        flushTimeout = setTimeout(() => {
+          flushTimeout = null;
+          flushBuffer();
+        }, 120); // Flush every 120ms for much snappier updates
+      };
+
+      let activeCount = feeds.length;
+      let finishedCount = 0;
+      
+      // Concurrency limit for background fetching (increased for faster startup)
+      const CONCURRENCY_LIMIT = 24;
+      const feedsToProcess = [...feeds];
+      let running = 0;
+      let index = 0;
+
+      const processNext = async () => {
+        if (isCancelled || index >= feedsToProcess.length) return;
+        
+        const feed = feedsToProcess[index++];
+        running++;
+
+        try {
+          if (!feed.url) {
+             // Skip
+          } else {
+             // External RSS
+             const cacheId = encodeURIComponent(feed.url).replace(/[.#$/\[\]]/g, '_').substring(0, 500);
+        try {
+          localStorage.removeItem('rss_v5_' + cacheId);
+        } catch (e) {}
+      }
+    });
+    
+    // Reset fetch blocks
+    lastFetchedUrlsRef.current = "";
+    forceBypassRef.current = true;
+    setFailedImages({});
+    imageFetchAttemptsRef.current.clear();
+    
+    // Clear the session synced flag on manual sync to allow hard sync
+    try {
+      sessionStorage.removeItem(`rsser_session_synced_${type}`);
+    } catch (e) {}
+    
+    // Clear feed items & trigger fetch effect
+    setFeedItems([]);
+    setRefreshTick(prev => prev + 1);
+  };
+  
+  // Keep the ref up to date without triggering the fetch effect
+  useEffect(() => {
+    publicSourcesRef.current = publicSources;
+  }, [publicSources]);
+
+  // Memoize feed URLs to prevent effect re-triggering when metadata changes
+  const feedUrlsKey = useMemo(() => feeds.map(f => f.url || f.id).sort().join('|'), [feeds]);
+  
+  const categories = useMemo(() => {
+    const base = [
+      "Alle", 
+      type === 'podcasts' ? "Später hören" : type === 'youtube' ? "Später sehen" : "Später lesen", 
+      "Favoriten"
+    ];
+    
+    const cats = new Set<string>();
+    feeds.forEach(f => {
+      if (f.category && f.category !== 'Radio') {
+        cats.add(f.category);
+      }
+    });
+    
+    // Sort the user categories but keep base categories at start
+    return [...base, ...Array.from(cats).sort()];
+  }, [feeds, type]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const channelParam = params.get('channel');
+    const stateChannel = location.state?.selectedChannelId;
+    
+    if (channelParam) {
+      setSelectedChannelId(channelParam);
+    } else if (stateChannel) {
+      setSelectedChannelId(stateChannel);
+    } else {
+      setSelectedChannelId(null);
+    }
+  }, [location.pathname, location.search, location.state, type]);
+  
+  const viewMode = (type === 'youtube' || type === 'podcasts') 
+    ? 'grid' 
+    : (settings.viewMode === 'magazine' && type !== 'rss' && type !== 'feeds' && type !== 'all')
+      ? 'grid'
+      : (settings.viewMode || 'list');
+
+  // extract video ID simply
+  const getOutputVideoId = (url: string) => {
+    if (!url) return null;
+    const match = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?|live)\/|.*[?&]v=|shorts\/)|youtu\.be\/)([^"&?\/\s]{11})/i);
+    return match ? match[1] : null;
+  };
+
+  useEffect(() => {
+    // Fetch public sources from server API instead of direct Firestore to save reads
+    const fetchSources = async () => {
+      try {
+        const res = await fetch('/api/public-sources');
+        const contentType = res.headers.get('content-type') || '';
+        if (res.ok && contentType.includes('application/json')) {
+          const data = await res.json();
+          if (Array.isArray(data) && data.length > 0) {
+            setPublicSources(data);
+          }
+        }
+      } catch (e) {
+        // Silently continue with local defaults
+      }
+    };
+    fetchSources();
+  }, []);
+
+  useEffect(() => {
+    if (viewMode !== 'magazine') return;
+    
+    let isCancelled = false;
+    let timer: any = null;
+
+    const loadPool = async () => {
+      const getFeedsOfType = (t: string): any[] => {
+        const subscribed = feeds.filter(f => f.type === t);
+        if (subscribed.length > 0) {
+          return subscribed;
+        }
+
+        const discovery: any[] = publicSources.filter(s => s.type === t);
+
+        const userLang = (settings.language || 'de').toLowerCase();
+        const filteredDiscovery = discovery.filter(s => {
+          const feedLang = (s.language || '').toLowerCase();
+          if (!feedLang || feedLang === 'none') {
+            return true;
+          }
+          const cleanUserLang = userLang.split('-')[0];
+          const cleanFeedLang = feedLang.split('-')[0];
+          return cleanUserLang === cleanFeedLang;
+        });
+
+        if (filteredDiscovery.length === 0) {
+          return discovery;
+        }
+
+        return filteredDiscovery;
+      };
+
+      const podcastFeeds = getFeedsOfType('podcasts');
+      const youtubeFeeds = getFeedsOfType('youtube');
+
+      const fetchFeedsItems = async (feedsList: any[], maxCount: number) => {
+        const selected = [...feedsList].sort(() => 0.5 - Math.random()).slice(0, 3);
+        
+        const itemPromises = selected.map(async (f) => {
+          try {
+            const cacheId = encodeURIComponent(f.url).replace(/[.#$/\[\]]/g, '_').substring(0, 500);
+            const cached = localStorage.getItem('rss_v5_' + cacheId);
+            if (cached) {
+              const parsedLocal = JSON.parse(cached);
+              const responseData = parsedLocal.data || parsedLocal;
+              if (responseData && responseData.items && responseData.items.length > 0) {
+                return responseData.items.slice(0, 3).map((item: any) => ({
+                  ...item,
+                  feedTitle: f.title || responseData.title || f.url,
+                  feedId: f.id || '',
+                  feedUrl: f.url,
+                  category: f.category || '',
+                  timestamp: new Date(item.pubDate).getTime() || Date.now()
+                }));
+              }
+            }
+          } catch (e) {}
+
+          try {
+            const res = await fetch('/api/rss', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ url: f.url, maxDays: 14 })
+            });
+            if (res.ok) {
+              const freshData = await res.json();
+              if (freshData && freshData.items) {
+                return freshData.items.slice(0, 3).map((item: any) => ({
+                  ...item,
+                  feedTitle: f.title || freshData.title || f.url,
+                  feedId: f.id || '',
+                  feedUrl: f.url,
+                  category: f.category || '',
+                  timestamp: new Date(item.pubDate).getTime() || Date.now()
+                }));
+              }
+            }
+          } catch (e) {}
+          return [];
+        });
+
+        const results = await Promise.all(itemPromises);
+        return results.flat();
+      };
+
+      const [pItems, yItems] = await Promise.all([
+        fetchFeedsItems(podcastFeeds, 3),
+        fetchFeedsItems(youtubeFeeds, 3)
+      ]);
+
+      if (!isCancelled) {
+        setInterspersePool({
+          podcasts: pItems.sort(() => 0.5 - Math.random()),
+          youtube: yItems.sort(() => 0.5 - Math.random())
+        });
+      }
+    };
+
+    // Delay pool loading slightly to allow main thread and main feed requests to execute first
+    timer = setTimeout(() => {
+      loadPool();
+    }, 450);
+
+    return () => {
+      isCancelled = true;
+      if (timer) clearTimeout(timer);
+    };
+  }, [viewMode, feeds, publicSources, settings.language]);
+
+  useEffect(() => {
+    let hasLoadedCachedFeeds = false;
+    let hasCachedItems = false;
+    try {
+      const cachedFeeds = localStorage.getItem(`cached_feeds_${type}`);
+      const cachedItems = localStorage.getItem(`cached_items_${type}`);
+      if (cachedFeeds) {
+        setFeeds(JSON.parse(cachedFeeds));
+        hasLoadedCachedFeeds = true;
+      } else {
+        setFeeds([]);
+      }
+      if (cachedItems) {
+        const parsed = JSON.parse(cachedItems);
+        const cleaned = Array.isArray(parsed) ? parsed.map((item: any) => ({
+          ...item,
+          imageUrl: proxyImageUrl(item.imageUrl)
+        })) : [];
+        setFeedItems(cleaned);
+        if (cleaned && cleaned.length > 0) {
+          hasCachedItems = true;
+        }
+      } else {
+        setFeedItems([]);
+      }
+    } catch (e) {
+      setFeeds([]);
+      setFeedItems([]);
+    }
+
+    // Hydrate richer caches asynchronously from IndexedDB
+    getCachedCategoryItems(type).then((idbItems) => {
+      if (idbItems && idbItems.length > 0) {
+        const cleanedIdb = idbItems.map((item: any) => ({
+          ...item,
+          imageUrl: proxyImageUrl(item.imageUrl)
+        }));
+        setFeedItems(prev => {
+          if (!prev || prev.length === 0) return cleanedIdb;
+          return prev;
+        });
+      }
+    }).catch(() => {});
+
+    getCachedCategoryFeeds(type).then((idbFeeds) => {
+      if (idbFeeds && idbFeeds.length > 0) {
+        setFeeds(prev => {
+          if (!prev || prev.length === 0) return idbFeeds;
+          return prev;
+        });
+        setLoadingFeeds(false);
+      }
+    }).catch(() => {});
+
+    setLoadingFeeds(!hasLoadedCachedFeeds);
+    let alreadySynced = false;
+    try {
+      alreadySynced = sessionStorage.getItem(`rsser_session_synced_${type}`) === 'true';
+    } catch (e) {}
+
+    const isOnyTheFlyMode = type === 'podcasts' || type === 'youtube' || type === 'radio';
+    if (!alreadySynced && !isOnyTheFlyMode) {
+      setIsSyncing(true);
+      setSyncProgress(0);
+    } else {
+      setIsSyncing(false);
+    }
+    let unsubscribeFeeds: (() => void) | undefined;
+    let unsubscribeSaved: (() => void) | undefined;
+    let unsubscribeRead: (() => void) | undefined;
+    
+    const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
+      // First clean up any existing listeners if auth state changes
+      if (unsubscribeFeeds) unsubscribeFeeds();
+      if (unsubscribeSaved) unsubscribeSaved();
+      if (unsubscribeRead) unsubscribeRead();
+
+      if (user) {
+        const feedsRef = collection(db, 'users', user.uid, 'feeds');
+        const q = query(feedsRef);
+        
+        unsubscribeFeeds = onSnapshot(q, (snapshot) => {
+          let loadedFeeds = snapshot.docs.map(d => {
+            const data = d.data();
+            const mappedCat = data.category === 'Technik' ? 'Tech' : data.category;
+            return {
+              id: d.id,
+              ...data,
+              category: mappedCat
+            } as Feed;
+          });
+          
+          if (type === 'youtube') {
+            loadedFeeds = loadedFeeds.filter(f => (f.category === 'YouTube' || f.type === 'youtube' || (f.url && (f.url.includes('youtube.com') || f.url.includes('youtu.be')))));
+          } else if (type === 'podcasts') {
+            loadedFeeds = loadedFeeds.filter(f => f.isPodcast === true || f.category === 'Podcast' || f.type === 'podcasts');
+          } else if (type === 'rss' || type === 'feeds') {
+            loadedFeeds = loadedFeeds.filter(f => (!f.url || (!f.url.includes('youtube.com') && !f.url.includes('youtu.be'))) && !f.isPodcast && f.type !== 'podcasts');
+          }
+          
+          setFeeds(loadedFeeds);
+          try {
+            safeLocalStorageSetItem(`cached_feeds_${type}`, JSON.stringify(loadedFeeds));
+          } catch (err) {}
+          setLoadingFeeds(false);
+          setLoadingItems(false);
+          if (loadedFeeds.length === 0) {
+            setIsSyncing(false);
+            setSyncProgress(100);
+            try {
+              sessionStorage.setItem(`rsser_session_synced_${type}`, 'true');
+            } catch (e) {}
+          }
+        }, (error) => {
+          setLoadingFeeds(false);
+          setLoadingItems(false);
+          if (!error.message?.includes('CANCELLED')) {
+             handleFirestoreError(error, OperationType.LIST, `users/${user.uid}/feeds`);
+          }
+        });
+
+        const savedRef = collection(db, 'users', user.uid, 'savedItems');
+        unsubscribeSaved = onSnapshot(savedRef, (snapshot) => {
+          const dict: any = {};
+          snapshot.docs.forEach(d => {
+            dict[d.id] = d.data();
+          });
+          setSavedItemsDb(dict);
+        }, (error) => {
+          if (!error.message?.includes('CANCELLED')) {
+             handleFirestoreError(error, OperationType.LIST, `users/${user.uid}/savedItems`);
+          }
+        });
+
+        const readRef = collection(db, 'users', user.uid, 'readItems');
+        unsubscribeRead = onSnapshot(readRef, (snapshot) => {
+          const dict: { [key: string]: boolean } = {};
+          snapshot.docs.forEach(d => {
+            const data = d.data();
+            if (data.itemId) {
+              dict[data.itemId] = true;
+            }
+          });
+          setReadItemsDb(dict);
+        }, (error) => {
+          if (!error.message?.includes('CANCELLED')) {
+             handleFirestoreError(error, OperationType.LIST, `users/${user.uid}/readItems`);
+          }
+        });
+      } else {
+        setFeeds([]);
+        setFeedItems([]);
+        setSavedItemsDb({});
+        setReadItemsDb({});
+        setLoadingFeeds(false);
+        setLoadingItems(false);
+        setIsSyncing(false);
+        setSyncProgress(100);
+      }
+    });
+
+    return () => {
+      unsubscribeAuth();
+      if (unsubscribeFeeds) unsubscribeFeeds();
+      if (unsubscribeSaved) unsubscribeSaved();
+      if (unsubscribeRead) unsubscribeRead();
+    };
+  }, [type]);
+
+  useEffect(() => {
+    let isCancelled = false;
+
+    const fetchAllFeedItems = async () => {
+      if (feeds.length === 0) {
+        if (!isCancelled) {
+          setFeedItems([]);
+          setIsSyncing(false);
+          setLoadingItems(false);
+          setSyncProgress(100);
+          try {
+            sessionStorage.setItem(`rsser_session_synced_${type}`, 'true');
+          } catch (e) {}
+        }
+        isFetchingRef.current = false;
+        return;
+      }
+      
+      // Prevent re-fetching if URLs haven't changed
+      if (lastFetchedUrlsRef.current === feedUrlsKey && feedItems.length > 0) {
+        return;
+      }
+      
+      const urlsChanged = lastFetchedUrlsRef.current !== feedUrlsKey;
+      
+      if (isFetchingRef.current) return;
+      isFetchingRef.current = true;
+      lastFetchedUrlsRef.current = feedUrlsKey;
+      
+      // 1. Instantly load cache in one synchronous swoop!
+      const initialCachedItems: RssItem[] = [];
+      const currentPublicSources = publicSourcesRef.current;
+      
+      feeds.forEach(feed => {
+        if (feed.url) {
+          const cacheId = encodeURIComponent(feed.url).replace(/[.#$/\[\]]/g, '_').substring(0, 500);
+          try {
+             const localKey = 'rss_v5_' + cacheId;
+             const localData = localStorage.getItem(localKey);
+             if (localData) {
+                const parsedLocal = JSON.parse(localData);
+                const responseData = parsedLocal.data;
+                if (responseData) {
+                  const pSource = currentPublicSources.find(p => p.url === feed.url || p.blogId === feed.id);
+                  const faviconUrl = pSource?.imageUrl || pSource?.authorAvatar || feed.imageUrl || getFavicon(feed.url) || getFavicon(responseData.link || '');
+                  
+                  const items = (responseData.items || [])
+                     .filter((item: any) => item && item.title && typeof item.title === 'string' && item.title.trim() !== '' && item.title.trim().toLowerCase() !== 'ohne titel')
+                     .map((item: any) => {
+                        const isYoutubeItem = item.link?.includes('youtube.com') || item.link?.includes('youtu.be');
+                        let ytThumbnail = null;
+                        if (isYoutubeItem) {
+                            const videoId = getOutputVideoId(item.link);
+                            if (videoId) ytThumbnail = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+                        }
+                        let parsedImageUrl = item.imageUrl || item.image?.url;
+                        if (isYoutubeItem && ytThumbnail && !parsedImageUrl) parsedImageUrl = ytThumbnail;
+                        if (!parsedImageUrl && !isYoutubeItem && !feed.isPodcast) {
+                            const htmlContent = item.content || item['content:encoded'] || item.contentEncoded || item.description || item.summary || '';
+                            parsedImageUrl = extractHtmlImage(htmlContent);
+                        }
+
+                        return {
+                            id: item.guid || item.link || Math.random().toString(),
+                            title: item.title,
+                            link: item.link,
+                            pubDate: item.pubDate,
+                            contentSnippet: item.contentSnippet,
+                            feedTitle: feed.title || responseData.title || feed.url,
+                            feedId: feed.id,
+                            feedUrl: feed.url,
+                            feedImageUrl: feed.imageUrl && feed.imageUrl.startsWith('http://') ? feed.imageUrl.replace('http://', 'https://') : feed.imageUrl,
+                            timestamp: (!isNaN(new Date(item.pubDate).getTime())) ? new Date(item.pubDate).getTime() : Date.now(),
+                            imageUrl: parsedImageUrl ? (parsedImageUrl.startsWith('http://') ? parsedImageUrl.replace('http://', 'https://') : parsedImageUrl) : null,
+                            faviconUrl: faviconUrl && faviconUrl.startsWith('http://') ? faviconUrl.replace('http://', 'https://') : faviconUrl,
+                            category: feed.category || FEED_CATEGORIES[0],
+                            enclosure: item.enclosure
+                        };
+                     });
+                  initialCachedItems.push(...items);
+                }
+             }
+          } catch(e) {}
+        }
+      });
+
+      // ONLY show fullscreen syncing indicator if we haven't synced in this session, and are not in an on-the-fly background sync mode
+      let alreadySyncedInSession = false;
+      try {
+        alreadySyncedInSession = sessionStorage.getItem(`rsser_session_synced_${type}`) === 'true';
+      } catch (e) {}
+
+      const isOnyTheFlyMode = type === 'podcasts' || type === 'youtube' || type === 'radio';
+
+      setLoadingItems(true);
+      if (!alreadySyncedInSession && !isOnyTheFlyMode) {
+         setIsSyncing(true);
+         setSyncProgress(0);
+      } else {
+         setIsSyncing(false);
+      }
+
+      if (!isCancelled) {
+        if (initialCachedItems.length > 0) {
+           const seen = new Set<string>();
+           const uniqueItems = initialCachedItems.filter(item => {
+             const key = item.id || item.link;
+             if (key && !seen.has(key)) {
+               seen.add(key);
+               return true;
+             }
+             return false;
+           }).sort((a, b) => b.timestamp - a.timestamp);
+           setFeedItems(uniqueItems);
+        } else {
+           // Only clear if empty
+           if (feedItems.length === 0) {
+              setFeedItems([]);
+           }
+        }
+      }
+      
+      // Use a buffer to batch updates to feedItems to prevent excessive re-renders
+      let itemBuffer: RssItem[] = [];
+      let flushTimeout: any = null;
+      
+      const flushBuffer = () => {
+        if (isCancelled || itemBuffer.length === 0) return;
+        
+        const itemsToProcess = [...itemBuffer];
+        itemBuffer = [];
+        
+        setFeedItems(prev => {
+          const incomingFeedIds = new Set(itemsToProcess.map(i => i.feedId));
+          const filtered = prev.filter(i => !incomingFeedIds.has(i.feedId));
+          const merged = [...filtered, ...itemsToProcess];
+          
+          const seen = new Set<string>();
+          const deduped = merged.filter(item => {
+            const key = item.id || item.link;
+            if (key && !seen.has(key)) {
+              seen.add(key);
+              return true;
+            }
+            return false;
+          }).sort((a, b) => b.timestamp - a.timestamp);
+          
+          if (deduped.length >= 10) {
+            setIsSyncing(false);
+          }
+          
+          return deduped;
+        });
+      };
+
+      const requestFlush = () => {
+        if (flushTimeout) return;
+        flushTimeout = setTimeout(() => {
+          flushTimeout = null;
+          flushBuffer();
+        }, 120); // Flush every 120ms for much snappier updates
+      };
+
+      let activeCount = feeds.length;
+      let finishedCount = 0;
+      
+      // Concurrency limit for background fetching (increased for faster startup)
+      const CONCURRENCY_LIMIT = 24;
+      const feedsToProcess = [...feeds];
+      let running = 0;
+      let index = 0;
+
+      const processNext = async () => {
+        if (isCancelled || index >= feedsToProcess.length) return;
+        
+        const feed = feedsToProcess[index++];
+        running++;
+
+        try {
+          if (!feed.url) {
+             // Skip
+          } else {
+             // External RSS
+             const cacheId = encodeURIComponent(feed.url).replace(/[.#$/\[\]]/g, '_').substring(0, 500);
+        try {
+          localStorage.removeItem('rss_v5_' + cacheId);
+        } catch (e) {}
+      }
+    });
+    
+    // Reset fetch blocks
+    lastFetchedUrlsRef.current = "";
+    forceBypassRef.current = true;
+    setFailedImages({});
+    imageFetchAttemptsRef.current.clear();
+    
+    // Clear the session synced flag on manual sync to allow hard sync
+    try {
+      sessionStorage.removeItem(`rsser_session_synced_${type}`);
+    } catch (e) {}
+    
+    // Clear feed items & trigger fetch effect
+    setFeedItems([]);
+    setRefreshTick(prev => prev + 1);
+  };
+  
+  // Keep the ref up to date without triggering the fetch effect
+  useEffect(() => {
+    publicSourcesRef.current = publicSources;
+  }, [publicSources]);
+
+  // Memoize feed URLs to prevent effect re-triggering when metadata changes
+  const feedUrlsKey = useMemo(() => feeds.map(f => f.url || f.id).sort().join('|'), [feeds]);
+  
+  const categories = useMemo(() => {
+    const base = [
+      "Alle", 
+      type === 'podcasts' ? "Später hören" : type === 'youtube' ? "Später sehen" : "Später lesen", 
+      "Favoriten"
+    ];
+    
+    const cats = new Set<string>();
+    feeds.forEach(f => {
+      if (f.category && f.category !== 'Radio') {
+        cats.add(f.category);
+      }
+    });
+    
+    // Sort the user categories but keep base categories at start
+    return [...base, ...Array.from(cats).sort()];
+  }, [feeds, type]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const channelParam = params.get('channel');
+    const stateChannel = location.state?.selectedChannelId;
+    
+    if (channelParam) {
+      setSelectedChannelId(channelParam);
+    } else if (stateChannel) {
+      setSelectedChannelId(stateChannel);
+    } else {
+      setSelectedChannelId(null);
+    }
+  }, [location.pathname, location.search, location.state, type]);
+  
+  const viewMode = (type === 'youtube' || type === 'podcasts') 
+    ? 'grid' 
+    : (settings.viewMode === 'magazine' && type !== 'rss' && type !== 'feeds' && type !== 'all')
+      ? 'grid'
+      : (settings.viewMode || 'list');
+
+  // extract video ID simply
+  const getOutputVideoId = (url: string) => {
+    if (!url) return null;
+    const match = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?|live)\/|.*[?&]v=|shorts\/)|youtu\.be\/)([^"&?\/\s]{11})/i);
+    return match ? match[1] : null;
+  };
+
+  useEffect(() => {
+    // Fetch public sources from server API instead of direct Firestore to save reads
+    const fetchSources = async () => {
+      try {
+        const res = await fetch('/api/public-sources');
+        const contentType = res.headers.get('content-type') || '';
+        if (res.ok && contentType.includes('application/json')) {
+          const data = await res.json();
+          if (Array.isArray(data) && data.length > 0) {
+            setPublicSources(data);
+          }
+        }
+      } catch (e) {
+        // Silently continue with local defaults
+      }
+    };
+    fetchSources();
+  }, []);
+
+  useEffect(() => {
+    if (viewMode !== 'magazine') return;
+    
+    let isCancelled = false;
+    let timer: any = null;
+
+    const loadPool = async () => {
+      const getFeedsOfType = (t: string): any[] => {
+        const subscribed = feeds.filter(f => f.type === t);
+        if (subscribed.length > 0) {
+          return subscribed;
+        }
+
+        const discovery: any[] = publicSources.filter(s => s.type === t);
+
+        const userLang = (settings.language || 'de').toLowerCase();
+        const filteredDiscovery = discovery.filter(s => {
+          const feedLang = (s.language || '').toLowerCase();
+          if (!feedLang || feedLang === 'none') {
+            return true;
+          }
+          const cleanUserLang = userLang.split('-')[0];
+          const cleanFeedLang = feedLang.split('-')[0];
+          return cleanUserLang === cleanFeedLang;
+        });
+
+        if (filteredDiscovery.length === 0) {
+          return discovery;
+        }
+
+        return filteredDiscovery;
+      };
+
+      const podcastFeeds = getFeedsOfType('podcasts');
+      const youtubeFeeds = getFeedsOfType('youtube');
+
+      const fetchFeedsItems = async (feedsList: any[], maxCount: number) => {
+        const selected = [...feedsList].sort(() => 0.5 - Math.random()).slice(0, 3);
+        
+        const itemPromises = selected.map(async (f) => {
+          try {
+            const cacheId = encodeURIComponent(f.url).replace(/[.#$/\[\]]/g, '_').substring(0, 500);
+            const cached = localStorage.getItem('rss_v5_' + cacheId);
+            if (cached) {
+              const parsedLocal = JSON.parse(cached);
+              const responseData = parsedLocal.data || parsedLocal;
+              if (responseData && responseData.items && responseData.items.length > 0) {
+                return responseData.items.slice(0, 3).map((item: any) => ({
+                  ...item,
+                  feedTitle: f.title || responseData.title || f.url,
+                  feedId: f.id || '',
+                  feedUrl: f.url,
+                  category: f.category || '',
+                  timestamp: new Date(item.pubDate).getTime() || Date.now()
+                }));
+              }
+            }
+          } catch (e) {}
+
+          try {
+            const res = await fetch('/api/rss', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ url: f.url, maxDays: 14 })
+            });
+            if (res.ok) {
+              const freshData = await res.json();
+              if (freshData && freshData.items) {
+                return freshData.items.slice(0, 3).map((item: any) => ({
+                  ...item,
+                  feedTitle: f.title || freshData.title || f.url,
+                  feedId: f.id || '',
+                  feedUrl: f.url,
+                  category: f.category || '',
+                  timestamp: new Date(item.pubDate).getTime() || Date.now()
+                }));
+              }
+            }
+          } catch (e) {}
+          return [];
+        });
+
+        const results = await Promise.all(itemPromises);
+        return results.flat();
+      };
+
+      const [pItems, yItems] = await Promise.all([
+        fetchFeedsItems(podcastFeeds, 3),
+        fetchFeedsItems(youtubeFeeds, 3)
+      ]);
+
+      if (!isCancelled) {
+        setInterspersePool({
+          podcasts: pItems.sort(() => 0.5 - Math.random()),
+          youtube: yItems.sort(() => 0.5 - Math.random())
+        });
+      }
+    };
+
+    // Delay pool loading slightly to allow main thread and main feed requests to execute first
+    timer = setTimeout(() => {
+      loadPool();
+    }, 450);
+
+    return () => {
+      isCancelled = true;
+      if (timer) clearTimeout(timer);
+    };
+  }, [viewMode, feeds, publicSources, settings.language]);
+
+  useEffect(() => {
+    let hasLoadedCachedFeeds = false;
+    let hasCachedItems = false;
+    try {
+      const cachedFeeds = localStorage.getItem(`cached_feeds_${type}`);
+      const cachedItems = localStorage.getItem(`cached_items_${type}`);
+      if (cachedFeeds) {
+        setFeeds(JSON.parse(cachedFeeds));
+        hasLoadedCachedFeeds = true;
+      } else {
+        setFeeds([]);
+      }
+      if (cachedItems) {
+        const parsed = JSON.parse(cachedItems);
+        const cleaned = Array.isArray(parsed) ? parsed.map((item: any) => ({
+          ...item,
+          imageUrl: proxyImageUrl(item.imageUrl)
+        })) : [];
+        setFeedItems(cleaned);
+        if (cleaned && cleaned.length > 0) {
+          hasCachedItems = true;
+        }
+      } else {
+        setFeedItems([]);
+      }
+    } catch (e) {
+      setFeeds([]);
+      setFeedItems([]);
+    }
+
+    // Hydrate richer caches asynchronously from IndexedDB
+    getCachedCategoryItems(type).then((idbItems) => {
+      if (idbItems && idbItems.length > 0) {
+        const cleanedIdb = idbItems.map((item: any) => ({
+          ...item,
+          imageUrl: proxyImageUrl(item.imageUrl)
+        }));
+        setFeedItems(prev => {
+          if (!prev || prev.length === 0) return cleanedIdb;
+          return prev;
+        });
+      }
+    }).catch(() => {});
+
+    getCachedCategoryFeeds(type).then((idbFeeds) => {
+      if (idbFeeds && idbFeeds.length > 0) {
+        setFeeds(prev => {
+          if (!prev || prev.length === 0) return idbFeeds;
+          return prev;
+        });
+        setLoadingFeeds(false);
+      }
+    }).catch(() => {});
+
+    setLoadingFeeds(!hasLoadedCachedFeeds);
+    let alreadySynced = false;
+    try {
+      alreadySynced = sessionStorage.getItem(`rsser_session_synced_${type}`) === 'true';
+    } catch (e) {}
+
+    const isOnyTheFlyMode = type === 'podcasts' || type === 'youtube' || type === 'radio';
+    if (!alreadySynced && !isOnyTheFlyMode) {
+      setIsSyncing(true);
+      setSyncProgress(0);
+    } else {
+      setIsSyncing(false);
+    }
+    let unsubscribeFeeds: (() => void) | undefined;
+    let unsubscribeSaved: (() => void) | undefined;
+    let unsubscribeRead: (() => void) | undefined;
+    
+    const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
+      // First clean up any existing listeners if auth state changes
+      if (unsubscribeFeeds) unsubscribeFeeds();
+      if (unsubscribeSaved) unsubscribeSaved();
+      if (unsubscribeRead) unsubscribeRead();
+
+      if (user) {
+        const feedsRef = collection(db, 'users', user.uid, 'feeds');
+        const q = query(feedsRef);
+        
+        unsubscribeFeeds = onSnapshot(q, (snapshot) => {
+          let loadedFeeds = snapshot.docs.map(d => {
+            const data = d.data();
+            const mappedCat = data.category === 'Technik' ? 'Tech' : data.category;
+            return {
+              id: d.id,
+              ...data,
+              category: mappedCat
+            } as Feed;
+          });
+          
+          if (type === 'youtube') {
+            loadedFeeds = loadedFeeds.filter(f => (f.category === 'YouTube' || f.type === 'youtube' || (f.url && (f.url.includes('youtube.com') || f.url.includes('youtu.be')))));
+          } else if (type === 'podcasts') {
+            loadedFeeds = loadedFeeds.filter(f => f.isPodcast === true || f.category === 'Podcast' || f.type === 'podcasts');
+          } else if (type === 'rss' || type === 'feeds') {
+            loadedFeeds = loadedFeeds.filter(f => (!f.url || (!f.url.includes('youtube.com') && !f.url.includes('youtu.be'))) && !f.isPodcast && f.type !== 'podcasts');
+          }
+          
+          setFeeds(loadedFeeds);
+          try {
+            safeLocalStorageSetItem(`cached_feeds_${type}`, JSON.stringify(loadedFeeds));
+          } catch (err) {}
+          setLoadingFeeds(false);
+          setLoadingItems(false);
+          if (loadedFeeds.length === 0) {
+            setIsSyncing(false);
+            setSyncProgress(100);
+            try {
+              sessionStorage.setItem(`rsser_session_synced_${type}`, 'true');
+            } catch (e) {}
+          }
+        }, (error) => {
+          setLoadingFeeds(false);
+          setLoadingItems(false);
+          if (!error.message?.includes('CANCELLED')) {
+             handleFirestoreError(error, OperationType.LIST, `users/${user.uid}/feeds`);
+          }
+        });
+
+        const savedRef = collection(db, 'users', user.uid, 'savedItems');
+        unsubscribeSaved = onSnapshot(savedRef, (snapshot) => {
+          const dict: any = {};
+          snapshot.docs.forEach(d => {
+            dict[d.id] = d.data();
+          });
+          setSavedItemsDb(dict);
+        }, (error) => {
+          if (!error.message?.includes('CANCELLED')) {
+             handleFirestoreError(error, OperationType.LIST, `users/${user.uid}/savedItems`);
+          }
+        });
+
+        const readRef = collection(db, 'users', user.uid, 'readItems');
+        unsubscribeRead = onSnapshot(readRef, (snapshot) => {
+          const dict: { [key: string]: boolean } = {};
+          snapshot.docs.forEach(d => {
+            const data = d.data();
+            if (data.itemId) {
+              dict[data.itemId] = true;
+            }
+          });
+          setReadItemsDb(dict);
+        }, (error) => {
+          if (!error.message?.includes('CANCELLED')) {
+             handleFirestoreError(error, OperationType.LIST, `users/${user.uid}/readItems`);
+          }
+        });
+      } else {
+        setFeeds([]);
+        setFeedItems([]);
+        setSavedItemsDb({});
+        setReadItemsDb({});
+        setLoadingFeeds(false);
+        setLoadingItems(false);
+        setIsSyncing(false);
+        setSyncProgress(100);
+      }
+    });
+
+    return () => {
+      unsubscribeAuth();
+      if (unsubscribeFeeds) unsubscribeFeeds();
+      if (unsubscribeSaved) unsubscribeSaved();
+      if (unsubscribeRead) unsubscribeRead();
+    };
+  }, [type]);
+
+  useEffect(() => {
+    let isCancelled = false;
+
+    const fetchAllFeedItems = async () => {
+      if (feeds.length === 0) {
+        if (!isCancelled) {
+          setFeedItems([]);
+          setIsSyncing(false);
+          setLoadingItems(false);
+          setSyncProgress(100);
+          try {
+            sessionStorage.setItem(`rsser_session_synced_${type}`, 'true');
+          } catch (e) {}
+        }
+        isFetchingRef.current = false;
+        return;
+      }
+      
+      // Prevent re-fetching if URLs haven't changed
+      if (lastFetchedUrlsRef.current === feedUrlsKey && feedItems.length > 0) {
+        return;
+      }
+      
+      const urlsChanged = lastFetchedUrlsRef.current !== feedUrlsKey;
+      
+      if (isFetchingRef.current) return;
+      isFetchingRef.current = true;
+      lastFetchedUrlsRef.current = feedUrlsKey;
+      
+      // 1. Instantly load cache in one synchronous swoop!
+      const initialCachedItems: RssItem[] = [];
+      const currentPublicSources = publicSourcesRef.current;
+      
+      feeds.forEach(feed => {
+        if (feed.url) {
+          const cacheId = encodeURIComponent(feed.url).replace(/[.#$/\[\]]/g, '_').substring(0, 500);
+          try {
+             const localKey = 'rss_v5_' + cacheId;
+             const localData = localStorage.getItem(localKey);
+             if (localData) {
+                const parsedLocal = JSON.parse(localData);
+                const responseData = parsedLocal.data;
+                if (responseData) {
+                  const pSource = currentPublicSources.find(p => p.url === feed.url || p.blogId === feed.id);
+                  const faviconUrl = pSource?.imageUrl || pSource?.authorAvatar || feed.imageUrl || getFavicon(feed.url) || getFavicon(responseData.link || '');
+                  
+                  const items = (responseData.items || [])
+                     .filter((item: any) => item && item.title && typeof item.title === 'string' && item.title.trim() !== '' && item.title.trim().toLowerCase() !== 'ohne titel')
+                     .map((item: any) => {
+                        const isYoutubeItem = item.link?.includes('youtube.com') || item.link?.includes('youtu.be');
+                        let ytThumbnail = null;
+                        if (isYoutubeItem) {
+                            const videoId = getOutputVideoId(item.link);
+                            if (videoId) ytThumbnail = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+                        }
+                        let parsedImageUrl = item.imageUrl || item.image?.url;
+                        if (isYoutubeItem && ytThumbnail && !parsedImageUrl) parsedImageUrl = ytThumbnail;
+                        if (!parsedImageUrl && !isYoutubeItem && !feed.isPodcast) {
+                            const htmlContent = item.content || item['content:encoded'] || item.contentEncoded || item.description || item.summary || '';
+                            parsedImageUrl = extractHtmlImage(htmlContent);
+                        }
+
+                        return {
+                            id: item.guid || item.link || Math.random().toString(),
+                            title: item.title,
+                            link: item.link,
+                            pubDate: item.pubDate,
+                            contentSnippet: item.contentSnippet,
+                            feedTitle: feed.title || responseData.title || feed.url,
+                            feedId: feed.id,
+                            feedUrl: feed.url,
+                            feedImageUrl: feed.imageUrl && feed.imageUrl.startsWith('http://') ? feed.imageUrl.replace('http://', 'https://') : feed.imageUrl,
+                            timestamp: (!isNaN(new Date(item.pubDate).getTime())) ? new Date(item.pubDate).getTime() : Date.now(),
+                            imageUrl: parsedImageUrl ? (parsedImageUrl.startsWith('http://') ? parsedImageUrl.replace('http://', 'https://') : parsedImageUrl) : null,
+                            faviconUrl: faviconUrl && faviconUrl.startsWith('http://') ? faviconUrl.replace('http://', 'https://') : faviconUrl,
+                            category: feed.category || FEED_CATEGORIES[0],
+                            enclosure: item.enclosure
+                        };
+                     });
+                  initialCachedItems.push(...items);
+                }
+             }
+          } catch(e) {}
+        }
+      });
+
+      // ONLY show fullscreen syncing indicator if we haven't synced in this session, and are not in an on-the-fly background sync mode
+      let alreadySyncedInSession = false;
+      try {
+        alreadySyncedInSession = sessionStorage.getItem(`rsser_session_synced_${type}`) === 'true';
+      } catch (e) {}
+
+      const isOnyTheFlyMode = type === 'podcasts' || type === 'youtube' || type === 'radio';
+
+      setLoadingItems(true);
+      if (!alreadySyncedInSession && !isOnyTheFlyMode) {
+         setIsSyncing(true);
+         setSyncProgress(0);
+      } else {
+         setIsSyncing(false);
+      }
+
+      if (!isCancelled) {
+        if (initialCachedItems.length > 0) {
+           const seen = new Set<string>();
+           const uniqueItems = initialCachedItems.filter(item => {
+             const key = item.id || item.link;
+             if (key && !seen.has(key)) {
+               seen.add(key);
+               return true;
+             }
+             return false;
+           }).sort((a, b) => b.timestamp - a.timestamp);
+           setFeedItems(uniqueItems);
+        } else {
+           // Only clear if empty
+           if (feedItems.length === 0) {
+              setFeedItems([]);
+           }
+        }
+      }
+      
+      // Use a buffer to batch updates to feedItems to prevent excessive re-renders
+      let itemBuffer: RssItem[] = [];
+      let flushTimeout: any = null;
+      
+      const flushBuffer = () => {
+        if (isCancelled || itemBuffer.length === 0) return;
+        
+        const itemsToProcess = [...itemBuffer];
+        itemBuffer = [];
+        
+        setFeedItems(prev => {
+          const incomingFeedIds = new Set(itemsToProcess.map(i => i.feedId));
+          const filtered = prev.filter(i => !incomingFeedIds.has(i.feedId));
+          const merged = [...filtered, ...itemsToProcess];
+          
+          const seen = new Set<string>();
+          const deduped = merged.filter(item => {
+            const key = item.id || item.link;
+            if (key && !seen.has(key)) {
+              seen.add(key);
+              return true;
+            }
+            return false;
+          }).sort((a, b) => b.timestamp - a.timestamp);
+          
+          if (deduped.length >= 10) {
+            setIsSyncing(false);
+          }
+          
+          return deduped;
+        });
+      };
+
+      const requestFlush = () => {
+        if (flushTimeout) return;
+        flushTimeout = setTimeout(() => {
+          flushTimeout = null;
+          flushBuffer();
+        }, 120); // Flush every 120ms for much snappier updates
+      };
+
+      let activeCount = feeds.length;
+      let finishedCount = 0;
+      
+      // Concurrency limit for background fetching (increased for faster startup)
+      const CONCURRENCY_LIMIT = 24;
+      const feedsToProcess = [...feeds];
+      let running = 0;
+      let index = 0;
+
+      const processNext = async () => {
+        if (isCancelled || index >= feedsToProcess.length) return;
+        
+        const feed = feedsToProcess[index++];
+        running++;
+
+        try {
+          if (!feed.url) {
+             // Skip
+          } else {
+             // External RSS
+             const cacheId = encodeURIComponent(feed.url).replace(/[.#$/\[\]]/g, '_').substring(0, 500);
                 let data = null;
                 let isStale = true;
                 
@@ -2002,7 +5714,7 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
                    if (!responseData || isCancelled) return;
                    
                    // Collect metadata updates for later instead of immediate updateDoc
-                   if (fetchedFresh && feed.type !== 'webcams') {
+                   if (fetchedFresh) {
                       const updates: any = {};
                       let hasUpdates = false;
                       const originalImg = responseData.originalImageUrl || responseData.image?.url;
@@ -2350,8 +6062,7 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
         let match = false;
         if (type === 'youtube') match = isYoutube;
         else if (type === 'podcasts') match = isPodcast;
-        else if (type === 'blogs') match = isBlog;
-        else if (type === 'rss') match = !isYoutube && !isPodcast && !isBlog;
+        else if (type === 'rss') match = !isYoutube && !isPodcast;
         else if (type === 'all') match = true;
 
         if (match) {
@@ -2379,29 +6090,19 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
       let finalFavicon = customImage || item.faviconUrl;
       let finalImg = item.imageUrl;
 
-      // Only fall back to the feed-level image as the card's main thumbnail for podcasts, videos, and webcams.
-      // For general RSS news feeds and blogs, each article should have its own image (or none) rather than displaying the publisher's generic logo.
-      const isPodcastOrVideoOrWebcam = type === 'podcasts' || type === 'youtube' || type === 'webcams' || 
-                                       userFeed?.isPodcast || userFeed?.type === 'youtube' || userFeed?.type === 'webcams' ||
-                                       pSource?.type === 'podcasts' || pSource?.type === 'youtube' || pSource?.type === 'webcams';
+      // Only fall back to the feed-level image as the card's main thumbnail for podcasts and videos.
+      const isPodcastOrVideo = type === 'podcasts' || type === 'youtube' || 
+                               userFeed?.isPodcast || userFeed?.type === 'youtube' ||
+                               pSource?.type === 'podcasts' || pSource?.type === 'youtube';
 
-      if (customImage && isPodcastOrVideoOrWebcam) {
+      if (customImage && isPodcastOrVideo) {
          const currentImgIsHardcoded = isITunesImage(item.imageUrl);
          if (!item.imageUrl || currentImgIsHardcoded) {
             finalImg = customImage;
          }
       }
 
-      // Discard generic publisher logos as article-level images for general RSS news feeds and blogs
-      const isInternalBlog = !!item.authorId || (item.feedUrl && (
-        item.feedUrl.includes('/blog/') || 
-        item.feedUrl.includes('/article/') || 
-        item.feedUrl.includes('/blogs/user/') || 
-        item.feedUrl.includes('/blogs/author/') || 
-        item.feedUrl.includes('/p/') || 
-        item.feedUrl.includes('/api/rss/user/')
-      ));
-      if (!isPodcastOrVideoOrWebcam && finalImg && !isInternalBlog) {
+      if (!isPodcastOrVideo && finalImg) {
          const lowerImg = String(finalImg).toLowerCase();
          const lowerFeedImg = customImage ? String(customImage).toLowerCase() : '';
          const lowerFeedImageUrl = item.feedImageUrl ? String(item.feedImageUrl).toLowerCase() : '';
@@ -2447,8 +6148,7 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
         const isBlog = i.link?.includes('rsser.news') || i.link?.includes('run.app');
         if (type === 'youtube') return isYoutube;
         if (type === 'podcasts') return isPodcast;
-        if (type === 'blogs') return isBlog;
-        if (type === 'rss') return !isYoutube && !isPodcast && !isBlog;
+        if (type === 'rss') return !isYoutube && !isPodcast;
         return true;
       });
       sourceItems.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
@@ -2460,8 +6160,7 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
         const isBlog = i.link?.includes('rsser.news') || i.link?.includes('run.app');
         if (type === 'youtube') return isYoutube;
         if (type === 'podcasts') return isPodcast;
-        if (type === 'blogs') return isBlog;
-        if (type === 'rss') return !isYoutube && !isPodcast && !isBlog;
+        if (type === 'rss') return !isYoutube && !isPodcast;
         return true;
       });
       sourceItems.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
@@ -2505,12 +6204,10 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
       
       const isPodcastItem = item.enclosure?.url && (item.enclosure.type?.startsWith('audio/') || type === 'podcasts' || item.enclosure.url.toLowerCase().endsWith('.m4a') || item.enclosure.url.toLowerCase().endsWith('.mp3'));
       const isYoutubeItem = item.link?.includes('youtube.com') || item.link?.includes('youtu.be');
-      const isWebcamItem = type === 'webcams' || item.category === 'WebCam';
       const isRadioItem = type === 'radio' || item.category === 'Radio';
-      const isBlogItem = type === 'blogs' || item.category === 'Blogs';
 
-      // For blogs, podcasts, youtube, webcams and radio we put everything in the "Recent" section (no time limits)
-      if (isPodcastItem || isYoutubeItem || isWebcamItem || isRadioItem || isBlogItem) {
+      // For podcasts, youtube and radio we put everything in the "Recent" section (no time limits)
+      if (isPodcastItem || isYoutubeItem || isRadioItem) {
         today.push(item);
         return;
       }
@@ -2567,8 +6264,7 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
       '/Loader_Podcast.gif',
       '/Loader_Radio.gif',
       '/Loader_YouTube.gif',
-      '/Loader_WebCam.gif',
-      '/Loader_Blog.gif'
+
     ];
     gifsToPreload.forEach((src) => {
       const img = new Image();
@@ -2716,7 +6412,7 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
     const isDefault = !feed.id || feed.id.startsWith('default-');
 
     const isPodcast = feed.isPodcast || feed.type === 'podcasts' || type === 'podcasts';
-    const isVideo = feed.category === 'WebCam' || feed.type === 'webcams' || type === 'webcams' || type === 'youtube' || feed.url?.includes('youtube.com') || feed.url?.includes('youtu.be');
+    const isVideo = type === 'youtube' || feed.url?.includes('youtube.com') || feed.url?.includes('youtu.be');
     const isRadio = feed.isRadio || feed.category === 'Radio' || feed.type === 'radio' || type === 'radio';
     
     let bookmarkTitle = isEn ? 'Read later' : 'Später lesen';
@@ -2843,7 +6539,6 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
 
   const handleItemClick = (e: React.MouseEvent, item: RssItem) => {
     markItemAsRead(item);
-    // Check if it's an internal blog link to navigate within the app
     if (isInternalBlogLink(item.link)) {
         e.preventDefault();
         setReadingArticle(null);
@@ -2892,9 +6587,8 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
 
   const renderGridItem = (item: RssItem, index?: number) => {
     const isRead = !!readItemsDb[item.id];
-    const isWebcamItem = type === 'webcams' || item.category === 'WebCam';
     const isRadioItem = type === 'radio' || item.category === 'Radio';
-    const shouldShowReadState = isRead && !isWebcamItem && !isRadioItem;
+    const shouldShowReadState = isRead && !isRadioItem;
     const hasImage = item.imageUrl && !failedImages[item.id];
     return (
       <a 
@@ -2980,7 +6674,7 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
               e.preventDefault();
               e.stopPropagation();
               if (item.authorId) {
-                navigate(`/blogs/author/${item.authorId}`, { state: { internal: true } });
+                
               } else if (item.feedId) {
                 setSelectedChannelId(item.feedId);
               }
@@ -3030,20 +6724,15 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
   const renderMagazineItem = (item: RssItem, index: number | string, forcedSpan?: number) => {
     const isRead = !!readItemsDb[item.id];
     const isYoutubeItem = item.link?.includes('youtube.com') || item.link?.includes('youtu.be');
-    const isWebcamItem = type === 'webcams' || item.category === 'WebCam';
     const isPodcastItem = !!(item.enclosure?.url && (item.enclosure.type?.startsWith('audio/') || type === 'podcasts' || item.enclosure.url.toLowerCase().endsWith('.m4a') || item.enclosure.url.toLowerCase().endsWith('.mp3')));
-    const isBlogItem = type === 'blogs' || item.category === 'Blogs' || item.feedTitle?.toLowerCase().includes('blog') || item.link?.includes('/blog/') || item.link?.includes('/blogs/');
     const isRadioItem = type === 'radio' || item.category === 'Radio';
-    const shouldShowReadState = isRead && !isWebcamItem && !isRadioItem;
+    const shouldShowReadState = isRead && !isRadioItem;
     
     const hasFailedImage = failedImages[item.id];
     let displayImageUrl = hasFailedImage ? undefined : item.imageUrl;
-    if (!displayImageUrl && isBlogItem) {
-      displayImageUrl = "https://images.unsplash.com/photo-1499750310107-5fef28a66643?q=80&w=600&auto=format&fit=crop";
-    }
-    
+
     let isLarge = forcedSpan !== undefined ? forcedSpan === 8 : (typeof index === 'number' ? (index % 10 === 0 || index % 10 === 6) : false);
-    if (isYoutubeItem || isWebcamItem || isPodcastItem) {
+    if (isYoutubeItem || isPodcastItem) {
       isLarge = false;
     }
     
@@ -3186,7 +6875,7 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
                   </div>
                   <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 whitespace-nowrap">
                     <span className="text-[10px] font-bold uppercase tracking-widest text-white bg-black/60 px-3 py-1 rounded-full backdrop-blur-md">
-                      {isWebcamItem ? tr(settings.language, 'Play Live Stream', 'Live Stream abspielen') : tr(settings.language, 'Play Video', 'Video abspielen')}
+                      {tr(settings.language, 'Play Video', 'Video abspielen')}
                     </span>
                   </div>
                 </div>
@@ -3212,7 +6901,7 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
                 e.preventDefault();
                 e.stopPropagation();
                 if (item.authorId) {
-                  navigate(`/blogs/author/${item.authorId}`, { state: { internal: true } });
+                  
                 } else if (item.feedId) {
                   setSelectedChannelId(item.feedId);
                 }
@@ -3762,241 +7451,6 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
       );
     }
 
-    if (cardType === 'webcam' && interspersePool.webcams.length > 0) {
-      const feed = interspersePool.webcams[poolIndex % interspersePool.webcams.length];
-      const videoId = getOutputVideoId(feed.url);
-      
-      const isYoutube = feed.url?.includes('youtube.com') || feed.url?.includes('youtu.be');
-      let ytThumbnail = feed.bannerUrl || feed.imageUrl;
-      if (isYoutube && !ytThumbnail && videoId) {
-        ytThumbnail = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
-      }
-      
-      const webcamAsItem: RssItem = {
-        id: feed.id || feed.url || Math.random().toString(),
-        title: feed.title || 'WebCam',
-        link: feed.url || '',
-        pubDate: new Date().toISOString(),
-        contentSnippet: feed.title || 'WebCam Stream',
-        feedTitle: 'WebCam',
-        feedId: feed.id || '',
-        feedUrl: feed.url || '',
-        feedImageUrl: feed.imageUrl,
-        timestamp: Date.now(),
-        imageUrl: ytThumbnail || feed.imageUrl,
-        faviconUrl: getFavicon(feed.url),
-        category: 'WebCam'
-      };
-      
-      const playId = `intersperse-webcam-${feed.id || feed.url || 'webcam'}-${key}`;
-      const isPlayingInline = inlinePlayingIds.includes(playId);
-      
-      return (
-        <div 
-          key={key}
-          onClick={(e) => {
-            if (videoId) {
-              e.preventDefault();
-              e.stopPropagation();
-              if (!inlinePlayingIds.includes(playId)) {
-                setInlinePlayingIds(prev => [...prev, playId]);
-              }
-            } else {
-              e.preventDefault();
-              e.stopPropagation();
-              if (videoId) {
-                setPlayingVideo({ id: videoId, title: feed.title, url: feed.url, isWebcam: true, webcamId: feed.id });
-              }
-            }
-          }}
-          className={`${spanClass} group relative overflow-hidden flex flex-col rounded-2xl border transition-all ${isPlayingInline ? '' : 'hover:-translate-y-1'} cursor-pointer ${isDark ? 'border-white/10 bg-neutral-900/55 hover:bg-neutral-800/85 hover:border-white/30 dark:backdrop-blur-sm' : 'border-gray-200 bg-white/70 hover:bg-white/85 shadow-sm backdrop-blur-sm'}`}
-        >
-          <div className={`relative ${imageHeight} w-full overflow-hidden bg-gray-100 dark:bg-neutral-800 glanz-image-container`}>
-            {isPlayingInline ? (
-              <div className="absolute inset-0 z-30 bg-black" onClick={(e) => e.stopPropagation()}>
-                <iframe 
-                  src={`https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1`} 
-                  title={feed.title}
-                  className="w-full h-full"
-                  frameBorder="0" 
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                  allowFullScreen
-                />
-                <button 
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    setInlinePlayingIds(prev => prev.filter(id => id !== playId));
-                  }}
-                  className="absolute top-2 right-2 z-40 bg-black/80 hover:bg-black p-2 rounded-full text-white border border-white/20 transition-all hover:scale-110 shadow-lg"
-                  title="Wiedergabe beenden"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-            ) : (
-              <>
-                {ytThumbnail ? (
-                  <img loading="lazy" 
-                    src={proxyImageUrl(ytThumbnail)} 
-                    alt={feed.title} 
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
-                    referrerPolicy="no-referrer"
-                  />
-                ) : (
-                  <div className="w-full h-full bg-gradient-to-br from-emerald-100 to-teal-100 dark:from-emerald-900/20 dark:to-teal-900/20 flex items-center justify-center text-emerald-400">
-                    <Video className="w-12 h-12" />
-                  </div>
-                )}
-                <div className="absolute inset-0 bg-black/20 flex items-center justify-center opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity z-10">
-                  <button 
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      if (videoId && !inlinePlayingIds.includes(playId)) {
-                        setInlinePlayingIds(prev => [...prev, playId]);
-                      } else if (videoId) {
-                        setPlayingVideo({ id: videoId, title: feed.title, url: feed.url, isWebcam: true, webcamId: feed.id });
-                      }
-                    }}
-                    className="w-12 h-12 rounded-full bg-emerald-600 hover:bg-emerald-500 hover:scale-105 active:scale-95 text-white flex items-center justify-center shadow-lg transition-transform"
-                  >
-                    <Play className="w-5 h-5 fill-white ml-0.5" />
-                  </button>
-                </div>
-                
-                <div className="absolute top-4 left-4 flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-white bg-emerald-600 px-3 py-1.5 rounded-full backdrop-blur-md z-20">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-300 block animate-ping mr-1" />
-                  WEBCAM
-                </div>
-              </>
-            )}
-          </div>
-
-          <div className="p-6 flex flex-col flex-1 gap-3">
-            <div className="flex justify-between items-center text-xs opacity-70">
-              <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
-                {feed.imageUrl ? (
-                  <img loading="lazy" 
-                    src={proxyImageUrl(feed.imageUrl)} 
-                    alt="" 
-                    className="w-6 h-6 rounded object-cover" 
-                    referrerPolicy="no-referrer" 
-                  />
-                ) : (
-                  <Video className="w-5 h-5" />
-                )}
-                <span className="truncate max-w-[150px]">{feed.category || 'WebCam'}</span>
-              </div>
-              <span>{new Date().toLocaleDateString()}</span>
-            </div>
-
-            <h3 className={`font-bold leading-tight ${span === 8 ? 'text-2xl md:text-3xl' : 'text-xl'} ${isDark ? 'text-white' : 'text-gray-900'} group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors line-clamp-3`}>
-              {feed.title}
-            </h3>
-            <p className={`text-sm opacity-80 flex-1 ${span === 8 ? 'md:line-clamp-3 md:text-base' : 'line-clamp-2'}`}>
-              Echtzeit Live-Webcam aus {feed.category || 'aller Welt'}. Klicken Sie hier, um den Stream live im Player zu öffnen.
-            </p>
-            <div className="mt-auto">
-              {renderActions(webcamAsItem)}
-            </div>
-          </div>
-        </div>
-      );
-    }
-
-    if (cardType === 'blog' && interspersePool.blogs.length > 0) {
-      const item = interspersePool.blogs[poolIndex % interspersePool.blogs.length];
-      
-      return (
-        <a 
-          href={item.link}
-          target="_blank"
-          rel="noopener noreferrer"
-          key={key}
-          onClick={(e) => handleItemClick(e, item)}
-          className={`${spanClass} group relative overflow-hidden flex flex-col rounded-2xl border transition-all hover:-translate-y-1 cursor-pointer ${isDark ? 'border-white/10 bg-neutral-900/55 hover:bg-neutral-800/85 hover:border-white/30 dark:backdrop-blur-sm' : 'border-gray-200 bg-white/70 hover:bg-white/85 shadow-sm backdrop-blur-sm'}`}
-        >
-          <div className={`relative ${imageHeight} w-full overflow-hidden bg-gray-100 dark:bg-neutral-800 glanz-image-container`}>
-            {(() => {
-              const blogImg = item.imageUrl || "https://images.unsplash.com/photo-1499750310107-5fef28a66643?q=80&w=600&auto=format&fit=crop";
-              return (
-                <img loading="lazy" 
-                  src={proxyImageUrl(blogImg)} 
-                  alt={item.title} 
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
-                  referrerPolicy="no-referrer"
-                />
-              );
-            })()}
-            
-            <div className="absolute top-4 left-4 flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-white bg-yellow-600 px-3 py-1.5 rounded-full backdrop-blur-md z-20">
-              {item.authorId ? (
-                <AuthorAvatar 
-                  userId={item.authorId} 
-                  fallbackFavicon={item.faviconUrl} 
-                  className="w-4 h-4 rounded-full border border-white/20" 
-                />
-              ) : item.faviconUrl ? (
-                <img loading="lazy" src={proxyImageUrl(item.faviconUrl)} alt="" className="w-4 h-4 rounded-full object-cover border border-white/20" referrerPolicy="no-referrer" />
-              ) : (
-                <FileText className="w-3.5 h-3.5" />
-              )}
-              BLOG
-            </div>
-          </div>
-
-          <div className="p-6 flex flex-col flex-1 gap-3">
-            <div className="flex justify-between items-center text-xs opacity-70">
-              <div 
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  if (item.authorId) {
-                    navigate(`/blogs/author/${item.authorId}`, { state: { internal: true } });
-                  } else if (item.feedId) {
-                    setSelectedChannelId(item.feedId);
-                  }
-                }}
-                className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-yellow-600 dark:text-yellow-400 cursor-pointer hover:underline"
-              >
-                {item.authorId ? (
-                  <AuthorAvatar 
-                    userId={item.authorId} 
-                    fallbackFavicon={item.faviconUrl} 
-                    className="w-6 h-6 rounded-full border border-yellow-500/20" 
-                  />
-                ) : item.faviconUrl ? (
-                  <img loading="lazy" 
-                    src={proxyImageUrl(item.faviconUrl)} 
-                    alt="" 
-                    className="w-6 h-6 rounded object-cover" 
-                    referrerPolicy="no-referrer" 
-                  />
-                ) : (
-                  <FileText className="w-5 h-5" />
-                )}
-                <span className="truncate max-w-[150px]">{item.feedTitle}</span>
-              </div>
-              <span>{formatDate(item.pubDate)}</span>
-            </div>
-
-            <h3 className={`font-bold leading-tight mb-3 ${span === 8 ? 'text-2xl md:text-3xl' : 'text-xl'} ${isDark ? 'text-white' : 'text-gray-900'} group-hover:text-yellow-600 dark:group-hover:text-yellow-400 transition-colors line-clamp-3`}>
-              {item.title}
-            </h3>
-            {item.contentSnippet && (
-              <p className={`text-sm opacity-80 flex-1 ${span === 8 ? 'md:line-clamp-3 md:text-base' : 'line-clamp-2'}`}>
-                {item.contentSnippet}
-              </p>
-            )}
-            <div className={!item.contentSnippet ? 'mt-auto' : 'mt-2'}>
-              {renderActions(item)}
-            </div>
-          </div>
-        </a>
-      );
-    }
-
     return null;
   };
 
@@ -4010,7 +7464,6 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
     // Reset counts for the current render pass
     globalNewsCount = 0;
     lastRadioNewsCount = -999;
-    let usedWebcamCount = 0;
 
     const cardsToRender: ({ type: 'news'; item: RssItem } | { type: string; poolIndex: number })[] = [];
     let itemIndex = 0;
@@ -4060,30 +7513,24 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
           }
         }
 
-        if (cardType === 'webcam') {
-          cardsToRender.push({ type: 'webcam', poolIndex: usedWebcamCount });
-          usedWebcamCount++;
-        } else {
-          cardsToRender.push({ type: cardType, poolIndex: intersperseCount });
-          if (cardType === 'radio') {
-            lastRadioNewsCount = globalNewsCount;
-          }
+        cardsToRender.push({ type: cardType, poolIndex: intersperseCount });
+        if (cardType === 'radio') {
+          lastRadioNewsCount = globalNewsCount;
         }
         intersperseCount++;
       }
     }
 
-    // Helper to determine if a card is restricted (Radio, YouTube, Webcam, or Podcast)
+    // Helper to determine if a card is restricted (Radio, YouTube, or Podcast)
     const isRestrictedCard = (c: { type: string; item?: RssItem }) => {
-      if (c.type === 'radio' || c.type === 'youtube' || c.type === 'webcam' || c.type === 'podcast') {
+      if (c.type === 'radio' || c.type === 'youtube' || c.type === 'podcast') {
         return true;
       }
       if (c.type === 'news' && c.item) {
         const isYoutube = c.item.link?.includes('youtube.com') || c.item.link?.includes('youtu.be');
-        const isWebcam = c.item.category === 'WebCam';
         const isRadio = c.item.category === 'Radio';
         const isPodcast = !!(c.item.enclosure?.url && (c.item.enclosure.type?.startsWith('audio/') || type === 'podcasts' || c.item.enclosure.url.toLowerCase().endsWith('.m4a') || c.item.enclosure.url.toLowerCase().endsWith('.mp3')));
-        if (isYoutube || isWebcam || isRadio || isPodcast) {
+        if (isYoutube || isRadio || isPodcast) {
           return true;
         }
       }
@@ -4101,12 +7548,12 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
       // and only if this is not the last item in cardsToRender (to prevent an uneven ending)
       let canBeLarge = (currentLineSpan === 0) && (card.type === 'news') && (idx < cardsToRender.length - 1);
       
-      // Rule: If the current card is restricted (Radio, YouTube, Webcam, Podcast), it must NEVER be large (span 8)
+      // Rule: If the current card is restricted (Radio, YouTube, Podcast), it must NEVER be large (span 8)
       if (canBeLarge && isRestrictedCard(card)) {
         canBeLarge = false;
       }
 
-      // Rule: If the next card (sharing the row) is restricted (Radio, YouTube, Webcam, Podcast), the current card must NEVER be large (span 8)
+      // Rule: If the next card (sharing the row) is restricted (Radio, YouTube, Podcast), the current card must NEVER be large (span 8)
       // so that they are never placed on the same row with a stretched/long card.
       if (canBeLarge && idx < cardsToRender.length - 1) {
         const nextCard = cardsToRender[idx + 1];
@@ -4152,9 +7599,8 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
 
   const renderListItem = (item: RssItem, index?: number) => {
     const isRead = !!readItemsDb[item.id];
-    const isWebcamItem = type === 'webcams' || item.category === 'WebCam';
     const isRadioItem = type === 'radio' || item.category === 'Radio';
-    const shouldShowReadState = isRead && !isWebcamItem && !isRadioItem;
+    const shouldShowReadState = isRead && !isRadioItem;
     const hasImage = item.imageUrl && !failedImages[item.id];
     return (
       <a 
@@ -4241,7 +7687,7 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
                 e.preventDefault();
                 e.stopPropagation();
                 if (item.authorId) {
-                  navigate(`/blogs/author/${item.authorId}`, { state: { internal: true } });
+                  
                 } else if (item.feedId) {
                   setSelectedChannelId(item.feedId);
                 }
@@ -4292,9 +7738,7 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
 };
 
   const isYoutubeMain = type === 'youtube' && !selectedChannelId;
-  const isWebcamsMain = type === 'webcams' && !selectedChannelId;
   const isPodcastMain = type === 'podcasts' && !selectedChannelId;
-  const isBlogsMain = type === 'blogs' && !selectedChannelId;
   const selectedChannel = selectedChannelId ? feeds.find(f => f.id === selectedChannelId) : null;
   const selectedChannelPublicSource = selectedChannel ? publicSources.find(p => p.url === selectedChannel.url) : null;
   const effectiveBannerUrl = selectedChannel?.bannerUrl || (selectedChannelPublicSource as any)?.bannerUrl;
@@ -4357,38 +7801,6 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
       textHex: '#dc2626',
       glowBg: 'bg-red-500/15',
       loaderGif: '/Loader_YouTube.gif'
-    },
-    webcams: {
-      gradient: 'from-emerald-500 to-green-400',
-      glowColor: 'rgba(16,185,129,0.5)',
-      textColorClass: 'text-emerald-500',
-      textHex: '#10b981',
-      glowBg: 'bg-emerald-500/15',
-      loaderGif: '/Loader_WebCam.gif'
-    },
-    webcam: {
-      gradient: 'from-emerald-500 to-green-400',
-      glowColor: 'rgba(16,185,129,0.5)',
-      textColorClass: 'text-emerald-500',
-      textHex: '#10b981',
-      glowBg: 'bg-emerald-500/15',
-      loaderGif: '/Loader_WebCam.gif'
-    },
-    blogs: {
-      gradient: 'from-amber-400 to-yellow-500',
-      glowColor: 'rgba(245,158,11,0.5)',
-      textColorClass: 'text-amber-500',
-      textHex: '#d97706',
-      glowBg: 'bg-amber-500/15',
-      loaderGif: '/Loader_Blog.gif'
-    },
-    blog: {
-      gradient: 'from-amber-400 to-yellow-500',
-      glowColor: 'rgba(245,158,11,0.5)',
-      textColorClass: 'text-amber-500',
-      textHex: '#d97706',
-      glowBg: 'bg-amber-500/15',
-      loaderGif: '/Loader_Blog.gif'
     }
   };
 
@@ -4531,7 +7943,7 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
              </div>
            </div>
         </div>
-      ) : (!selectedChannelId && type !== 'webcams') && (
+      ) : (!selectedChannelId) && (
         <>
           <div 
             style={{
@@ -4596,7 +8008,7 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
           let imageSizeClass = "w-64 h-48 sm:w-80 sm:h-56 md:w-[420px] md:h-[300px] rounded-3xl shrink-0 shadow-lg";
           if (type === 'podcasts') {
             imageSizeClass = "w-56 h-56 sm:w-72 sm:h-72 md:w-[380px] md:h-[380px] rounded-3xl shrink-0 shadow-lg";
-          } else if (type === 'youtube' || type === 'webcams' || type === 'blogs') {
+          } else if (type === 'youtube') {
             imageSizeClass = "w-72 aspect-video sm:w-96 md:w-[460px] lg:w-[500px] rounded-3xl shrink-0 shadow-lg";
           } else {
             imageSizeClass = "w-72 aspect-[3/2] sm:w-96 md:w-[440px] lg:w-[480px] rounded-3xl shrink-0 shadow-lg";
@@ -4688,7 +8100,7 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
                           e.preventDefault();
                           e.stopPropagation();
                           if (currentItem.authorId) {
-                            navigate(`/blogs/author/${currentItem.authorId}`, { state: { internal: true } });
+                            
                           } else if (currentItem.feedId) {
                             setSelectedChannelId(currentItem.feedId);
                           }
@@ -4705,7 +8117,7 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
                               exit={{ scale: 0.5, opacity: 0, transition: { duration: 0.2, ease: "easeIn" } }}
                               className="absolute inset-0 flex items-center justify-center p-1"
                             >
-                              {type === 'blogs' && currentItem.authorId ? (
+                              {false ? (
                                 <AuthorAvatar 
                                   userId={currentItem.authorId} 
                                   fallbackFavicon={currentItem.faviconUrl} 
@@ -4940,32 +8352,26 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
               );
             })}
           </div>
-        ) : (isYoutubeMain || isPodcastMain || isWebcamsMain) ? (
+        ) : (isYoutubeMain || isPodcastMain) ? (
           <div className="w-full mt-4 md:mt-8">
             {feeds.length === 0 ? (
               <div className={`flex flex-col items-center justify-center p-12 md:p-24 border border-dashed rounded-2xl ${isDark ? 'border-white/10' : 'border-gray-200'}`}>
                 {isPodcastMain ? (
                   <Headphones className={`w-16 h-16 opacity-20 mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`} />
-                ) : isYoutubeMain ? (
-                  <Youtube className={`w-16 h-16 opacity-20 mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`} />
                 ) : (
-                  <Camera className={`w-16 h-16 opacity-20 mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`} />
+                  <Youtube className={`w-16 h-16 opacity-20 mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`} />
                 )}
                 <h3 className="text-xl font-bold font-heading mb-2 opacity-80">
                   {isPodcastMain ? tr(settings.language, 'No podcasts', 'Keine Podcasts') :
-                   isYoutubeMain ? tr(settings.language, 'No YouTube channels', 'Keine YouTube Kanäle') :
-                   tr(settings.language, 'No webcams', 'Keine Webcams')}
+                   tr(settings.language, 'No YouTube channels', 'Keine YouTube Kanäle')}
                 </h3>
                 <p className={`text-center max-w-md ${isDark ? 'text-white/50' : 'text-gray-500'}`}>
                   {isPodcastMain ? (
                     settings.language === 'en' ? <>Add a podcast on the <Link to="/discover/podcasts" className="font-bold underline hover:opacity-85">Organize page</Link> to save it here.</> :
                     <>Füge in der <Link to="/discover/podcasts" className="font-bold underline hover:opacity-85">Organisieren-Seite</Link> einen Podcast hinzu, um ihn hier zu speichern.</>
-                  ) : isYoutubeMain ? (
+                  ) : (
                     settings.language === 'en' ? <>Add a YouTube channel on the <Link to="/discover/youtube" className="font-bold underline hover:opacity-85">Organize page</Link> to save it here.</> :
                     <>Füge in der <Link to="/discover/youtube" className="font-bold underline hover:opacity-85">Organisieren-Seite</Link> einen YouTube Kanal hinzu, um ihn hier zu speichern.</>
-                  ) : (
-                    settings.language === 'en' ? <>Add a webcam on the <Link to="/discover/webcams" className="font-bold underline hover:opacity-85">Organize page</Link> to save it here.</> :
-                    <>Füge in der <Link to="/discover/webcams" className="font-bold underline hover:opacity-85">Organisieren-Seite</Link> eine Webcam hinzu, um sie hier zu speichern.</>
                   )}
                 </p>
               </div>
@@ -4985,8 +8391,7 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
                       {selectedCategory !== "Alle" && (
                         <h3 className={`text-xl font-bold font-heading ${isDark ? 'text-white' : 'text-gray-900'}`}>
                           {type === 'podcasts' ? (isEn ? 'Podcast Channels' : 'Podcast-Kanäle') :
-                           type === 'youtube' ? (isEn ? 'YouTube Channels' : 'YouTube-Kanäle') :
-                           (isEn ? 'Webcam Channels' : 'Webcam-Kanäle')}
+                           (isEn ? 'YouTube Channels' : 'YouTube-Kanäle')}
                           {` (${filteredFeeds.length})`}
                         </h3>
                       )}
@@ -5006,7 +8411,7 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
                             if (match && match[1]) ytThumbnail = `https://i.ytimg.com/vi/${match[1]}/hqdefault.jpg`;
                           }
                           const finalImageUrl = getFeedImageUrl(feed, publicSource);
-                          const displayBanner = isWebcamsMain && ytThumbnail ? ytThumbnail : (publicSource?.bannerUrl || feed.bannerUrl);
+                          const displayBanner = publicSource?.bannerUrl || feed.bannerUrl;
 
                           if (type === 'podcasts') {
                             return (
@@ -5075,23 +8480,11 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
                             <div
                               key={`feed-channel-${feed.id || feed.url}-${index}`}
                               onClick={() => {
-                                  if (isWebcamsMain && feed.url) {
-                                    const videoId = getOutputVideoId(feed.url);
-                                    if (videoId) {
-                                      setPlayingVideo({ id: videoId, title: feed.title, url: feed.url, isWebcam: true, webcamId: feed.id });
-                                    }
-                                  } else {
-                                    setSelectedChannelId(feed.id);
-                                  }
+                                setSelectedChannelId(feed.id);
                               }}
                               className={`group flex flex-col rounded-3xl overflow-hidden transition-transform hover:-translate-y-1 ${isDark ? 'border-white/10 bg-neutral-900/55 hover:bg-neutral-800/85 hover:border-white/25 dark:backdrop-blur-sm' : 'border-gray-200 bg-white/70 hover:bg-white/85 shadow-sm backdrop-blur-sm'} cursor-pointer relative text-left w-full`}
                             >
-                              {isWebcamsMain ? (
-                                <div className="absolute top-3 right-3 bg-red-600 text-white text-[10px] font-bold px-2.5 py-1 rounded-full z-20 flex items-center gap-1 shadow-md animate-pulse">
-                                  <span className="w-1.5 h-1.5 rounded-full bg-white block animate-ping" />
-                                  <span>LIVE</span>
-                                </div>
-                              ) : hasNewVideos && (
+                              {hasNewVideos && (
                                 <div className="absolute top-3 right-3 bg-emerald-500 text-white text-[10px] font-bold px-2.5 py-1 rounded-full z-20">
                                   {isEn ? (type === 'youtube' ? 'UNWATCHED' : 'NEW') : (type === 'youtube' ? 'UNGESEHEN' : 'NEU')}
                                 </div>
@@ -5140,11 +8533,9 @@ export function RssPage({ type = 'rss' }: { type?: 'rss' | 'feeds' | 'youtube' |
                       <h3 className={`text-xl font-bold font-heading ${isDark ? 'text-white' : 'text-gray-900'}`}>
                         {selectedCategory === "Favoriten" || selectedCategory === "Später hören" || selectedCategory === "Später sehen"
                           ? (type === 'podcasts' ? (isEn ? 'Saved Podcast Episodes' : 'Gespeicherte Podcast-Folgen') :
-                             type === 'youtube' ? (isEn ? 'Saved Videos' : 'Gespeicherte Videos') :
-                             (isEn ? 'Saved Webcams' : 'Gespeicherte Webcams'))
+                             (isEn ? 'Saved Videos' : 'Gespeicherte Videos'))
                           : (type === 'podcasts' ? (isEn ? 'Latest Podcast Episodes' : 'Neueste Podcast-Folgen') :
-                             type === 'youtube' ? (isEn ? 'Latest Videos' : 'Neueste Videos') :
-                             (isEn ? 'Webcams' : 'Webcams'))}
+                             (isEn ? 'Latest Videos' : 'Neueste Videos'))}
                         {` (${recentItems.length + midItems.length + olderItems.length})`}
                       </h3>
 

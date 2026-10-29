@@ -13,8 +13,6 @@ const COLOR_MAP: Record<string, ColorRGB> = {
   podcast: { r: 168, g: 85, b: 247 },  // Purple (#a855f7)
   radio: { r: 59, g: 130, b: 246 },    // Blue (#3b82f6)
   youtube: { r: 239, g: 68, b: 68 },    // Red (#ef4444)
-  webcam: { r: 16, g: 185, b: 129 },   // Green (#10b981)
-  blog: { r: 234, g: 179, b: 8 },      // Yellow (#eab308)
   default: { r: 99, g: 102, b: 241 }   // Indigo (#6366f1)
 };
 

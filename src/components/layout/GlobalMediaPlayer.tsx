@@ -9,7 +9,6 @@ import { useCustomModal } from '../../context/ModalContext';
 import { db, auth } from '../../lib/firebase';
 import { collection, addDoc, query, where, getDocs, updateDoc, doc, onSnapshot, setDoc } from 'firebase/firestore';
 
-const reportedWebcamsMemory = new Set<string>();
 
 function formatTime(seconds: number): string {
   if (isNaN(seconds) || !isFinite(seconds) || seconds < 0) return '00:00';
@@ -144,103 +143,6 @@ function MediaPlayerVoting({ targetUrl, targetTitle, type, settings, isDark }: {
   );
 }
 
-function WebcamReportInline({ playingVideo, settings, isDark }: { playingVideo: any; settings: any; isDark: boolean }) {
-  const { showAlert, showConfirm } = useCustomModal();
-  const [reported, setReported] = useState(false);
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    try {
-      const isRep = reportedWebcamsMemory.has(playingVideo.webcamId) || localStorage.getItem(`webcam_reported_${playingVideo.webcamId}`) === 'true';
-      setReported(isRep);
-    } catch (_) {
-      setReported(reportedWebcamsMemory.has(playingVideo.webcamId));
-    }
-  }, [playingVideo.webcamId]);
-
-  const handleReport = async () => {
-    if (reported || loading) return;
-
-    const titleMsg = settings.language === 'en' ? 'Report webcam' : 'Webcam melden';
-    const confirmMsg = settings.language === 'en' 
-      ? 'Are you sure this webcam stream is NOT live / offline?' 
-      : 'Bist du sicher, dass dieser Webcam-Stream NICHT live / offline ist?';
-
-    const confirmed = await showConfirm(confirmMsg, titleMsg, settings.language === 'en' ? 'Yes, report' : 'Ja, melden', settings.language === 'en' ? 'Cancel' : 'Abbrechen');
-    if (!confirmed) return;
-
-    setLoading(true);
-    try {
-      // Save report in Firestore under webcamReports
-      await addDoc(collection(db, 'webcamReports'), {
-        webcamId: playingVideo.webcamId || '',
-        webcamTitle: playingVideo.title,
-        webcamUrl: playingVideo.url || '',
-        reportedAt: Date.now(),
-        reportedBy: auth.currentUser?.email || 'Anonymous',
-        reportedByUserId: auth.currentUser?.uid || '',
-        status: 'pending'
-      });
-
-      // Update in publicSources to increase reportsCount
-      try {
-        const q = query(collection(db, 'publicSources'), where('url', '==', playingVideo.url));
-        const snaps = await getDocs(q);
-        if (!snaps.empty) {
-          const docSnap = snaps.docs[0];
-          const currCount = docSnap.data().reportsCount || 0;
-          await updateDoc(doc(db, 'publicSources', docSnap.id), {
-            reportsCount: currCount + 1
-          });
-        }
-      } catch (fErr) {
-        console.log("Silent error updating public sources reportsCount:", fErr);
-      }
-
-      reportedWebcamsMemory.add(playingVideo.webcamId);
-      try {
-        localStorage.setItem(`webcam_reported_${playingVideo.webcamId}`, 'true');
-      } catch (_) {}
-      setReported(true);
-
-      const successMsg = settings.language === 'en'
-        ? 'Thank you! The report has been sent. An administrator will review it.'
-        : 'Vielen Dank! Die Meldung wurde gesendet. Ein Administrator wird die Webcam überprüfen.';
-      
-      await showAlert(successMsg, settings.language === 'en' ? 'Success' : 'Erfolgreich');
-    } catch (err: any) {
-      console.error(err);
-      await showAlert('Error submitting report: ' + err.message, 'Error');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <button
-      onClick={handleReport}
-      disabled={reported || loading}
-      className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border text-xs font-semibold transition-all cursor-pointer ${
-        reported
-          ? 'bg-neutral-800 text-neutral-400 border-neutral-700/50 cursor-default'
-          : 'bg-red-500/10 text-red-400 border-red-500/20 hover:bg-red-500/25 active:scale-95'
-      }`}
-    >
-      {loading ? (
-        <Loader2 className="w-3.5 h-3.5 animate-spin" />
-      ) : reported ? (
-        <Check className="w-3.5 h-3.5 text-green-400" />
-      ) : (
-        <AlertTriangle className="w-3.5 h-3.5 text-red-400" />
-      )}
-      <span>
-        {reported 
-          ? (settings.language === 'en' ? 'Webcam reported' : 'Webcam gemeldet') 
-          : (settings.language === 'en' ? 'Webcam offline melden' : 'Webcam offline melden')}
-      </span>
-    </button>
-  );
-}
 
 export function GlobalMediaPlayer() {
   const { playingAudio, setPlayingAudio, playingVideo, setPlayingVideo, isAudioMinimized, setIsAudioMinimized } = useMedia();
@@ -600,19 +502,11 @@ export function GlobalMediaPlayer() {
                 <MediaPlayerVoting 
                   targetUrl={playingVideo.url}
                   targetTitle={playingVideo.title}
-                  type={playingVideo.isWebcam ? 'webcam' : 'youtube'}
+                  type="youtube"
                   settings={settings}
                   isDark={isDark}
                 />
               </div>
-
-              {playingVideo.isWebcam && (
-                <WebcamReportInline 
-                  playingVideo={playingVideo} 
-                  settings={settings} 
-                  isDark={isDark} 
-                />
-              )}
             </div>
           </div>
         </div>

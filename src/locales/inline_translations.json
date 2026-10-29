@@ -39,16 +39,6 @@
     "fr": "Règles.",
     "es": "Normas."
   },
-  "The ultimate home for RSS, Blogs, Podcasts, YouTube, Radio and Live Webcams. (Without the noise of the World Wide Web)": {
-    "de": "Das ultimative Zuhause für RSS, Blogs, Podcasts, YouTube, Radio und Live-Webcams. (Ohne den Lärm des World wide Webs)",
-    "fr": "Le foyer ultime pour les flux RSS, blogs, podcasts, YouTube, radios et webcams en direct. (Sans le bruit du World Wide Web)",
-    "es": "El hogar definitivo para RSS, blogs, podcasts, YouTube, radio y cámaras web en vivo. (Sin el ruido de la World Wide Web)"
-  },
-  "Never miss an article from your favorite blogs.": {
-    "de": "Verpasse nie wieder einen Artikel deiner Lieblingsblogs.",
-    "fr": "Ne manquez jamais un article de vos blogs préférés.",
-    "es": "No te pierdas ni un artículo de tus blogs favoritos."
-  },
   "Your favorite shows in one place.": {
     "de": "Deine Lieblingsshows an einem Ort.",
     "fr": "Vos émissions préférées en un seul endroit.",
@@ -64,20 +54,10 @@
     "fr": "Profitez de vidéos sans le bruit.",
     "es": "Disfruta de vídeos sin ruido."
   },
-  "Live Webcams": {
-    "de": "Live Webcams",
-    "fr": "Webcams en direct",
-    "es": "Cámaras web en vivo"
-  },
   "Watch the world in real time.": {
     "de": "Die Welt in Echtzeit beobachten.",
     "fr": "Regardez le monde en temps réel.",
     "es": "Mira el mundo en tiempo real."
-  },
-  "Your Blog": {
-    "de": "Dein Blog",
-    "fr": "Votre blog",
-    "es": "tu blog"
   },
   "Create & share your own content.": {
     "de": "Erstelle & teile deine eigenen Inhalte.",
@@ -123,11 +103,6 @@
     "de": "Im Moment wird gerade an folgenden Implementierungen gearbeitet:",
     "fr": "Je travaille actuellement sur les implémentations suivantes :",
     "es": "Actualmente trabajando en las siguientes implementaciones:"
-  },
-  "Blogging Platform": {
-    "de": "Bloging Platform",
-    "fr": "Plateforme de blogs",
-    "es": "Plataforma de blogs"
   },
   "Feed Database": {
     "de": "Feed Datenbank",
@@ -264,15 +239,10 @@
     "fr": "Flux RSS intelligents",
     "es": "Fuentes RSS inteligentes"
   },
-  "Never miss an article from your favorite blogs again. Our reader sorts and prioritizes according to your preferences.": {
-    "de": "Verpasse nie wieder einen Artikel deiner Lieblingsblogs. Unser Reader sortiert und priorisiert nach deinen Vorlieben.",
-    "fr": "Ne manquez plus jamais un article de vos blogs préférés. Notre lecteur trie et priorise selon vos préférences.",
-    "es": "No vuelvas a perderte un artículo de tus blogs favoritos. Nuestro lector ordena y prioriza según sus preferencias."
-  },
   "Podcasts": {
     "de": "Podcasts",
-    "fr": "Baladodiffusions",
-    "es": "Pódcasts"
+    "fr": "Podcasts",
+    "es": "Podcasts"
   },
   "Seamless player integration for podcasts straight to your browser or app.": {
     "de": "Nahtlose Player-Integration für Podcasts direkt in deinem Browser oder App.",
@@ -299,11 +269,6 @@
     "fr": "Profitez de vos vidéos préférées sans le bruit des algorithmes de recommandation.",
     "es": "Disfruta de tus vídeos favoritos sin el ruido de los algoritmos de recomendación."
   },
-  "WebCams": {
-    "de": "WebCams",
-    "fr": "WebCams",
-    "es": "Cámaras web"
-  },
   "Keep an eye on places worldwide via live cams right in your feed.": {
     "de": "Behalte Orte weltweit über Live-Cams direkt in deinem Feed im Blick.",
     "fr": "Gardez un œil sur des lieux dans le monde entier via des caméras en direct directement dans votre flux.",
@@ -320,9 +285,8 @@
     "es": "Descubra nuevas e interesantes fuentes en nuestra colección estructurada."
   },
   "Multilingual": {
-    "de": "Multilingual",
     "fr": "Multilingue",
-    "es": "Plurilingüe"
+    "es": "Multilingüe"
   },
   "Read and use the app in multiple languages - the platform adapts to you.": {
     "de": "Lies und nutze die App in verschiedene Sprachen – die Plattform passt sich dir an.",
@@ -330,9 +294,8 @@
     "es": "Lea y utilice la aplicación en varios idiomas: la plataforma se adapta a usted."
   },
   "Filter": {
-    "de": "Filter",
     "fr": "Filtre",
-    "es": "Filtrar"
+    "es": "Filtro"
   },
   "Stay in control of your content with precise filter and search features.": {
     "de": "Behalte die Kontrolle über deine Inhalte mit präzisen Filter- und Suchfunktionen.",
@@ -345,9 +308,8 @@
     "es": "Cuadrícula, Revista, Lista"
   },
   "Slideshow": {
-    "de": "Slideshow",
     "fr": "Diaporama",
-    "es": "Presentación de diapositivas"
+    "es": "Presentación"
   },
   "Lean back and enjoy your content in the convenient auto slideshow mode.": {
     "de": "Lehn dich zurück und geniesse deine Inhalte im praktischen automatischen Slideshow-Modus.",
@@ -355,7 +317,6 @@
     "es": "Recuéstese y disfrute de su contenido en el práctico modo de presentación de diapositivas automática."
   },
   "News Hub": {
-    "de": "Newszentrale",
     "fr": "Centre d'actualités",
     "es": "Centro de noticias"
   },
@@ -365,19 +326,13 @@
     "es": "Reúna todas las transmisiones y noticias importantes sin problemas en un lugar central."
   },
   "Top Lists": {
-    "de": "Top Listen",
-    "fr": "Meilleures listes",
-    "es": "Listas principales"
+    "fr": "Meilleurs listes",
+    "es": "Mejores listas"
   },
   "Discover recommendations and the most popular channels from the community.": {
     "de": "Entdecke Empfehlungen und die beliebtesten Kanäle aus der Community.",
     "fr": "Découvrez les recommandations et les chaînes les plus populaires de la communauté.",
     "es": "Descubre recomendaciones y los canales más populares de la comunidad."
-  },
-  "Integrated Blog Platform": {
-    "de": "Integrierte Blog-Plattform",
-    "fr": "Plateforme de blog intégrée",
-    "es": "Plataforma de blogs integrada"
   },
   "Create your own content and share it within the RSSer-Next community or via RSS.": {
     "de": "Erstelle eigene Inhalte und teile sie innerhalb der RSSer-Next-Community oder via RSS.",
@@ -455,7 +410,6 @@
     "es": "Control."
   },
   "Focus": {
-    "de": "Fokus",
     "fr": "Se concentrer",
     "es": "Enfocar"
   },
@@ -499,11 +453,6 @@
     "fr": "Communauté et Cloud",
     "es": "Comunidad y nube"
   },
-  "User accounts, synchronization & blog platform.": {
-    "de": "User-Accounts, Synchronisation & Blog-Plattform.",
-    "fr": "Comptes utilisateurs, synchronisation et plateforme de blog.",
-    "es": "Cuentas de usuario, sincronización y plataforma de blogs."
-  },
   "API & Ecosystem": {
     "de": "API & Ecosystem",
     "fr": "API et écosystème",
@@ -524,34 +473,10 @@
     "fr": "Base de contenus",
     "es": "Base de datos"
   },
-  "Multilingual": {
-    "fr": "Multilingue",
-    "es": "Multilingüe"
-  },
-  "Filter": {
-    "fr": "Filtre",
-    "es": "Filtro"
-  },
   "Magazine Grid": {
     "de": "Magazin-Ansicht",
     "fr": "Vue magazine",
     "es": "Vista revista"
-  },
-  "Slideshow": {
-    "fr": "Diaporama",
-    "es": "Presentación"
-  },
-  "News Hub": {
-    "fr": "Centre d'actualités",
-    "es": "Centro de noticias"
-  },
-  "Top Lists": {
-    "fr": "Meilleurs listes",
-    "es": "Mejores listas"
-  },
-  "Blogging Platform": {
-    "fr": "Plateforme de blog",
-    "es": "Plataforma de blogs"
   },
   "Everywhere": {
     "fr": "Partout",
@@ -585,29 +510,14 @@
     "fr": "Contrôle, ",
     "es": "Control, "
   },
-  "Focus": {
-    "fr": "Se concentrer",
-    "es": "Enfocar"
-  },
   ", Freedom": {
     "fr": ", Liberté",
     "es": ", Libertad"
   },
-
   "Your YouTube Channels": {
     "de": "Deine YouTube Kanäle",
     "fr": "Vos chaînes YouTube",
     "es": "Tus canales de YouTube"
-  },
-  "Your WebCams": {
-    "de": "Deine WebCams",
-    "fr": "Vos WebCams",
-    "es": "Tus cámaras web"
-  },
-  "Subscribed Blogs": {
-    "de": "Abonnierte Blogs",
-    "fr": "Blogs abonnés",
-    "es": "Blogs suscritos"
   },
   "Your Podcasts": {
     "de": "Deine Podcasts",
@@ -654,16 +564,6 @@
     "fr": "Ajouter un flux RSS",
     "es": "Agregar fuente RSS"
   },
-  "Add WebCam": {
-    "de": "WebCam hinzufügen",
-    "fr": "Ajouter une webcam",
-    "es": "Agregar cámara web"
-  },
-  "Add Blog": {
-    "de": "Blog hinzufügen",
-    "fr": "Ajouter un blog",
-    "es": "Agregar blog"
-  },
   "Add your favorite YouTube channels": {
     "de": "Füge deine Lieblings-YouTube-Kanäle hinzu",
     "fr": "Ajoutez vos chaînes YouTube préférées",
@@ -683,16 +583,6 @@
     "de": "Füge deine Lieblings-RSS-Feeds hinzu",
     "fr": "Ajoutez vos flux RSS préférés",
     "es": "Añade tus canales RSS favoritos"
-  },
-  "Add own WebCams": {
-    "de": "Füge eigene WebCams hinzu",
-    "fr": "Ajouter vos propres WebCams",
-    "es": "Agregar cámaras web propias"
-  },
-  "Add your favorite blogs": {
-    "de": "Füge deine Lieblings-Blogs hinzu",
-    "fr": "Ajoutez vos blogs préférés",
-    "es": "Añade tus blogs favoritos"
   },
   "banner-title": {
     "de": "Profil-Banner",
@@ -789,16 +679,6 @@
     "fr": "Enregistrer le flux RSS",
     "es": "Guardar fuente RSS"
   },
-  "Save WebCam": {
-    "de": "WebCam speichern",
-    "fr": "Enregistrer la webcam",
-    "es": "Guardar cámara web"
-  },
-  "Save Blog": {
-    "de": "Blog speichern",
-    "fr": "Enregistrer le blog",
-    "es": "Guardar blog"
-  },
   "Popular RSS Feeds": {
     "de": "Beliebte RSS Feeds",
     "fr": "Flux RSS populaires",
@@ -849,16 +729,6 @@
     "fr": "Gérer mes flux RSS",
     "es": "Administrar mis fuentes RSS"
   },
-  "Manage My WebCams": {
-    "de": "Meine WebCams verwalten",
-    "fr": "Gérer mes WebCams",
-    "es": "Administrar mis cámaras web"
-  },
-  "Manage My Blogs": {
-    "de": "Meine Blogs verwalten",
-    "fr": "Gérer mes blogs",
-    "es": "Administrar mis blogs"
-  },
   "Edit Radio Station": {
     "de": "Radiosender bearbeiten",
     "fr": "Modifier la station de radio",
@@ -898,16 +768,6 @@
     "de": "Um zu veröffentlichen, musst du ein Artikelbild angeben.",
     "fr": "Pour publier, vous devez fournir une image de couverture.",
     "es": "Para publicar, debes proporcionar una imagen de portada."
-  },
-  "Blog post saved successfully!": {
-    "de": "Blog Beitrag erfolgreich gespeichert!",
-    "fr": "Article de blog enregistré avec succès !",
-    "es": "¡La publicación del blog se guardó correctamente!"
-  },
-  "There was an error saving the blog.": {
-    "de": "Es gab einen Fehler beim Speichern des Blogs.",
-    "fr": "Une erreur s'est produite lors de l'enregistrement du blog.",
-    "es": "Hubo un error al guardar el blog."
   },
   "Remove cover image": {
     "de": "Artikelbild entfernen",
@@ -1039,25 +899,10 @@
     "fr": "Stations de radio",
     "es": "Estaciones de radio"
   },
-  "Podcasts": {
-    "de": "Podcasts",
-    "fr": "Podcasts",
-    "es": "Podcasts"
-  },
   "YouTube Channels": {
     "de": "YouTube Kanäle",
     "fr": "Chaînes YouTube",
     "es": "Canales de YouTube"
-  },
-  "Webcams": {
-    "de": "Webcams",
-    "fr": "Webcams",
-    "es": "Cámaras web"
-  },
-  "Blog Subscriptions": {
-    "de": "Blog-Abos",
-    "fr": "Abonnements de blog",
-    "es": "Suscripciones de blog"
   },
   "Reactivate Subscription": {
     "de": "Abonnement reaktivieren",
@@ -1104,11 +949,6 @@
     "fr": "Chaîne YouTube",
     "es": "Canal de YouTube"
   },
-  "Webcam": {
-    "de": "Webcam",
-    "fr": "Webcam",
-    "es": "Cámara web"
-  },
   "Already seen": {
     "de": "Bereits gesehen",
     "fr": "Déjà vu",
@@ -1123,11 +963,6 @@
     "de": "Video abspielen",
     "fr": "Lire la vidéo",
     "es": "Reproducir video"
-  },
-  "Blog": {
-    "de": "Blog",
-    "fr": "Blog",
-    "es": "Blog"
   },
   "Available Languages:": {
     "de": "Verfügbare Sprachen:",
@@ -1224,11 +1059,6 @@
     "fr": "Diversité des médias (Tout-en-un)",
     "es": "Diversidad de medios (Todo en uno)"
   },
-  "Integrate RSS, Podcasts, Live-Radio, YouTube, Webcams and blogs in a single, beautiful dashboard.": {
-    "de": "Integriere RSS, Podcasts, Live-Radio, YouTube, Webcams und Blogs in einem einzigen, schönen Dashboard.",
-    "fr": "Intégrez les flux RSS, les podcasts, la radio en direct, YouTube, les webcams et les blogs dans un seul et superbe tableau de bord.",
-    "es": "Integre RSS, podcasts, radio en vivo, YouTube, cámaras web y blogs en un único y hermoso panel."
-  },
   "All integrated seamlessly": {
     "de": "Alles nahtlos integriert",
     "fr": "Tout intégré de manière transparente",
@@ -1294,11 +1124,6 @@
     "fr": "Lecteur rudimentaire uniquement",
     "es": "Solo reproductor rudimentario"
   },
-  "Blogging & Writing Platform": {
-    "de": "Eigene Blog-Erstellung",
-    "fr": "Plateforme d'écriture et de blog",
-    "es": "Plataforma de creación de blogs"
-  },
   "Write and publish your own articles, build your brand, and view visitor statistics.": {
     "de": "Eigene Artikel schreiben, veröffentlichen, deine Marke aufbauen und Besucherstatistiken einsehen.",
     "fr": "Écrivez et publiez vos propres articles, construisez votre marque et consultez les statistiques des visiteurs.",
@@ -1358,5 +1183,23 @@
     "de": "Sehr teuer und komplexe Abostufen",
     "fr": "Niveaux de prix très complexes et élevés",
     "es": "Planes de precios muy complejos y elevados"
+  },
+  "User accounts and synchronization.": {
+    "en": "User accounts and synchronization.",
+    "de": "User-Accounts und Synchronisation.",
+    "fr": "Comptes utilisateurs et synchronisation.",
+    "es": "Cuentas de usuario y sincronización."
+  },
+  "Integrate RSS, Podcasts, Live-Radio and YouTube in a single, fluid experience.": {
+    "en": "Integrate RSS, Podcasts, Live-Radio and YouTube in a single, fluid experience.",
+    "de": "Integriere RSS, Podcasts, Live-Radio und YouTube in einem einzigen, flüssigen Erlebnis.",
+    "fr": "Intégrez les flux RSS, les podcasts, la radio en direct et YouTube en une expérience fluide unique.",
+    "es": "Integre RSS, podcasts, radio en vivo y YouTube en una experiencia fluida única."
+  },
+  "The ultimate home for RSS, Podcasts, YouTube and Radio. (Without the noise of the World Wide Web)": {
+    "en": "The ultimate home for RSS, Podcasts, YouTube and Radio. (Without the noise of the World Wide Web)",
+    "de": "Das ultimative Zuhause für RSS, Podcasts, YouTube und Radio. (Ohne den Lärm des World wide Webs)",
+    "fr": "Le foyer ultime pour les flux RSS, podcasts, YouTube et radios. (Sans le bruit du World Wide Web)",
+    "es": "El hogar definitivo para RSS, podcasts, YouTube y radio. (Sin el ruido de la World Wide Web)"
   }
 }
